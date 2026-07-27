@@ -1,0 +1,81 @@
+/* Una entrada orquestada en el primer viewport; el resto son estados de control. */
+.has-reveal .monthly-hero__content > * {
+  animation: hero-copy-in .72s var(--ease-out) both;
+}
+
+.has-reveal .monthly-hero__content > *:nth-child(1) { animation-delay: .04s; }
+.has-reveal .monthly-hero__content > *:nth-child(2) { animation-delay: .1s; }
+.has-reveal .monthly-hero__content > *:nth-child(3) { animation-delay: .16s; }
+.has-reveal .monthly-hero__content > *:nth-child(4) { animation-delay: .22s; }
+
+.has-reveal .monthly-hero__visual {
+  animation: hero-poster-in .8s .1s var(--ease-out) both;
+}
+
+@keyframes hero-copy-in {
+  from { opacity: .15; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes hero-poster-in {
+  from { opacity: .2; clip-path: inset(0 0 100% 0 round var(--radius-large)); }
+  to { opacity: 1; clip-path: inset(0 0 0 0 round var(--radius-large)); }
+}
+
+.promotion-participation__hero {
+  animation: promotion-template-in .7s var(--ease-out) both;
+}
+
+@keyframes promotion-template-in {
+  from { clip-path: inset(0 0 18% 0 round var(--radius-large)); }
+  to { clip-path: inset(0 0 0 0 round var(--radius-large)); }
+}
+
+.mobile-navigation { animation: drawer-in .28s var(--ease-drawer) both; }
+.nav-backdrop { animation: backdrop-in .2s ease-out both; }
+
+@keyframes drawer-in {
+  from { transform: translateX(100%); }
+  to { transform: none; }
+}
+
+@keyframes backdrop-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.button,
+.content-card,
+.content-card__image,
+.bus-route-card,
+.visit-route__step,
+.quick-links a,
+.quick-links__arrow,
+.visit-route__arrow,
+.desktop-navigation a::after {
+  transition:
+    color var(--transition),
+    background-color var(--transition),
+    border-color var(--transition),
+    box-shadow .24s var(--ease-out),
+    transform .24s var(--ease-out);
+}
+
+.button:active { transform: translateY(1px) scale(.985); }
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover { transform: translateY(-2px); filter: brightness(.96); }
+
+  .content-card:hover,
+  .bus-route-card:hover {
+    border-color: transparent;
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-4px);
+  }
+
+  .content-card:hover .content-card__image { transform: scale(1.025); }
+  .visit-route__step:hover { background: #f8f6f0; }
+  .visit-route__step:hover .visit-route__arrow,
+  .quick-links a:hover .quick-links__arrow { transform: translateX(4px); }
+  .quick-links a:hover { color: var(--fair-yellow); }
+}
