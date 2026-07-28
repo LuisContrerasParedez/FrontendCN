@@ -9,8 +9,8 @@ import { safeUrl } from '../../utils/safeUrl';
 const FALLBACK = {
   TituloHero: 'Todo lo que buscas. Todo lo que te mueve.',
   DescripcionHero: 'Ven a comprar, comer, compartir y conectar con tu próximo destino en un solo lugar.',
-  TextoBotonPrimario: 'Explorar locales',
-  UrlBotonPrimario: '/locales',
+  TextoBotonPrimario: 'Explorar Eventos',
+  UrlBotonPrimario: '/eventos',
   TextoBotonSecundario: 'Consultar buses',
   UrlBotonSecundario: '/buses'
 };

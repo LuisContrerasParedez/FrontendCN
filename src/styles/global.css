@@ -168,7 +168,7 @@ textarea:focus-visible {
 h1, h2, h3, p { margin-top: 0; }
 h1, h2, h3 { color: inherit; font-family: var(--font-display); text-wrap: balance; }
 h1 { font-size: clamp(2.8rem, 4.6vw, 4.5rem); line-height: .98; letter-spacing: -.035em; }
-h2 { font-size: clamp(2rem, 3.7vw, 3.6rem); line-height: 1.02; letter-spacing: -.03em; }
+h2 { font-size: clamp(2rem, 3.7vw, 3.0rem); line-height: 1.02; letter-spacing: -.03em; }
 h3 { font-size: 1.25rem; line-height: 1.2; letter-spacing: -.015em; }
 p { margin-bottom: 1rem; }
 
