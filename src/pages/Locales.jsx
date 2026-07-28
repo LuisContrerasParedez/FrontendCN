@@ -10,6 +10,7 @@ import Pagination from '../components/ui/Pagination';
 import Icon from '../components/ui/Icon';
 import { EmptyState, ErrorState, LoadingState } from '../components/ui/ContentStates';
 import Seo from '../components/ui/Seo';
+import useReveal from '../hooks/useReveal';
 
 const PAGE_SIZE = 12;
 
@@ -40,6 +41,8 @@ export default function Locales() {
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const visible = filtered.slice((Math.min(page, pageCount) - 1) * PAGE_SIZE, Math.min(page, pageCount) * PAGE_SIZE);
 
+  useReveal([state.data, query, category, page]);
+
   useEffect(() => {
     if (page > pageCount) {
       const next = new URLSearchParams(params);
@@ -57,7 +60,7 @@ export default function Locales() {
   };
 
   return (
-    <div className="page">
+    <div className="page locales-page">
       <Seo title={pageContent?.MetaTitulo || 'Locales'} description={pageContent?.MetaDescripcion || pageContent?.Resumen} config={config} />
       <PageHero eyebrow="Directorio comercial" title={pageContent?.Titulo || 'Locales'} description={pageContent?.Resumen || 'Encuentra restaurantes, tiendas y servicios.'}>
         <div className="directory-hero-overview" aria-live="polite" aria-atomic="true">
@@ -72,9 +75,9 @@ export default function Locales() {
         </div>
       </PageHero>
       <section className="section container directory-section">
-        <div className="directory-toolbar">
+        <div className="directory-toolbar reveal">
           <div className="directory-tools">
-            <SearchField value={query} onChange={(value) => update('buscar', value)} label="Buscar local" placeholder="Buscar por nombre o categoría" />
+            <SearchField value={query} onChange={(value) => update('buscar', value)} label="Buscar local" placeholder="Buscar local o categoría" />
             {!state.loading ? <p className="result-count" role="status" aria-live="polite" aria-atomic="true">{filtered.length} {filtered.length === 1 ? 'resultado' : 'resultados'}</p> : null}
           </div>
           <CategoryFilter categories={categories} value={category} onChange={(value) => update('categoria', value)} />
@@ -82,7 +85,7 @@ export default function Locales() {
         {state.loading ? <LoadingState label="Cargando directorio" /> : null}
         {state.error ? <ErrorState message="No pudimos cargar el directorio en este momento." onRetry={state.refetch} /> : null}
         {!state.loading && !state.error && !filtered.length ? <EmptyState title="No encontramos locales con esos filtros." message="Prueba con otro nombre o selecciona una categoría distinta." /> : null}
-        {!state.loading && !state.error && visible.length ? <LocalGrid locales={visible} /> : null}
+        {!state.loading && !state.error && visible.length ? <LocalGrid locales={visible} className="locals-grid-reveal reveal" /> : null}
         <Pagination page={Math.min(page, pageCount)} pageCount={pageCount} onChange={(value) => update('pagina', value)} />
       </section>
     </div>

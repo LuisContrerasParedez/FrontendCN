@@ -1,0 +1,326 @@
+/*
+ * HeroFeriaAgosto — estilos encapsulados.
+ * Todo va prefijado con `hfa` y no se declara nada a nivel global (:root, body,
+ * elementos sueltos), para que el componente no filtre estilos al resto del sitio.
+ */
+
+/* Se declara dentro del propio bloque para no depender del reset global. */
+.hfa,
+.hfa *,
+.hfa *::before,
+.hfa *::after {
+  box-sizing: border-box;
+}
+
+.hfa {
+  --hfa-noche: #0b1147;
+  --hfa-noche-baja: #1a1358;
+  --hfa-texto: #ffffff;
+  --hfa-texto-suave: #c3cdf2;
+  --hfa-naranja: #c44f0c;
+  /* El hover aclaraba el naranja y bajaba el texto blanco a 3.73:1. Se oscurece
+     en vez de aclararse: el cambio se sigue notando y sube a 5.74:1. */
+  --hfa-naranja-alto: #ad460a;
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  min-height: clamp(430px, 46vw, 770px);
+  background: linear-gradient(180deg, #050b33, #1a1358);
+  color: var(--hfa-texto);
+  font-family: var(--font-body, system-ui, sans-serif);
+}
+
+/* ---------------- Lienzo ---------------- */
+
+.hfa__escena {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hfa__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------------- Texto ---------------- */
+
+.hfa__inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1360px;
+  margin-inline: auto;
+  /* El bloque se ancla arriba: en la referencia el texto ocupa el tercio
+     superior derecho y deja libre la línea de carpas. */
+  padding: clamp(1.75rem, 5.5vw, 5rem) clamp(1.25rem, 5vw, 4rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.02fr);
+  align-content: start;
+}
+
+.hfa__copy {
+  position: relative;
+  grid-column: 2;
+  max-width: 34rem;
+  justify-self: end;
+  text-align: left;
+}
+
+/* Velo que sigue al bloque de texto: con un titular corto casi no se nota sobre
+   el cielo, y cuando el CMS manda uno largo evita que caiga sobre las carpas. */
+.hfa__copy::before {
+  content: '';
+  position: absolute;
+  inset: -2.5rem -3.5rem -3rem -4.5rem;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(78% 68% at 58% 46%, rgba(5, 10, 45, .82), rgba(5, 10, 45, .5) 58%, rgba(5, 10, 45, 0) 80%);
+}
+
+.hfa__titulo {
+  margin: 0;
+  font-family: var(--font-display, var(--font-body, system-ui, sans-serif));
+  font-weight: 800;
+  font-size: clamp(1.9rem, 3.5vw, 3.35rem);
+  line-height: 1.07;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  text-shadow: 0 4px 26px rgba(4, 8, 40, .6);
+}
+
+.hfa__titulo:focus-visible {
+  outline: 3px solid #ffd76a;
+  outline-offset: 6px;
+  border-radius: 6px;
+}
+
+.hfa__titulo-acento {
+  color: #ff5f6d;
+  background: linear-gradient(96deg, #ff6a5a, #ff2e73 78%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+  .hfa__titulo-acento { color: transparent; }
+}
+
+.hfa__lead {
+  margin: clamp(0.9rem, 1.8vw, 1.35rem) 0 0;
+  max-width: 30rem;
+  color: var(--hfa-texto-suave);
+  font-size: clamp(0.98rem, 1.15vw, 1.14rem);
+  line-height: 1.62;
+  text-shadow: 0 2px 16px rgba(4, 8, 40, .55);
+}
+
+/* ---------------- Botones ---------------- */
+
+.hfa__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  margin-block-start: clamp(1.4rem, 2.6vw, 2.1rem);
+}
+
+.hfa__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.82rem 1.5rem;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform .22s cubic-bezier(.2, .7, .3, 1), box-shadow .22s ease, background-color .22s ease;
+}
+
+.hfa__btn--primario {
+  background: var(--hfa-naranja);
+  color: #ffffff;
+  box-shadow:
+    0 10px 26px rgba(196, 79, 12, .42),
+    inset 0 1px 0 rgba(255, 224, 180, .38);
+}
+
+.hfa__btn--claro {
+  background: #ffffff;
+  color: #12204a;
+  box-shadow: 0 10px 26px rgba(4, 10, 45, .38);
+}
+
+.hfa__btn:hover {
+  transform: translateY(-2px);
+}
+
+.hfa__btn--primario:hover { background: var(--hfa-naranja-alto); }
+.hfa__btn--claro:hover { background: #f2f5ff; }
+
+.hfa__btn:active { transform: translateY(0); }
+
+.hfa__btn:focus-visible {
+  outline: 3px solid #ffd76a;
+  outline-offset: 3px;
+}
+
+.hfa__icono { flex: none; }
+
+/* ================================================================ */
+/* Animaciones de la escena                                          */
+/* ================================================================ */
+
+/* La corona gira siempre; cada cabina gira al revés para quedar en pie. */
+.hfa-rueda__giro {
+  transform-box: view-box;
+  animation: hfa-girar 76s linear infinite;
+  will-change: transform;
+}
+
+/* `reverse` sobre los mismos keyframes cancela el giro con exactitud,
+   así la cabina nunca se inclina respecto al suelo. */
+.hfa-cabina__pivote {
+  transform-box: view-box;
+  animation: hfa-girar 76s linear infinite reverse;
+}
+
+@keyframes hfa-girar {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Bombillas: se animan en tres grupos, no una por una, para no cargar el hilo. */
+.hfa-bombilla { animation: hfa-parpadeo 2.6s ease-in-out infinite; }
+.hfa-bombilla--1 { animation-delay: -0.87s; }
+.hfa-bombilla--2 { animation-delay: -1.73s; }
+
+@keyframes hfa-parpadeo {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .32; }
+}
+
+/* La intensidad de cada estrella vive en `fill-opacity`; aquí solo se
+   multiplica el titileo, para no pisar esa variación. */
+.hfa-estrella { animation: hfa-titilar 4.4s ease-in-out infinite; }
+.hfa-estrella--1 { animation-delay: -1.5s; }
+.hfa-estrella--2 { animation-delay: -3s; }
+
+@keyframes hfa-titilar {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .22; }
+}
+
+.hfa-nube { animation: hfa-derivar 46s ease-in-out infinite alternate; }
+.hfa-nube--b { animation-duration: 62s; animation-delay: -12s; }
+.hfa-nube--c { animation-duration: 78s; animation-delay: -30s; }
+
+@keyframes hfa-derivar {
+  from { transform: translateX(-14px); }
+  to { transform: translateX(26px); }
+}
+
+.hfa-banderin {
+  animation: hfa-ondear 3.4s ease-in-out infinite;
+}
+
+@keyframes hfa-ondear {
+  0%, 100% { transform: skewY(0deg) scaleX(1); }
+  50% { transform: skewY(-5deg) scaleX(.9); }
+}
+
+.hfa-persona__sombra { fill: #050a24; opacity: .45; }
+.hfa-persona__luz { fill: none; stroke: #ffa14a; stroke-width: 2; opacity: .22; }
+
+/* El vagón recorre la vía con offset-path; si el navegador no lo soporta,
+   se oculta en vez de quedar anclado en el origen del SVG. */
+.hfa-rusa__vagon {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  offset-rotate: auto;
+  animation: hfa-recorrido 11s linear infinite;
+}
+
+@keyframes hfa-recorrido {
+  from { offset-distance: 0%; }
+  to { offset-distance: 100%; }
+}
+
+@supports not (offset-path: path("M0 0 L1 1")) {
+  .hfa-rusa__vagon { display: none; }
+}
+
+/* Tipografía dentro del SVG */
+.hfa-cabina__dia,
+.hfa-cabina__mes {
+  font-family: var(--font-display, var(--font-body, system-ui, sans-serif));
+  font-weight: 800;
+  paint-order: stroke;
+}
+
+.hfa-cabina__dia { font-size: 21px; letter-spacing: .5px; }
+.hfa-cabina__mes { font-size: 13px; letter-spacing: 1.4px; }
+
+/* ================================================================ */
+/* Responsive                                                        */
+/* ================================================================ */
+
+@media (max-width: 1180px) {
+  .hfa__inner { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); }
+  .hfa__copy { max-width: 30rem; }
+}
+
+@media (max-width: 900px) {
+  /* En móvil la escena deja de ser fondo recortado y pasa a ser una banda
+     bajo el texto: así no se pierde la rueda por el `slice`. */
+  .hfa {
+    display: block;
+    min-height: 0;
+  }
+
+  .hfa__escena {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+
+  .hfa__inner {
+    display: block;
+    padding: clamp(2rem, 8vw, 3rem) clamp(1.25rem, 6vw, 2.5rem) clamp(1.5rem, 5vw, 2rem);
+  }
+
+  .hfa__copy {
+    max-width: 38rem;
+    margin-inline: auto;
+    justify-self: auto;
+    text-align: center;
+  }
+
+  /* En móvil el texto ya va sobre fondo sólido: el velo sobra. */
+  .hfa__copy::before { display: none; }
+
+  .hfa__lead { margin-inline: auto; }
+  .hfa__acciones { justify-content: center; }
+}
+
+@media (max-width: 520px) {
+  .hfa__btn { flex: 1 1 100%; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hfa *,
+  .hfa *::before,
+  .hfa *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .hfa__btn:hover { transform: none; }
+}

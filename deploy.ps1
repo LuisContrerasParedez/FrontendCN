@@ -84,7 +84,7 @@ lock="$parent/.centranorte-deploy-lock"
 [ ! -e "$staging" ]
 
 mkdir -m 755 "$staging"
-tar -xzf "$package_path" -C "$staging"
+tar --warning=no-timestamp -xzf "$package_path" -C "$staging"
 
 for required in index.html .htaccess; do
     [ -f "$staging/$required" ] || { echo "Falta archivo obligatorio en staging: $required" >&2; exit 21; }
@@ -108,28 +108,29 @@ else
     echo "No existe una version activa que respaldar."
 fi
 
-# Las imagenes administradas en produccion no forman parte del paquete de Vite.
-# Se copian a la nueva version antes del intercambio atomico. Si un despliegue
-# anterior ya las omitio, se recuperan del respaldo mas reciente que las tenga.
-persistent_restored=0
-if [ -d "$public_root/imagenes" ]; then
-    mkdir -p "$staging/imagenes"
-    cp -a "$public_root/imagenes/." "$staging/imagenes/"
-    persistent_restored=1
-    echo "Contenido persistente conservado: imagenes"
-elif [ -d "$backups" ]; then
-    for backup in $(ls -1t "$backups"/*.tar.gz 2>/dev/null || true); do
-        if tar -tzf "$backup" | grep -qE '^\./imagenes(/|$)'; then
-            tar -xzf "$backup" -C "$staging" ./imagenes
-            persistent_restored=1
-            echo "Contenido persistente recuperado desde $(basename "$backup"): imagenes"
-            break
-        fi
-    done
-fi
-if [ "$persistent_restored" = "0" ]; then
-    echo "AVISO: no existe una carpeta imagenes activa ni recuperable en los respaldos." >&2
-fi
+# Las imagenes administradas no forman parte del paquete de Vite. La API PHP
+# pertenece a otro subdominio y nunca se conserva ni se copia en este destino.
+for persistent in imagenes; do
+    persistent_restored=0
+    if [ -d "$public_root/$persistent" ]; then
+        mkdir -p "$staging/$persistent"
+        cp -a "$public_root/$persistent/." "$staging/$persistent/"
+        persistent_restored=1
+        echo "Contenido persistente conservado: $persistent"
+    elif [ -d "$backups" ]; then
+        for backup in $(ls -1t "$backups"/*.tar.gz 2>/dev/null || true); do
+            if tar -tzf "$backup" | grep -qE "^\./${persistent}(/|$)"; then
+                tar --warning=no-timestamp -xzf "$backup" -C "$staging" "./$persistent"
+                persistent_restored=1
+                echo "Contenido persistente recuperado desde $(basename "$backup"): $persistent"
+                break
+            fi
+        done
+    fi
+    if [ "$persistent_restored" = "0" ]; then
+        echo "AVISO: no existe una carpeta $persistent activa ni recuperable en los respaldos." >&2
+    fi
+done
 
 forbidden="$(find "$staging" -type f \( -name 'db.local.php' -o -name 'db.production.php' -o -name '*.local.php' -o -name '.env' -o -name '.env.*' -o -name '*.pem' -o -name '*.ppk' -o -name '*.key' \) -print -quit)"
 [ -z "$forbidden" ] || { echo "Staging contiene un archivo prohibido." >&2; exit 22; }
@@ -349,6 +350,7 @@ try {
 
     Write-Host ("Version: {0}" -f $version)
     Write-Host ("URL: {0}" -f $config.PublicUrl)
+    Write-Host ("API independiente: {0}" -f $config.ApiPublicUrl)
     Write-Host ("Destino: {0}" -f $config.RemotePublicPath)
     Write-Host ("Respaldo: {0}" -f (-not $NoBackup))
 
@@ -397,7 +399,7 @@ try {
     $remoteActivated = $true
 
     try {
-        Test-PublicDeployment -PublicUrl ([string]$config.PublicUrl)
+        Test-PublicDeployment -PublicUrl ([string]$config.PublicUrl) -ApiPublicUrl ([string]$config.ApiPublicUrl)
     } catch {
         Write-Host 'Las pruebas HTTP fallaron. Iniciando restauracion automatica.' -ForegroundColor Red
         Invoke-SshScript -Config $config -Script $restoreRemoteScript -Arguments @(

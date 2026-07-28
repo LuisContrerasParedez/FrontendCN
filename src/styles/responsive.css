@@ -112,6 +112,12 @@
     gap: clamp(2rem, 4vw, 4rem);
   }
 
+  .locales-page .directory-hero-overview {
+    width: max-content;
+    max-width: 100%;
+    margin-left: auto;
+  }
+
   .bus-search {
     grid-template-columns: minmax(220px, .8fr) minmax(320px, 1.2fr);
     align-items: center;
@@ -447,6 +453,151 @@
   }
 }
 
+@media (max-width: 719px) {
+  /* Los directorios deben empezar en el primer viewport del teléfono. El
+     encabezado conserva el título de la ruta, pero deja la introducción larga
+     para pantallas donde no desplaza las tarjetas fuera de vista. */
+  .locales-page .page-hero__awning,
+  .events-page .page-hero__awning,
+  .promotions-page .page-hero__awning,
+  .buses-page .page-hero__awning { height: 4px; }
+
+  .locales-page .page-hero__inner,
+  .events-page .page-hero__inner,
+  .promotions-page .page-hero__inner,
+  .buses-page .page-hero__inner {
+    min-height: 58px;
+    align-items: center;
+    padding-block: .6rem;
+  }
+
+  .locales-page .page-hero .section-kicker,
+  .events-page .page-hero .section-kicker,
+  .promotions-page .page-hero .section-kicker,
+  .buses-page .page-hero .section-kicker,
+  .locales-page .page-hero__copy > p:last-child,
+  .events-page .page-hero__copy > p:last-child,
+  .promotions-page .page-hero__copy > p:last-child,
+  .buses-page .page-hero__copy > p:last-child { display: none; }
+
+  .locales-page .page-hero h1,
+  .events-page .page-hero h1,
+  .promotions-page .page-hero h1,
+  .buses-page .page-hero h1 {
+    margin: 0;
+    font-size: clamp(1.65rem, 8vw, 2rem);
+    line-height: 1;
+  }
+
+  .locales-page .page-hero__inner--with-utility {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: .75rem;
+  }
+
+  .locales-page .directory-hero-overview {
+    display: flex;
+    gap: .4rem;
+  }
+
+  .locales-page .directory-hero-overview__icon { display: none; }
+
+  .locales-page .page-hero--compact .directory-hero-overview strong {
+    font-family: var(--font-body);
+    font-size: .78rem;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .directory-section,
+  .events-section,
+  .promotions-section,
+  .bus-directory { padding-top: .85rem; }
+
+  .directory-toolbar {
+    gap: .8rem;
+    margin-bottom: 1.35rem;
+    padding: 1rem;
+    border-radius: 18px;
+  }
+
+  .directory-tools { gap: .65rem; }
+
+  .directory-tools .search-field {
+    min-height: 48px;
+    max-width: none;
+    padding-inline: .9rem;
+  }
+
+  .directory-tools .search-field input {
+    height: 44px;
+    font-size: 16px;
+  }
+
+  .directory-tools .result-count {
+    align-self: flex-start;
+    padding-left: .2rem;
+    font-size: .8rem;
+  }
+
+  .category-filter { display: none; }
+
+  .category-select {
+    position: relative;
+    display: grid;
+    gap: .4rem;
+    color: var(--fair-muted);
+    font-size: .74rem;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+
+  .category-select::after {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--fair-blue);
+    border-bottom: 2px solid var(--fair-blue);
+    content: '';
+    pointer-events: none;
+    transform: rotate(45deg);
+  }
+
+  .category-select select {
+    width: 100%;
+    min-height: 48px;
+    padding: .7rem 2.7rem .7rem 1rem;
+    color: var(--fair-ink);
+    background: var(--fair-paper);
+    border: 0;
+    border-radius: 14px;
+    box-shadow: var(--shadow-soft-inset);
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0;
+    text-transform: none;
+    appearance: none;
+  }
+
+  .category-select select:focus-visible { outline-color: var(--fair-blue); }
+
+  .directory-section .mosaic { gap: 1.1rem; }
+
+  .buses-page .bus-search {
+    gap: 0;
+    margin-bottom: .85rem;
+    padding: .75rem;
+    border-radius: 18px;
+  }
+
+  .buses-page .bus-search > div:first-child { display: none; }
+}
+
 @media (max-width: 519px) {
   .promotion-participation { border-radius: var(--radius-medium); }
   .promotion-participation__hero { min-height: auto; padding-inline: 1.25rem; }
@@ -535,6 +686,7 @@
   button:focus-visible,
   a:focus-visible,
   input:focus-visible,
+  textarea:focus-visible,
   .search-field:focus-within {
     outline: 2px solid CanvasText;
     outline-offset: 3px;
@@ -555,9 +707,20 @@
   .events-ticket-board__feature,
   .events-ticket-board__rail-item,
   .home-events-grid .event-card,
+  .locals-marquee__track,
+  .locals-marquee__group > li,
+  .locals-marquee__card::before,
+  .locals-marquee__card .content-card__media::after,
+  .home-content-section--local-marquee::before,
   .promotion-participation__hero {
     animation: none !important;
   }
+
+  .locals-marquee {
+    overflow-x: auto;
+  }
+
+  .locals-marquee__group[aria-hidden="true"] { display: none; }
 
   .button,
   .content-card,

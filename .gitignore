@@ -11,6 +11,7 @@ backups/
 
 .env*
 !.env.example
+!.env.local.example
 
 *.pem
 *.ppk

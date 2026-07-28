@@ -21,7 +21,7 @@ function Get-DeploymentConfig {
 
     $requiredKeys = @(
         'SshHost', 'SshUser', 'SshPort', 'PrivateKeyPath', 'RemotePublicPath',
-        'PublicUrl', 'BackupRetention'
+        'PublicUrl', 'ApiPublicUrl', 'BackupRetention'
     )
     foreach ($key in $requiredKeys) {
         if (-not $config.ContainsKey($key)) {
@@ -53,6 +53,15 @@ function Get-DeploymentConfig {
         throw 'PublicUrl debe ser una URL HTTPS absoluta.'
     }
     $config.PublicUrl = $publicUri.AbsoluteUri.TrimEnd('/')
+
+    $apiUri = $null
+    if (-not [Uri]::TryCreate([string]$config.ApiPublicUrl, [UriKind]::Absolute, [ref]$apiUri) -or $apiUri.Scheme -ne 'https' -or $apiUri.AbsolutePath.TrimEnd('/') -ne '/api') {
+        throw 'ApiPublicUrl debe ser una URL HTTPS absoluta que termine en /api.'
+    }
+    if ($apiUri.Host -eq $publicUri.Host) {
+        throw 'ApiPublicUrl debe utilizar el subdominio independiente del WS.'
+    }
+    $config.ApiPublicUrl = $apiUri.AbsoluteUri.TrimEnd('/')
 
     $retention = 0
     if (-not [int]::TryParse([string]$config.BackupRetention, [ref]$retention) -or $retention -lt 5 -or $retention -gt 50) {
@@ -228,21 +237,24 @@ function Invoke-DeploymentHttpRequest {
 }
 
 function Test-PublicDeployment {
-    param([Parameter(Mandatory = $true)][string] $PublicUrl)
+    param(
+        [Parameter(Mandatory = $true)][string] $PublicUrl,
+        [Parameter(Mandatory = $true)][string] $ApiPublicUrl
+    )
 
     $tests = @(
-        @{ Path = '/'; Api = $false },
-        @{ Path = '/locales'; Api = $false },
-        @{ Path = '/eventos'; Api = $false },
-        @{ Path = '/promociones'; Api = $false },
-        @{ Path = '/api/locales?limite=1'; Api = $true },
-        @{ Path = '/api/eventos'; Api = $true },
-        @{ Path = '/api/promociones'; Api = $true },
-        @{ Path = '/api/rutas'; Api = $true }
+        @{ Base = $PublicUrl; Path = '/'; Api = $false },
+        @{ Base = $PublicUrl; Path = '/locales'; Api = $false },
+        @{ Base = $PublicUrl; Path = '/eventos'; Api = $false },
+        @{ Base = $PublicUrl; Path = '/promociones'; Api = $false },
+        @{ Base = $ApiPublicUrl; Path = '/locales?limite=1'; Api = $true },
+        @{ Base = $ApiPublicUrl; Path = '/eventos'; Api = $true },
+        @{ Base = $ApiPublicUrl; Path = '/promociones'; Api = $true },
+        @{ Base = $ApiPublicUrl; Path = '/rutas'; Api = $true }
     )
 
     foreach ($test in $tests) {
-        $url = $PublicUrl.TrimEnd('/') + $test.Path
+        $url = $test.Base.TrimEnd('/') + $test.Path
         $response = Invoke-DeploymentHttpRequest -Url $url
         if ([int]$response.StatusCode -ne 200) {
             throw "La prueba HTTP fallo para $($test.Path) con estado $($response.StatusCode)."

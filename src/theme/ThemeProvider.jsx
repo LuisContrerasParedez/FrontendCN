@@ -49,13 +49,17 @@ export function ThemeProvider({ refreshToken, children }) {
     obtenerTematicaActiva()
       .then((value) => {
         if (!cancelled) {
-          setTheme(value && Object.keys(value).length ? value : null);
+          const nextTheme = value && Object.keys(value).length ? value : null;
+          setTheme((currentTheme) => (
+            JSON.stringify(currentTheme) === JSON.stringify(nextTheme)
+              ? currentTheme
+              : nextTheme
+          ));
           setError('');
         }
       })
       .catch(() => {
         if (!cancelled) {
-          setTheme(null);
           setError('La temática mensual no pudo actualizarse.');
         }
       })

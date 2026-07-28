@@ -3,6 +3,7 @@
 const CONFIGURACION_ESTATICA = {
   NombreSitio: 'Centra Norte',
   Slogan: 'El mall donde grandes cosas pasan',
+  LogoUrl: 'https://paginabeta.centranorte.com.gt/imagenes/Centra_Norte_Logo.png',
   Telefono: '2500-9800',
   Direccion: 'Km 8.5 Carretera al Atlántico, 40-26 zona 17, Guatemala',
   HorarioSemana: '9:00 a.m. a 8:00 p.m.',

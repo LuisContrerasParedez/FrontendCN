@@ -3,6 +3,7 @@ import PageHero from '../components/ui/PageHero';
 import SmartLink from '../components/ui/SmartLink';
 import Icon from '../components/ui/Icon';
 import Seo from '../components/ui/Seo';
+import useReveal from '../hooks/useReveal';
 
 const TAS_ACTIONS = [
   {
@@ -28,9 +29,10 @@ const TAS_ACTIONS = [
 export default function ParqueosInquilinos() {
   const { config, pages } = useOutletContext();
   const content = pages.find((page) => page.TipoPagina === 'PARQUEOS');
+  useReveal([]);
 
   return (
-    <div className="page parking-tas-page">
+    <div className="page motion-page parking-tas-page">
       <Seo
         title={content?.MetaTitulo || 'Parqueos para inquilinos'}
         description={content?.MetaDescripcion || content?.Resumen || 'Pago y solicitud de tarjeta TAS para inquilinos.'}
@@ -44,7 +46,7 @@ export default function ParqueosInquilinos() {
       />
 
       <section className="section container parking-tas" aria-labelledby="parking-tas-title">
-        <div className="parking-tas__panel">
+        <div className="parking-tas__panel motion-panel motion-parking reveal">
           <div className="parking-tas__intro">
             <span className="parking-tas__icon" aria-hidden="true"><Icon name="car" size={36} strokeWidth={1.7} /></span>
             <div>
@@ -73,7 +75,7 @@ export default function ParqueosInquilinos() {
           </div>
         </div>
 
-        <p className="parking-tas__security-note">
+        <p className="parking-tas__security-note motion-panel reveal">
           <Icon name="shield" size={20} strokeWidth={1.9} />
           Estos son los enlaces oficiales de Centra Norte para las gestiones de parqueo de inquilinos.
         </p>

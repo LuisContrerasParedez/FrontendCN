@@ -7,6 +7,9 @@
   --fair-ink: #111a35;
   --fair-yellow: #f4b400;
   --fair-coral: #e84b3c;
+  /* Mismo coral, un paso más profundo: se usa cuando lleva texto o iconos
+     blancos encima y hace falta llegar a 4.5:1 (WCAG 1.4.3). */
+  --fair-coral-deep: #d33c2b;
   --fair-green: #28783c;
   --fair-paper: #ffffff;
   --fair-surface: #ffffff;

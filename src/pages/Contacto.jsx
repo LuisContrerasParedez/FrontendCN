@@ -7,6 +7,8 @@ import SmartLink from '../components/ui/SmartLink';
 import Icon from '../components/ui/Icon';
 import { ErrorState, LoadingState } from '../components/ui/ContentStates';
 import Seo from '../components/ui/Seo';
+import useReveal from '../hooks/useReveal';
+import ContactForm from '../components/contacto/ContactForm';
 
 const FALLBACK_ADDRESS = 'Km 8.5 Carretera al Atlántico, 40-26 zona 17, Guatemala';
 
@@ -22,13 +24,14 @@ export default function Contacto() {
   const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving&dir_action=navigate`;
   const wazeUrl = `https://www.waze.com/ul?q=${destination}&navigate=yes&utm_source=centranorte_web`;
   const mapEmbedUrl = `https://maps.google.com/maps?q=${destination}&z=16&output=embed`;
+  useReveal([configState.loading, forms.data]);
 
   return (
-    <div className="page contact-page">
+    <div className="page motion-page contact-page">
       <Seo title={content?.MetaTitulo || 'Contacto'} description={content?.MetaDescripcion || content?.Resumen} config={config} />
       <PageHero eyebrow="Visítanos" title={content?.Titulo || 'Contacto'} description={content?.Resumen || 'Encuentra nuestra ubicación y canales de contacto.'} />
       <section className="section container contact-layout">
-        <div className="contact-copy">
+        <div className="contact-copy motion-panel reveal">
           <p className="eyebrow">Información de visita</p>
           <h2>Encuentra Centra Norte</h2>
           {configState.loading ? <LoadingState label="Cargando información de contacto" /> : null}
@@ -41,11 +44,12 @@ export default function Contacto() {
             {config.HorarioDomingo ? <div><dt>Domingo</dt><dd>{config.HorarioDomingo}</dd></div> : null}
             {config.HorarioEspecial ? <div><dt>Horario especial</dt><dd>{config.HorarioEspecial}</dd></div> : null}
           </dl>
+          <ContactForm />
           <div className="contact-actions">
             {whatsapp ? <a className="button button--outline" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer noopener">Escribir por WhatsApp</a> : null}
           </div>
         </div>
-        <section className="contact-map-card" aria-labelledby="contact-map-title">
+        <section className="contact-map-card motion-panel reveal" aria-labelledby="contact-map-title">
           <div className="contact-map-card__map">
             <iframe
               key={mapResetKey}
@@ -81,7 +85,7 @@ export default function Contacto() {
           </div>
         </section>
       </section>
-      {!forms.loading && !forms.error && forms.data?.length ? <section className="section section--tint"><div className="container narrow-section"><h2>Formularios de contacto</h2><div className="form-list">{forms.data.map((form) => <article key={form.CodigoFormularioEnlace}><div><h3>{form.Titulo}</h3>{form.Descripcion ? <p>{form.Descripcion}</p> : null}</div><SmartLink className="button button--primary" href={form.UrlFormulario} aria-label={form.TextoBoton + ': ' + form.Titulo}>{form.TextoBoton}</SmartLink></article>)}</div></div></section> : null}
+      {!forms.loading && !forms.error && forms.data?.length ? <section className="section section--tint"><div className="container narrow-section motion-panel reveal"><h2>Formularios de contacto</h2><div className="form-list">{forms.data.map((form) => <article key={form.CodigoFormularioEnlace}><div><h3>{form.Titulo}</h3>{form.Descripcion ? <p>{form.Descripcion}</p> : null}</div><SmartLink className="button button--primary" href={form.UrlFormulario} aria-label={form.TextoBoton + ': ' + form.Titulo}>{form.TextoBoton}</SmartLink></article>)}</div></div></section> : null}
     </div>
   );
 }

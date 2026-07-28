@@ -60,7 +60,7 @@ chmod 600 "$lock/version"
 [ -f "$selected" ]
 tar -tzf "$selected" >/dev/null
 mkdir -m 755 "$staging"
-tar -xzf "$selected" -C "$staging"
+tar --warning=no-timestamp -xzf "$selected" -C "$staging"
 
 for required in index.html .htaccess; do
     [ -f "$staging/$required" ] || { echo "El respaldo no contiene $required" >&2; exit 41; }

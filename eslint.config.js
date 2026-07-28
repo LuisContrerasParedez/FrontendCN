@@ -1,7 +1,6 @@
 import js from '@eslint/js';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
-import react from 'eslint-plugin-react';
 
 const browserGlobals = {
   console: 'readonly',
@@ -28,13 +27,11 @@ export default [
     },
     plugins: {
       'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
-      react
+      'react-refresh': reactRefresh
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'react/jsx-uses-vars': 'error',
       'react-refresh/only-export-components': 'off',
       'react-hooks/set-state-in-effect': 'off',
       'react-hooks/use-memo': 'off'

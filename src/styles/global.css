@@ -153,12 +153,13 @@ body.initial-load-is-active { overflow: hidden; }
 
 img { display: block; max-width: 100%; }
 a { color: inherit; text-decoration-thickness: .08em; text-underline-offset: .2em; }
-button, input { font: inherit; }
+button, input, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 
 button:focus-visible,
 a:focus-visible,
-input:focus-visible {
+input:focus-visible,
+textarea:focus-visible {
   outline: 2px solid transparent;
   outline-offset: 3px;
   box-shadow: var(--focus);
@@ -344,8 +345,8 @@ p { margin-bottom: 1rem; }
 
 .brand {
   position: relative;
-  width: clamp(160px, 30vw, 220px);
-  height: 64px;
+  width: clamp(178px, 32vw, 268px);
+  height: 66px;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -380,7 +381,7 @@ p { margin-bottom: 1rem; }
   display: grid;
   color: var(--fair-ink);
   font-family: var(--font-display);
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 800;
   line-height: .82;
   letter-spacing: -.035em;
@@ -409,7 +410,7 @@ p { margin-bottom: 1rem; }
   position: relative;
   padding-block: .65rem;
   color: #303951;
-  font-size: 1.12rem;
+  font-size: 1.25rem;
   font-weight: 750;
   text-decoration: none;
   white-space: nowrap;
@@ -444,7 +445,9 @@ p { margin-bottom: 1rem; }
   gap: .45rem;
   color: var(--fair-blue);
   background: #fff;
-  border: 1px solid var(--fair-border);
+  /* Contorno de control: --fair-border (1.35:1) no llega al 3:1 que pide
+     WCAG 1.4.11 para el límite visible de un control. */
+  border: 1px solid var(--fair-control-border);
   border-radius: var(--radius-small);
   font-size: .82rem;
   font-weight: 800;
@@ -526,7 +529,7 @@ p { margin-bottom: 1rem; }
   gap: 1rem;
   color: #fff;
   border-bottom: 1px solid rgba(255, 255, 255, .14);
-  font-size: 1.12rem;
+  font-size: 1.3rem;
   font-weight: 750;
   text-decoration: none;
 }
@@ -1040,7 +1043,10 @@ p { margin-bottom: 1rem; }
 }
 
 .visit-route__step--blue { --route-tone: var(--fair-blue); }
-.visit-route__step--coral { --route-tone: var(--fair-coral); }
+/* El coral de feria (#e84b3c) sirve de fondo al número en blanco y solo da
+   3.82:1. Se usa un coral más profundo para ese tono de paso; las franjas y
+   toldos de feria conservan --fair-coral. */
+.visit-route__step--coral { --route-tone: var(--fair-coral-deep); }
 .visit-route__step--green { --route-tone: var(--fair-green); }
 
 .visit-route__icon {
@@ -1266,6 +1272,230 @@ p { margin-bottom: 1rem; }
 .home-content-section__layout--events .event-card .card-kicker { color: var(--fair-blue) !important; }
 .home-content-section__layout--events .event-card .card-meta { color: #4c5569 !important; }
 .home-content-section__layout--events .event-card .text-link { color: var(--fair-blue); }
+
+/* Banda continua de locales en el inicio. Dos grupos idénticos forman un
+   recorrido sin cortes; el ritmo se calcula según la cantidad de tarjetas. */
+.home-content-section--local-marquee {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 0, rgba(255, 196, 31, .16), transparent 26rem),
+    var(--color-surface);
+}
+
+.home-content-section--local-marquee::before {
+  position: absolute;
+  top: 8%;
+  right: -8rem;
+  width: clamp(18rem, 32vw, 34rem);
+  aspect-ratio: 1;
+  background: rgba(244, 119, 0, .09);
+  border-radius: 50%;
+  filter: blur(70px);
+  pointer-events: none;
+  content: '';
+}
+
+.home-content-section--local-marquee > * {
+  position: relative;
+  z-index: 1;
+}
+
+.locals-marquee {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding-block: .65rem 1.3rem;
+}
+
+.locals-marquee::before {
+  position: absolute;
+  inset: 50% 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(1, 4, 95, .15), transparent);
+  content: '';
+}
+
+.locals-marquee__track {
+  --locals-marquee-gap: clamp(1rem, 1.6vw, 1.5rem);
+  width: max-content;
+  display: flex;
+  animation: locals-marquee-scroll var(--locals-marquee-duration, 80s) linear infinite;
+  will-change: transform;
+}
+
+/* Sólo en punteros finos: en táctil el `:hover` se queda pegado tras un tap y la fila
+   nunca reanuda. Ahí manda `useDragMarquee` (ver `.locals-marquee--draggable`). */
+@media (hover: hover) {
+  .locals-marquee:hover .locals-marquee__track { animation-play-state: paused; }
+}
+
+.locals-marquee:focus-within .locals-marquee__track { animation-play-state: paused; }
+
+/* Marquee gobernado por JS: se arrastra con el dedo y al soltar retoma el viaje solo. */
+.locals-marquee--draggable {
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.locals-marquee--draggable .locals-marquee__track,
+.locals-marquee--draggable:focus-within .locals-marquee__track { animation: none; }
+
+.locals-marquee--draggable img { -webkit-user-drag: none; }
+
+.locals-marquee__group {
+  display: flex;
+  flex: none;
+  gap: var(--locals-marquee-gap);
+  margin: 0;
+  padding: .5rem var(--locals-marquee-gap) .5rem 0;
+  list-style: none;
+}
+
+.locals-marquee__group > li {
+  width: max(280px, calc(25vw - 1.5rem));
+  flex: none;
+  transform: translateZ(0);
+}
+
+.locals-marquee__card {
+  height: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: #fff;
+  border: 0;
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft-raised);
+}
+
+.locals-marquee__card::before {
+  position: absolute;
+  inset: 57.5% 0 auto;
+  z-index: 3;
+  height: 4px;
+  background: linear-gradient(90deg, var(--fair-yellow), var(--fair-coral), var(--fair-green), var(--fair-yellow));
+  background-size: 240% 100%;
+  pointer-events: none;
+  content: '';
+}
+
+.locals-marquee__card .content-card__link {
+  display: grid;
+  grid-template-rows: minmax(0, 1.15fr) minmax(0, .85fr);
+}
+
+.locals-marquee__card .content-card__media,
+.locals-marquee__card .content-card__image,
+.locals-marquee__card .media-fallback {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.locals-marquee__card .content-card__media { position: relative; }
+
+.locals-marquee__card .content-card__media::after {
+  position: absolute;
+  inset: -30% auto -30% -55%;
+  width: 32%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .42), transparent);
+  transform: translateX(-180%) skewX(-18deg);
+  pointer-events: none;
+  content: '';
+}
+
+.locals-marquee__card .content-card__body {
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  padding: 1rem 1.15rem 1.1rem;
+}
+
+.locals-marquee__card .content-card__body h3 {
+  margin-bottom: .5rem;
+  font-size: 1.22rem;
+  line-height: 1.18;
+}
+
+.locals-marquee__card .card-kicker {
+  margin-bottom: .35rem !important;
+  overflow: hidden;
+  font-size: .64rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.locals-marquee__card .card-meta {
+  margin-bottom: .55rem;
+  overflow: hidden;
+  font-size: .75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.locals-marquee__card .text-link { font-size: .78rem; }
+.locals-marquee__state { padding-block: .5rem 1rem; }
+
+@keyframes locals-marquee-scroll {
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-content-section--local-marquee::before {
+    animation: locals-ambient-glow 11s ease-in-out infinite alternate;
+  }
+
+  .reveal .locals-marquee {
+    opacity: 0;
+    transform: translateY(24px) scale(.985);
+  }
+
+  .reveal.is-visible .locals-marquee {
+    animation: locals-band-in .8s var(--ease-out) both;
+  }
+
+  .locals-marquee__group > li {
+    animation: locals-card-float 6.8s ease-in-out infinite;
+    animation-delay: calc(var(--local-card-index) * -.55s);
+  }
+
+  .locals-marquee__card::before {
+    animation: locals-accent-flow 7s linear infinite;
+  }
+
+  .locals-marquee__card .content-card__media::after {
+    animation: locals-image-glint 8.5s ease-in-out infinite;
+    animation-delay: calc(var(--local-card-index) * -.7s);
+  }
+}
+
+@keyframes locals-band-in {
+  from { opacity: 0; transform: translateY(24px) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes locals-card-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes locals-image-glint {
+  0%, 62% { transform: translateX(-180%) skewX(-18deg); }
+  78%, 100% { transform: translateX(620%) skewX(-18deg); }
+}
+
+@keyframes locals-accent-flow {
+  to { background-position: 240% 0; }
+}
+
+@keyframes locals-ambient-glow {
+  from { opacity: .6; transform: translate3d(0, -5%, 0) scale(.9); }
+  to { opacity: 1; transform: translate3d(-18%, 12%, 0) scale(1.12); }
+}
 
 /* Vitrina + directorio: local destacado a escala junto a un listado
    compacto de señalización para el resto de destacados del mes. */
@@ -1969,6 +2199,8 @@ p { margin-bottom: 1rem; }
 .search-field input::placeholder { color: #6a7181; opacity: 1; }
 .result-count { margin: 0; align-self: center; color: var(--fair-muted); font-size: .84rem; white-space: nowrap; }
 
+.category-select { display: none; }
+
 .category-filter {
   min-width: 0;
   width: 100%;
@@ -2004,6 +2236,14 @@ p { margin-bottom: 1rem; }
   color: #fff;
   background: var(--fair-blue);
   box-shadow: inset 2px 2px 5px rgba(0, 0, 0, .25), inset -1px -1px 3px rgba(255, 255, 255, .1);
+}
+
+/* Estas píldoras definen su propia box-shadow, que con la misma especificidad
+   que `button:focus-visible` y más abajo en el archivo dejaba al chip sin
+   ningún indicador de foco visible. Se restituye el anillo estándar. */
+.category-filter button:focus-visible,
+.category-filter button.is-active:focus-visible {
+  box-shadow: var(--focus);
 }
 
 /* Directorio de locales: cuadrícula limpia con tarjetas suaves */
@@ -2247,7 +2487,9 @@ p { margin-bottom: 1rem; }
   gap: .65rem;
   max-width: 72ch;
   margin: 1.35rem auto 0;
-  color: var(--fair-muted);
+  /* Esta nota cae justo sobre la sombra del panel TAS, no sobre blanco puro:
+     ahí --fair-muted se queda en 4.47:1. Un paso más oscuro la deja en 5.2:1. */
+  color: #525969;
   font-size: .88rem;
   text-align: center;
 }
@@ -2460,6 +2702,131 @@ p { margin-bottom: 1rem; }
 .contact-copy h2 { color: var(--fair-blue); font-size: clamp(2.2rem, 8vw, 2.25rem); }
 
 .contact-layout { display: grid; gap: 2.5rem; }
+
+.contact-form-card {
+  position: relative;
+  max-width: 760px;
+  margin-top: 2rem;
+  padding: clamp(1.15rem, 3vw, 1.75rem);
+  overflow: hidden;
+  background: var(--fair-soft);
+  border: 1px solid var(--fair-border);
+  border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-soft-raised);
+}
+
+.contact-form-card::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  background: linear-gradient(
+    90deg,
+    var(--fair-blue) 0 25%,
+    var(--fair-yellow) 25% 50%,
+    var(--fair-coral) 50% 75%,
+    var(--fair-green) 75% 100%
+  );
+  content: '';
+}
+
+.contact-form-card__heading { margin-bottom: 1.4rem; }
+.contact-form-card__heading .eyebrow { margin-bottom: .45rem; }
+
+.contact-form-card__heading h3 {
+  margin-bottom: .55rem;
+  color: var(--fair-blue);
+  font-size: clamp(1.45rem, 4vw, 1.85rem);
+}
+
+.contact-form-card__heading > p:last-child {
+  max-width: 55ch;
+  margin: 0;
+  color: var(--fair-muted);
+  font-size: .9rem;
+  line-height: 1.5;
+}
+
+.contact-form { display: grid; gap: 1rem; }
+
+.contact-form__field {
+  min-width: 0;
+  display: grid;
+  gap: .4rem;
+}
+
+.contact-form__field label {
+  color: var(--fair-blue-deep);
+  font-size: .76rem;
+  font-weight: 800;
+}
+
+.contact-form__field input,
+.contact-form__field textarea {
+  width: 100%;
+  min-width: 0;
+  padding: .85rem 1rem;
+  color: var(--fair-ink);
+  background: #fff;
+  border: 1px solid var(--fair-control-border);
+  border-radius: var(--radius-small);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.contact-form__field input { min-height: 50px; }
+
+.contact-form__field textarea {
+  min-height: 150px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.contact-form__field input::placeholder,
+.contact-form__field textarea::placeholder { color: #6a7181; opacity: 1; }
+
+.contact-form__field input:focus,
+.contact-form__field textarea:focus {
+  border-color: var(--fair-blue);
+  /* Un halo al 12% quedaba en 1.25:1 contra la tarjeta y además tapaba el
+     anillo global de `input:focus-visible`. Se usa el mismo anillo del sitio. */
+  box-shadow: var(--focus);
+}
+
+.contact-form__captcha {
+  max-width: 100%;
+  min-height: 78px;
+  overflow: hidden;
+}
+
+.contact-form__captcha-error,
+.contact-form__status {
+  margin: 0;
+  font-size: .82rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.contact-form__captcha-error,
+.contact-form__status--error { color: var(--fair-danger); }
+.contact-form__status--success { color: var(--fair-green); }
+.contact-form__status--loading { color: var(--fair-blue); }
+
+.contact-form__submit {
+  width: 100%;
+  min-height: 54px;
+  font-size: 1rem;
+}
+
+.contact-form__honeypot {
+  position: absolute !important;
+  left: -10000px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+
+.contact-form-card + .contact-actions { margin-top: 1.5rem; }
 
 .contact-map-card {
   overflow: hidden;

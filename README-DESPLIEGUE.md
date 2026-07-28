@@ -1,6 +1,6 @@
 # Despliegue del frontend de Centra Norte
 
-Este proyecto publica exclusivamente el build estático de React/Vite mediante OpenSSH. `WsPaginaCN` es un servicio independiente y no forma parte del paquete.
+Este proyecto publica exclusivamente el build estático de React/Vite mediante OpenSSH. `WS_PaginaCN` es un servicio PHP independiente y no forma parte del paquete.
 
 ## Configuración local
 
@@ -14,11 +14,11 @@ La clave SSH debe permanecer fuera del proyecto. No guardes su contenido ni su p
 ## Requisitos del servidor
 
 1. El dominio debe tener un certificado TLS válido.
-2. El proxy inverso debe dirigir `/api/*` al proceso de `WsPaginaCN` antes de aplicar el fallback de la SPA.
-3. `WsPaginaCN` debe permitir el origen público en `CORS_ORIGINS` si la API se publica en un origen diferente.
+2. `WS_PaginaCN` debe estar publicado en el `public_html` independiente de `wspagina.centranorte.com.gt`.
+3. La API debe permitir exclusivamente `https://paginabeta.centranorte.com.gt` en `CORS_ORIGINS`.
 4. La ruta pública configurada debe aceptar archivos estáticos y reglas de `.htaccess`.
 
-La configuración, credenciales y proceso de la API se administran únicamente desde `WsPaginaCN`.
+La configuración, credenciales y proceso de la API se administran únicamente desde `WS_PaginaCN`.
 
 ## Prueba sin publicar
 
@@ -40,7 +40,7 @@ Para reutilizar un build existente:
 .\deploy.ps1
 ```
 
-El proceso crea un respaldo de la versión activa, prepara staging, conserva `imagenes`, activa la versión de manera atómica y comprueba rutas React y endpoints de `WsPaginaCN`. Si una prueba falla, intenta restaurar automáticamente la versión anterior.
+El proceso crea un respaldo de la versión activa, prepara staging, conserva `imagenes`, activa la versión de manera atómica y comprueba rutas React y endpoints de `WS_PaginaCN`. Si una prueba falla, intenta restaurar automáticamente la versión anterior.
 
 ## Rollback
 
@@ -60,11 +60,13 @@ Se incluyen únicamente:
 - `assets`, `robots.txt`, `sitemap.xml`, favicon y otros archivos públicos de Vite;
 - `.htaccess`.
 
-No se incluyen `src`, `node_modules`, `.env*`, claves, scripts, una carpeta `api`, ejecutables de servidor ni configuración de base de datos.
+No se incluyen `src`, `node_modules`, `.env*`, claves, scripts, una carpeta `api`, ejecutables de servidor ni configuración de base de datos. El único directorio remoto persistente del frontend es `imagenes`.
+
+No hay archivos de ejecución del frontend que deban copiarse manualmente a una carpeta privada del servidor. El despliegue crea staging y respaldos fuera de `public_html`; `.env`, `.env.local`, `.tools/deploy.local.ps1` y la clave SSH permanecen solo en el equipo local. El build productivo lee únicamente `.env`, aunque `.env.local` exista en la estación de desarrollo.
 
 ## Diagnóstico
 
-- Si las páginas cargan pero no muestran datos, comprueba que `/api/locales?limite=1` devuelva JSON y que el proxy apunte a `WsPaginaCN`.
+- Si las páginas cargan pero no muestran datos, comprueba que `/api/locales?limite=1` devuelva JSON desde `WS_PaginaCN`.
 - Si aparece HTML como respuesta de la API, el fallback de la SPA está capturando `/api`; corrige el orden de las reglas del proxy.
 - Si falla una ruta React al recargar, verifica que `.htaccess` esté activo.
 - Si falla SSH, confirma la huella, la clave registrada y la ruta configurada.

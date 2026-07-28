@@ -102,7 +102,7 @@ export default function SiteHeader({ config = {} }) {
                 src={logo}
                 alt={config.NombreSitio || 'Centra Norte'}
                 className={'brand-logo' + (logoLoaded ? ' is-loaded' : '')}
-                sizes="260px"
+                sizes="268px"
                 eager
                 hideFallback
                 onLoad={() => setLoadedLogoUrl(logo)}

@@ -31,6 +31,163 @@
   to { clip-path: inset(0 0 0 0 round var(--radius-large)); }
 }
 
+/* Entrada del directorio de locales: breve, escalonada y sin movimiento continuo. */
+@media (prefers-reduced-motion: no-preference) {
+  .locales-page .page-hero__copy > * {
+    animation: locales-hero-copy-in .7s var(--ease-out) both;
+  }
+
+  .locales-page .page-hero__copy > *:nth-child(2) { animation-delay: .09s; }
+  .locales-page .page-hero__copy > *:nth-child(3) { animation-delay: .18s; }
+
+  .locales-page .page-hero__utility {
+    animation: locales-hero-utility-in .75s .28s var(--ease-out) both;
+  }
+
+  .locales-page .directory-toolbar.reveal {
+    opacity: 0;
+    transform: translateY(26px) scale(.985);
+  }
+
+  .locales-page .directory-toolbar.reveal.is-visible {
+    animation: locales-toolbar-in .72s .08s var(--ease-out) both;
+  }
+
+  .locales-page .locals-grid-reveal.reveal .local-card .content-card__link {
+    opacity: 0;
+    transform: translateY(36px) scale(.965);
+  }
+
+  .locales-page .locals-grid-reveal.reveal.is-visible .local-card .content-card__link {
+    animation: locales-card-in .72s var(--ease-out) both;
+  }
+
+  .locales-page .locals-grid-reveal .local-card:nth-child(1) .content-card__link { animation-delay: .08s; }
+  .locales-page .locals-grid-reveal .local-card:nth-child(2) .content-card__link { animation-delay: .16s; }
+  .locales-page .locals-grid-reveal .local-card:nth-child(3) .content-card__link { animation-delay: .24s; }
+  .locales-page .locals-grid-reveal .local-card:nth-child(4) .content-card__link { animation-delay: .32s; }
+  .locales-page .locals-grid-reveal .local-card:nth-child(5) .content-card__link { animation-delay: .4s; }
+  .locales-page .locals-grid-reveal .local-card:nth-child(6) .content-card__link { animation-delay: .48s; }
+  .locales-page .locals-grid-reveal .local-card:nth-child(7) .content-card__link { animation-delay: .56s; }
+  .locales-page .locals-grid-reveal .local-card:nth-child(8) .content-card__link { animation-delay: .64s; }
+  .locales-page .locals-grid-reveal .local-card:nth-child(9) .content-card__link { animation-delay: .72s; }
+  .locales-page .locals-grid-reveal .local-card:nth-child(10) .content-card__link { animation-delay: .8s; }
+  .locales-page .locals-grid-reveal .local-card:nth-child(11) .content-card__link { animation-delay: .88s; }
+  .locales-page .locals-grid-reveal .local-card:nth-child(12) .content-card__link { animation-delay: .96s; }
+}
+
+@keyframes locales-hero-copy-in {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes locales-hero-utility-in {
+  from { opacity: 0; transform: translateX(-24px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes locales-toolbar-in {
+  from { opacity: 0; transform: translateY(26px) scale(.985); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes locales-card-in {
+  from { opacity: 0; transform: translateY(36px) scale(.965); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Movimiento compartido por las páginas internas principales. */
+@media (prefers-reduced-motion: no-preference) {
+  .motion-page .page-hero__copy > * {
+    animation: locales-hero-copy-in .7s var(--ease-out) both;
+  }
+
+  .motion-page .page-hero__copy > *:nth-child(2) { animation-delay: .09s; }
+  .motion-page .page-hero__copy > *:nth-child(3) { animation-delay: .18s; }
+
+  .motion-panel.reveal {
+    opacity: 0;
+    transform: translateY(26px) scale(.985);
+  }
+
+  .motion-panel.reveal.is-visible {
+    animation: locales-toolbar-in .72s var(--ease-out) both;
+  }
+
+  .contact-layout .contact-map-card.motion-panel { animation-delay: .12s; }
+
+  .motion-grid.reveal > .content-card > .content-card__link {
+    opacity: 0;
+    transform: translateY(36px) scale(.965);
+  }
+
+  .motion-grid.reveal.is-visible > .content-card > .content-card__link {
+    animation: locales-card-in .72s var(--ease-out) both;
+  }
+
+  .motion-grid > .content-card:nth-child(1) > .content-card__link { animation-delay: .08s; }
+  .motion-grid > .content-card:nth-child(2) > .content-card__link { animation-delay: .16s; }
+  .motion-grid > .content-card:nth-child(3) > .content-card__link { animation-delay: .24s; }
+  .motion-grid > .content-card:nth-child(4) > .content-card__link { animation-delay: .32s; }
+  .motion-grid > .content-card:nth-child(5) > .content-card__link { animation-delay: .4s; }
+  .motion-grid > .content-card:nth-child(6) > .content-card__link { animation-delay: .48s; }
+  .motion-grid > .content-card:nth-child(7) > .content-card__link { animation-delay: .56s; }
+  .motion-grid > .content-card:nth-child(8) > .content-card__link { animation-delay: .64s; }
+  .motion-grid > .content-card:nth-child(9) > .content-card__link { animation-delay: .72s; }
+  .motion-grid > .content-card:nth-child(10) > .content-card__link { animation-delay: .8s; }
+  .motion-grid > .content-card:nth-child(11) > .content-card__link { animation-delay: .88s; }
+  .motion-grid > .content-card:nth-child(12) > .content-card__link { animation-delay: .96s; }
+
+  .motion-parking.reveal .parking-tas__intro,
+  .motion-parking.reveal .parking-tas__action {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  .motion-parking.reveal.is-visible .parking-tas__intro {
+    animation: motion-section-in .7s .12s var(--ease-out) both;
+  }
+
+  .motion-parking.reveal.is-visible .parking-tas__action {
+    animation: motion-section-in .7s .24s var(--ease-out) both;
+  }
+
+  .motion-parking.reveal.is-visible .parking-tas__action:nth-child(2) { animation-delay: .36s; }
+
+  .form-list article {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .motion-panel.reveal.is-visible .form-list article {
+    animation: motion-section-in .6s .16s var(--ease-out) both;
+  }
+
+  .motion-panel.reveal.is-visible .form-list article:nth-child(2) { animation-delay: .26s; }
+  .motion-panel.reveal.is-visible .form-list article:nth-child(3) { animation-delay: .36s; }
+}
+
+@keyframes motion-section-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* En los directorios móviles la información ya está dentro del primer
+   viewport. No debe depender de un desplazamiento para volverse visible. */
+@media (max-width: 719px) and (prefers-reduced-motion: no-preference) {
+  .locales-page .directory-toolbar.reveal,
+  .locales-page .locals-grid-reveal.reveal .local-card .content-card__link,
+  .events-page .motion-grid.reveal > .content-card > .content-card__link,
+  .promotions-page .motion-grid.reveal > .content-card > .content-card__link,
+  .promotions-page .motion-panel.reveal,
+  .buses-page .motion-panel.reveal,
+  .buses-page .motion-grid.reveal > .content-card > .content-card__link {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+}
+
 .mobile-navigation { animation: drawer-in .28s var(--ease-drawer) both; }
 .nav-backdrop { animation: backdrop-in .2s ease-out both; }
 

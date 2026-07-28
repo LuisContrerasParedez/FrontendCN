@@ -4,8 +4,8 @@ DirectoryIndex Default.html index.html
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    RewriteCond %{REQUEST_URI} ^/api/
-    RewriteRule ^ - [L]
+    RewriteCond %{REQUEST_URI} ^/api(?:/|$)
+    RewriteRule ^ - [R=404,L]
 
     RewriteRule ^$ Default.html [L]
 
@@ -24,9 +24,12 @@ DirectoryIndex Default.html index.html
 <IfModule mod_headers.c>
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Strict-Transport-Security "max-age=31536000"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self'; frame-src https://www.google.com https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self' https:;"
+    Header always set Cross-Origin-Opener-Policy "same-origin-allow-popups"
+    Header always set X-Permitted-Cross-Domain-Policies "none"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https://wspagina.centranorte.com.gt https://www.google.com/recaptcha/; frame-src https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/ https://maps.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests;"
 
     # Assets built by Vite carry a content hash in the filename, so they can be
     # cached forever. Without this, a stale index.html cached alongside a deploy
