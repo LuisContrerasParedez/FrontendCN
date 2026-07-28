@@ -451,7 +451,8 @@ p { margin-bottom: 1rem; }
   width: 100%;
   height: 100%;
   padding: 0;
-  background: rgba(8, 18, 43, .62);
+  background: rgba(6, 15, 38, .58);
+  backdrop-filter: blur(3px);
   border: 0;
   cursor: pointer;
 }
@@ -462,90 +463,245 @@ p { margin-bottom: 1rem; }
   top: 0;
   right: 0;
   bottom: 0;
-  width: min(92vw, 410px);
+  width: min(88vw, 372px);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   color: #fff;
-  background: var(--fair-blue-deep);
+  /* El halo ámbar de la esquina superior derecha ata el cajón al amarillo de
+     feria sin teñir el texto ni bajar el contraste del fondo azul. */
+  background:
+    radial-gradient(118% 52% at 100% 0%, rgba(244, 180, 0, .17) 0%, rgba(244, 180, 0, 0) 62%),
+    linear-gradient(180deg, var(--fair-blue) 0%, var(--fair-blue-deep) 44%, #06163a 100%);
   box-shadow: var(--shadow-drawer);
   overscroll-behavior: contain;
-  padding-bottom: env(safe-area-inset-bottom);
 }
 
+.mobile-navigation__awning {
+  position: sticky;
+  z-index: 3;
+  top: 0;
+  flex: 0 0 auto;
+  height: 4px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+}
+
+.mobile-navigation__awning i:nth-child(4n+1) { background: #f47700; }
+.mobile-navigation__awning i:nth-child(4n+2) { background: #61ab39; }
+.mobile-navigation__awning i:nth-child(4n+3) { background: #e84b3c; }
+.mobile-navigation__awning i:nth-child(4n+4) { background: var(--fair-yellow); }
+
 .mobile-navigation__head {
-  min-height: 82px;
+  position: sticky;
+  z-index: 2;
+  top: 4px;
+  flex: 0 0 auto;
+  min-height: 70px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: max(1rem, env(safe-area-inset-top)) max(1.25rem, env(safe-area-inset-right)) 1rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, .18);
+  padding: max(.85rem, env(safe-area-inset-top)) max(1.05rem, env(safe-area-inset-right)) .85rem 1.05rem;
+  background: linear-gradient(180deg, rgba(11, 35, 89, .97) 0%, rgba(11, 35, 89, .88) 100%);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
 }
 
 .mobile-navigation__brand {
-  display: grid;
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 800;
-  line-height: .85;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
 }
 
-.mobile-navigation__brand b { color: var(--fair-yellow); }
+/* Mismo tratamiento que en el pie: el emblema institucional es azul y rojo, y
+   sobre el azul del cajón se normaliza a blanco puro. */
+.mobile-navigation__logo {
+  width: 132px;
+  height: auto;
+  aspect-ratio: 292 / 71;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
 
-.mobile-navigation__head button {
-  width: 46px;
-  height: 46px;
+.mobile-navigation__wordmark {
+  display: inline-flex;
+  gap: .28rem;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1;
+}
+
+.mobile-navigation__wordmark b { color: var(--fair-yellow); }
+
+.mobile-navigation__close {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
   color: #fff;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, .36);
-  border-radius: var(--radius-small);
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 50%;
   cursor: pointer;
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    transform 160ms var(--ease-out);
 }
 
-.mobile-navigation nav { display: grid; padding: 1rem 1.25rem; }
+.mobile-navigation__close:active { transform: scale(.94); }
 
-.mobile-navigation nav a {
-  min-height: 54px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  color: #fff;
-  border-bottom: 1px solid rgba(255, 255, 255, .14);
-  font-size: 1.3rem;
-  font-weight: 750;
-  text-decoration: none;
-}
-
-.mobile-navigation nav a svg { color: #aebee8; }
-.mobile-navigation nav a.active { color: var(--fair-yellow); }
-.mobile-navigation nav a.active svg { color: var(--fair-yellow); }
-
-.mobile-navigation__footer {
-  margin-top: auto;
-  padding: 1.5rem;
-  color: var(--fair-ink);
-  background: var(--fair-yellow);
-}
-
-.mobile-navigation__footer span {
-  display: block;
-  margin-bottom: .35rem;
-  font-size: .74rem;
+.mobile-navigation__kicker {
+  margin: 0 0 .55rem;
+  padding-left: .2rem;
+  color: #9db1de;
+  font-size: .68rem;
   font-weight: 850;
-  letter-spacing: .08em;
+  letter-spacing: .14em;
+  line-height: 1;
   text-transform: uppercase;
 }
 
-.mobile-navigation__footer p {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: 1.3rem;
-  font-weight: 800;
-  line-height: 1.1;
+.mobile-navigation nav {
+  display: grid;
+  align-content: start;
+  gap: .3rem;
+  padding: 1.1rem 1rem 1.4rem;
+}
+
+.mobile-navigation nav a {
+  position: relative;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .45rem .7rem .45rem .55rem;
+  color: #eaf0ff;
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 12px;
+  font-size: 1.02rem;
+  font-weight: 750;
+  letter-spacing: -.012em;
+  text-decoration: none;
+  transition:
+    color var(--transition),
+    background var(--transition),
+    border-color var(--transition),
+    transform 160ms var(--ease-out);
+}
+
+/* Riel vertical que crece desde el centro al marcar la sección activa. */
+.mobile-navigation nav a::before {
+  position: absolute;
+  top: 50%;
+  left: -1px;
+  width: 3px;
+  height: 0;
+  background: var(--fair-yellow);
+  border-radius: 0 3px 3px 0;
+  content: "";
+  transform: translateY(-50%);
+  transition: height .24s var(--ease-out);
+}
+
+.mobile-navigation nav a:active { transform: scale(.985); }
+
+.mobile-navigation__icon {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  color: var(--fair-yellow);
+  background: rgba(244, 180, 0, .13);
+  border-radius: 10px;
+  transition: color var(--transition), background var(--transition);
+}
+
+.mobile-navigation__label { flex: 1 1 auto; min-width: 0; }
+
+.mobile-navigation__chevron {
+  flex: 0 0 auto;
+  color: #7f95c9;
+  transition: color var(--transition), transform .24s var(--ease-out);
+}
+
+.mobile-navigation nav a.active {
+  color: #fff;
+  background: rgba(244, 180, 0, .12);
+  border-color: rgba(244, 180, 0, .32);
+}
+
+.mobile-navigation nav a.active::before { height: 56%; }
+
+.mobile-navigation nav a.active .mobile-navigation__icon {
+  color: var(--fair-blue-deep);
+  background: var(--fair-yellow);
+}
+
+.mobile-navigation nav a.active .mobile-navigation__chevron { color: var(--fair-yellow); }
+
+.mobile-navigation__foot {
+  margin-top: auto;
+  display: grid;
+  gap: 1rem;
+  padding: 1.15rem 1rem max(1.15rem, env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, .035);
+  border-top: 1px solid rgba(255, 255, 255, .1);
+}
+
+.mobile-navigation__cta {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  padding: .7rem 1rem;
+  color: var(--fair-ink);
+  background: var(--fair-yellow);
+  border-radius: 12px;
+  font-size: .9rem;
+  font-weight: 850;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(244, 180, 0, .2);
+  transition: background var(--transition), transform 160ms var(--ease-out);
+}
+
+.mobile-navigation__cta:active { transform: scale(.98); }
+
+.mobile-navigation__social { display: grid; justify-items: start; }
+
+/* El anillo global termina en azul, que sobre el cajón azul desaparece: aquí el
+   halo exterior pasa a amarillo para conservar el 3:1 de WCAG 1.4.11. */
+.mobile-navigation a:focus-visible,
+.mobile-navigation button:focus-visible {
+  box-shadow: 0 0 0 2px var(--fair-blue-deep), 0 0 0 5px var(--fair-yellow);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mobile-navigation__close:hover {
+    background: rgba(255, 255, 255, .16);
+    border-color: rgba(255, 255, 255, .4);
+  }
+
+  .mobile-navigation nav a:hover {
+    background: rgba(255, 255, 255, .1);
+    border-color: rgba(255, 255, 255, .2);
+  }
+
+  .mobile-navigation nav a:hover .mobile-navigation__chevron {
+    color: #fff;
+    transform: translateX(3px);
+  }
+
+  .mobile-navigation__cta:hover { background: #ffc61a; }
 }
 
 /* Hero de temporada */

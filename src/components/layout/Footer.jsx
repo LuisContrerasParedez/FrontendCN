@@ -4,15 +4,7 @@ import { safeUrl } from '../../utils/safeUrl';
 import Icon from '../ui/Icon';
 import ResponsiveImage from '../ui/ResponsiveImage';
 import SmartLink from '../ui/SmartLink';
-
-const NETWORKS = [
-  { key: 'facebook', label: 'Facebook', icon: 'facebook', url: 'https://www.facebook.com/CentraNorteGT' },
-  { key: 'tiktok', label: 'TikTok', icon: 'tiktok', url: 'https://www.tiktok.com/@centranortegt' },
-  { key: 'instagram', label: 'Instagram', icon: 'instagram', url: 'https://instagram.com/centranortegt' }
-];
-
-const FACTURAS_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSf66DJ94PuZaOk_W2eAdKwa3CN2eKQK05JC8yZ29UwuBDlwsw/viewform';
-const FACTURAS_LABEL = 'Carga tus facturas aquí';
+import { FACTURAS_LABEL, FACTURAS_URL, NETWORKS } from './siteLinks';
 
 export default function SiteFooter({ config = {} }) {
   const [failedLogoUrl, setFailedLogoUrl] = useState('');

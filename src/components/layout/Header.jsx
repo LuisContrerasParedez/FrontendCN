@@ -6,15 +6,19 @@ import Icon from '../ui/Icon';
 import MobileNavigation from './MobileNavigation';
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Inicio', desktop: true },
-  { to: '/locales', label: 'Locales', desktop: true },
-  { to: '/eventos', label: 'Eventos', desktop: true },
-  { to: '/promociones', label: 'Promociones', desktop: true },
-  { to: '/buses', label: 'Buses', desktop: true },
-  { to: '/parqueos-inquilinos', label: 'Parqueos inquilinos', desktop: true },
-  { to: '/quienes-somos', label: 'Quiénes somos', desktop: true },
-  { to: '/contacto', label: 'Contacto', desktop: false }
+  { to: '/', label: 'Inicio', icon: 'home', desktop: true },
+  { to: '/locales', label: 'Locales', icon: 'shop', desktop: true },
+  { to: '/eventos', label: 'Eventos', icon: 'calendar', desktop: true },
+  { to: '/promociones', label: 'Promociones', icon: 'gift', desktop: true },
+  { to: '/buses', label: 'Buses', icon: 'bus', desktop: true },
+  { to: '/parqueos-inquilinos', label: 'Parqueos inquilinos', icon: 'car', desktop: true },
+  { to: '/quienes-somos', label: 'Quiénes somos', icon: 'heart', desktop: true },
+  { to: '/contacto', label: 'Contacto', icon: 'phone', desktop: false }
 ];
+
+/* El cajón se desmonta al cerrarse, así que la salida necesita mantenerlo en el
+   DOM mientras corre la animación. Debe coincidir con drawer-out en motion.css. */
+const CLOSE_ANIMATION_MS = 220;
 
 function BrandFallback({ hidden = false }) {
   return (
@@ -27,18 +31,45 @@ function BrandFallback({ hidden = false }) {
 
 export default function SiteHeader({ config = {} }) {
   const [open, setOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [failedLogoUrl, setFailedLogoUrl] = useState('');
   const [loadedLogoUrl, setLoadedLogoUrl] = useState('');
   const menuButtonRef = useRef(null);
   const closeButtonRef = useRef(null);
+  const closeTimerRef = useRef(0);
   const logo = safeUrl(config.LogoUrl);
   const canLoadLogo = Boolean(logo) && failedLogoUrl !== logo;
   const logoLoaded = Boolean(logo) && loadedLogoUrl === logo;
-  const closeMenu = () => {
-    setOpen(false);
-    window.requestAnimationFrame(() => menuButtonRef.current?.focus());
+
+  const dismissMenu = (restoreFocus) => {
+    if (closeTimerRef.current) return;
+    const finish = () => {
+      closeTimerRef.current = 0;
+      setClosing(false);
+      setOpen(false);
+      if (restoreFocus) window.requestAnimationFrame(() => menuButtonRef.current?.focus());
+    };
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      finish();
+      return;
+    }
+
+    setClosing(true);
+    closeTimerRef.current = window.setTimeout(finish, CLOSE_ANIMATION_MS);
   };
+
+  const closeMenu = () => dismissMenu(true);
+  /* Al navegar el foco lo toma la página nueva: devolverlo al botón lo robaría. */
+  const navigateAndClose = () => dismissMenu(false);
+  /* El manejador global de Escape se registra una sola vez por apertura; leer el
+     cierre desde una ref evita volver a montar ese efecto en cada render. */
+  const closeMenuRef = useRef(null);
+
+  useEffect(() => { closeMenuRef.current = closeMenu; });
+
+  useEffect(() => () => window.clearTimeout(closeTimerRef.current), []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -60,8 +91,7 @@ export default function SiteHeader({ config = {} }) {
 
     const onKeyDown = (event) => {
       if (event.key === 'Escape' && open) {
-        setOpen(false);
-        window.requestAnimationFrame(() => menuButtonRef.current?.focus());
+        closeMenuRef.current();
         return;
       }
 
@@ -133,7 +163,12 @@ export default function SiteHeader({ config = {} }) {
               aria-expanded={open}
               aria-controls="mobile-navigation"
               aria-label="Abrir menú"
-              onClick={() => setOpen(true)}
+              onClick={() => {
+                window.clearTimeout(closeTimerRef.current);
+                closeTimerRef.current = 0;
+                setClosing(false);
+                setOpen(true);
+              }}
             >
               <Icon name="menu" size={25} />
             </button>
@@ -143,10 +178,13 @@ export default function SiteHeader({ config = {} }) {
       <div>
         <MobileNavigation
           open={open}
+          closing={closing}
           items={NAV_ITEMS}
           onClose={closeMenu}
-          onNavigate={() => setOpen(false)}
+          onNavigate={navigateAndClose}
           closeButtonRef={closeButtonRef}
+          logoUrl={canLoadLogo ? logo : ''}
+          logoReady={logoLoaded}
         />
       </div>
     </>

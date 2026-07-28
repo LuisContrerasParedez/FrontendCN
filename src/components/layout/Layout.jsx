@@ -1,25 +1,20 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import Header from './Header';
 import Footer from './Footer';
 import { InitialLoadingScreen } from '../ui/ContentStates';
 import useApi from '../../hooks/useApi';
+import useScrollRestoration from '../../hooks/useScrollRestoration';
 import { obtenerConfiguracion } from '../../services/configuracionService';
 import { obtenerPaginas } from '../../services/paginasService';
 import { useTheme } from '../../theme/ThemeProvider';
 
 export default function Layout({ refreshToken }) {
   const location = useLocation();
-  /* Solo la ruta cuenta como navegación. La query string lleva los filtros del
-     directorio (categoría, búsqueda, página) y cambiarlos no debe mover al
-     visitante de donde está leyendo. */
-  const routeKey = location.pathname;
   const themeState = useTheme();
   const configState = useApi(() => obtenerConfiguracion(), [refreshToken]);
   const pagesState = useApi(() => obtenerPaginas(), [refreshToken]);
   const config = configState.data || {};
-  const previousRoute = useRef(routeKey);
-  const pendingScrollReset = useRef(false);
   const [pageLoadState, setPageLoadState] = useState({
     path: location.pathname,
     loading: location.pathname === '/'
@@ -47,75 +42,9 @@ export default function Layout({ refreshToken }) {
     return () => document.body.classList.remove('initial-load-is-active');
   }, [initialLoading]);
 
-  const resetPageScroll = useCallback(() => {
-    const root = document.documentElement;
-    const previousBehavior = root.style.scrollBehavior;
-    root.style.scrollBehavior = 'auto';
-    root.scrollTop = 0;
-    document.body.scrollTop = 0;
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-    root.style.scrollBehavior = previousBehavior;
-  }, []);
-
-  useEffect(() => {
-    if (!('scrollRestoration' in window.history)) return undefined;
-    const previousRestoration = window.history.scrollRestoration;
-    window.history.scrollRestoration = 'manual';
-    return () => {
-      window.history.scrollRestoration = previousRestoration;
-    };
-  }, []);
-
-  useLayoutEffect(() => {
-    const isSameRoute = previousRoute.current === routeKey;
-    previousRoute.current = routeKey;
-
-
-    if (isSameRoute && !initialLoading) {
-      return undefined;
-    }
-
-    resetPageScroll();
-    pendingScrollReset.current = true;
-
-    if (initialLoading) {
-      return undefined;
-    }
-
-    let secondFrame;
-    const firstFrame = window.requestAnimationFrame(() => {
-      resetPageScroll();
-      const main = document.getElementById('contenido-principal');
-      const title = main?.querySelector('[data-page-title], h1');
-      const target = title || main;
-      if (target && !target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
-      target?.focus({ preventScroll: true });
-      secondFrame = window.requestAnimationFrame(resetPageScroll);
-    });
-
-    return () => {
-      window.cancelAnimationFrame(firstFrame);
-      window.cancelAnimationFrame(secondFrame);
-    };
-  }, [initialLoading, resetPageScroll, routeKey]);
-
-  useEffect(() => {
-    if (initialLoading || !pendingScrollReset.current) return undefined;
-
-    let secondFrame;
-    const firstFrame = window.requestAnimationFrame(() => {
-      resetPageScroll();
-      secondFrame = window.requestAnimationFrame(() => {
-        resetPageScroll();
-        pendingScrollReset.current = false;
-      });
-    });
-
-    return () => {
-      window.cancelAnimationFrame(firstFrame);
-      window.cancelAnimationFrame(secondFrame);
-    };
-  }, [initialLoading, resetPageScroll, routeKey]);
+  /* Atrás y adelante devuelven a la posición de lectura; cambiar de ruta empieza
+     arriba; cambiar solo los filtros del directorio no mueve nada. */
+  useScrollRestoration(!initialLoading);
 
   useEffect(() => {
     let frameId;
