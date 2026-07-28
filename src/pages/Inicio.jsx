@@ -11,10 +11,11 @@ import useApi from '../hooks/useApi';
 import { obtenerBanners } from '../services/bannersService';
 import { obtenerEventos } from '../services/eventosService';
 import { obtenerLocales } from '../services/localesService';
+import { obtenerRutasBus } from '../services/busesService';
 import MonthlyHero from '../components/home/MonthlyHero';
 import HeroTematico from '../components/home/temas/HeroTematico';
 import HomeEventsAgenda from '../components/home/HomeEventsAgenda';
-import VisitRoute from '../components/home/VisitRoute';
+import HomeTransport from '../components/home/HomeTransport';
 import LocalsMarquee from '../components/home/LocalsMarquee';
 import SectionHeading from '../components/ui/SectionHeading';
 import { EmptyState, ErrorState, LoadingState } from '../components/ui/ContentStates';
@@ -36,6 +37,7 @@ export default function Inicio() {
   const banners = useApi(() => obtenerBanners(), [refreshToken]);
   const events = useApi(() => obtenerEventos(), [refreshToken]);
   const locals = useApi(() => obtenerLocales(), [refreshToken]);
+  const routes = useApi(() => obtenerRutasBus(), [refreshToken]);
   const homePage = pages.find((page) => page.TipoPagina === 'INICIO');
   const wheelEvents = (events.data || []).slice(0, 9);
   const activeBanner = banners.data?.[0];
@@ -53,7 +55,7 @@ export default function Inicio() {
     return () => reportPageLoading(false);
   }, [initialLoading, reportPageLoading]);
 
-  useReveal([events.data, banners.data, locals.data, themeState.loading]);
+  useReveal([events.data, banners.data, locals.data, routes.data, themeState.loading]);
 
   return (
     <div className="home-page">
@@ -102,16 +104,7 @@ export default function Inicio() {
       </section>
 
       <div className="footer-awning" aria-hidden="true">{Array.from({ length: 10 }, (_, index) => <i key={index} />)}</div>
-      <div className="home-visit-route-section reveal">
-        <div className="container home-visit-route-section__heading">
-          <SectionHeading
-            eyebrow="Tu recorrido"
-            title="Formas de vivir Centra Norte"
-            description="Compra, disfruta nuevas experiencias, planifica tu visita y continúa tu viaje desde un solo lugar."
-          />
-        </div>
-        <VisitRoute />
-      </div>
+      <HomeTransport routes={routes.data || []} loading={routes.loading} />
 
     </div>
   );

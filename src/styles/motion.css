@@ -283,53 +283,39 @@
   to { opacity: 1; clip-path: inset(-60px round 0); }
 }
 
+/* El relato entra de un lado y el mosaico se arma ficha por ficha en diagonal,
+   en el orden en que se leen: arriba-izquierda, arriba-derecha, y así. */
 @media (prefers-reduced-motion: no-preference) {
-  .home-visit-route-section.reveal .home-visit-route-section__heading {
+  .home-transport.reveal .home-transport__copy {
     opacity: 0;
     translate: 0 24px;
   }
 
-  .home-visit-route-section.reveal.is-visible .home-visit-route-section__heading {
+  .home-transport.reveal.is-visible .home-transport__copy {
     opacity: 1;
     translate: none;
     animation: home-route-heading-in .62s var(--ease-out) both;
   }
 
-  .home-visit-route-section.reveal .visit-route__step {
-    --route-entry-x: 0;
-    --route-entry-rotation: 0deg;
+  .home-transport.reveal .home-transport__grid > li {
     opacity: 0;
-    translate: var(--route-entry-x) 46px;
-    scale: .9;
-    rotate: var(--route-entry-rotation);
+    translate: 0 34px;
+    scale: .92;
   }
 
-  .home-visit-route-section.reveal .visit-route__step:nth-child(1) { --route-entry-x: -34px; --route-entry-rotation: -3deg; }
-  .home-visit-route-section.reveal .visit-route__step:nth-child(2) { --route-entry-x: -14px; --route-entry-rotation: -1.5deg; }
-  .home-visit-route-section.reveal .visit-route__step:nth-child(3) { --route-entry-x: 14px; --route-entry-rotation: 1.5deg; }
-  .home-visit-route-section.reveal .visit-route__step:nth-child(4) { --route-entry-x: 34px; --route-entry-rotation: 3deg; }
-
-  .home-visit-route-section.reveal.is-visible .visit-route__step {
+  .home-transport.reveal.is-visible .home-transport__grid > li {
     opacity: 1;
     translate: none;
     scale: 1;
-    rotate: 0deg;
-    animation: home-route-deal-in .82s cubic-bezier(.2, .8, .2, 1.12) both;
+    animation: home-route-tile-in .72s cubic-bezier(.2, .8, .2, 1.08) both;
   }
 
-  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(1) { animation-delay: .08s; }
-  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(2) { animation-delay: .16s; }
-  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(3) { animation-delay: .24s; }
-  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(4) { animation-delay: .32s; }
-
-  .home-visit-route-section.reveal.is-visible .visit-route__icon {
-    animation: home-route-icon-pop .55s cubic-bezier(.2, .85, .25, 1.35) both;
-  }
-
-  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(1) .visit-route__icon { animation-delay: .3s; }
-  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(2) .visit-route__icon { animation-delay: .38s; }
-  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(3) .visit-route__icon { animation-delay: .46s; }
-  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(4) .visit-route__icon { animation-delay: .54s; }
+  .home-transport.reveal.is-visible .home-transport__grid > li:nth-child(1) { animation-delay: .1s; }
+  .home-transport.reveal.is-visible .home-transport__grid > li:nth-child(2) { animation-delay: .17s; }
+  .home-transport.reveal.is-visible .home-transport__grid > li:nth-child(3) { animation-delay: .24s; }
+  .home-transport.reveal.is-visible .home-transport__grid > li:nth-child(4) { animation-delay: .31s; }
+  .home-transport.reveal.is-visible .home-transport__grid > li:nth-child(5) { animation-delay: .38s; }
+  .home-transport.reveal.is-visible .home-transport__grid > li:nth-child(6) { animation-delay: .45s; }
 }
 
 @keyframes home-route-heading-in {
@@ -337,16 +323,10 @@
   to { opacity: 1; translate: none; }
 }
 
-@keyframes home-route-deal-in {
-  0% { opacity: 0; translate: var(--route-entry-x) 46px; scale: .9; rotate: var(--route-entry-rotation); }
-  68% { opacity: 1; translate: 0 -7px; scale: 1.015; rotate: 0deg; }
-  100% { opacity: 1; translate: none; scale: 1; rotate: 0deg; }
-}
-
-@keyframes home-route-icon-pop {
-  0% { opacity: 0; scale: .55; rotate: -10deg; }
-  72% { opacity: 1; scale: 1.08; rotate: 2deg; }
-  100% { opacity: 1; scale: 1; rotate: 0deg; }
+@keyframes home-route-tile-in {
+  0% { opacity: 0; translate: 0 34px; scale: .92; }
+  70% { opacity: 1; translate: 0 -5px; scale: 1.012; }
+  100% { opacity: 1; translate: none; scale: 1; }
 }
 
 /* En los directorios móviles la información ya está dentro del primer
@@ -417,10 +397,10 @@
 .content-card,
 .content-card__image,
 .bus-route-card,
-.visit-route__step,
+.home-transport__tile,
+.home-transport__image,
 .quick-links a,
 .quick-links__arrow,
-.visit-route__arrow,
 .desktop-navigation a::after {
   transition:
     color var(--transition),
@@ -428,6 +408,14 @@
     border-color var(--transition),
     box-shadow .24s var(--ease-out),
     transform .24s var(--ease-out);
+}
+
+/* El rótulo del destino se mueve en opacidad y `translate`, que no entran en la
+   transición compartida de arriba; lleva la suya. */
+.home-transport__label {
+  transition:
+    opacity .2s var(--ease-out),
+    translate .24s var(--ease-out);
 }
 
 .button:active { transform: translateY(1px) scale(.985); }
@@ -446,8 +434,6 @@
   }
 
   .content-card:hover .content-card__image { transform: scale(1.025); }
-  .visit-route__step:hover { background: #f8f6f0; }
-  .visit-route__step:hover .visit-route__arrow,
   .quick-links a:hover .quick-links__arrow { transform: translateX(4px); }
   .quick-links a:hover { color: var(--fair-yellow); }
 }

@@ -14,7 +14,6 @@
   .hero-actions .button { min-width: 180px; }
   .transport-actions { align-items: center; flex-direction: row; flex-wrap: wrap; }
 
-  .visit-route__step { padding-inline: 1.25rem; }
   .about-board__amenities {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 1.5rem;
@@ -44,17 +43,6 @@
   .monthly-hero .hero-actions {
     justify-content: center;
   }
-
-  .visit-route { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-
-  .visit-route__step {
-    min-height: 132px;
-    grid-template-columns: 42px 1fr auto;
-    border-right: 1px solid var(--fair-border);
-    border-bottom: 0;
-  }
-
-  .visit-route__step:last-child { border-right: 0; }
 
   .welcome-section__grid {
     grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
@@ -293,8 +281,6 @@
     margin-bottom: 1.25rem;
   }
   .monthly-hero .hero-campaign-link { margin-top: .4rem; }
-  .monthly-hero .visit-route { margin-top: clamp(1.25rem, 2vw, 1.75rem); }
-  .monthly-hero .visit-route__step { min-height: 112px; }
 
   .home-page .welcome-section__grid {
     grid-template-columns: minmax(320px, .72fr) minmax(0, 1.28fr);
@@ -313,7 +299,6 @@
 
 @media (min-width: 1440px) {
   .monthly-hero { padding-top: clamp(1.5rem, 2vw, 2.25rem); }
-  .visit-route { margin-top: clamp(1.25rem, 2vw, 1.75rem); }
 }
 
 /* Escritorio de altura contenida: el zoom cambia el viewport CSS, por lo que
@@ -362,8 +347,6 @@
     height: 100%;
   }
 
-  .monthly-hero .visit-route { margin-top: 1rem; }
-  .monthly-hero .visit-route__step { min-height: 104px; }
 }
 
 /* Encabezados internos compactos desde laptop hacia abajo. La condición por
@@ -653,7 +636,6 @@
   }
 
   .monthly-hero__visual { align-self: center; }
-  .monthly-hero .visit-route { margin-top: 1.25rem; }
 }
 
 @media (max-width: 419px) {
@@ -661,7 +643,6 @@
   .header-visit-link { display: none; }
   .monthly-hero__content h1 { font-size: clamp(2.7rem, 12vw, 3.6rem); }
 
-  .visit-route__step { gap: .7rem; }
   .pagination { align-items: stretch; flex-wrap: wrap; }
   .pagination span { width: 100%; order: -1; }
 }
@@ -694,6 +675,8 @@
   .home-events-agenda__header,
   .home-events-agenda__item,
   .home-events-agenda__card--loading,
+  .home-transport__copy,
+  .home-transport__grid > li,
   .locals-marquee__track,
   .locals-marquee__group > li,
   .locals-marquee__card::before,
@@ -713,7 +696,8 @@
   .content-card,
   .content-card__image,
   .bus-route-card,
-  .visit-route__step,
+  .home-transport__tile,
+  .home-transport__image,
   .quick-links a,
   .desktop-navigation a::after {
     transition-duration: 0ms !important;
