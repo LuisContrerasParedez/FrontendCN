@@ -414,10 +414,13 @@ p { margin-bottom: 1rem; }
   transform-origin: left;
 }
 
-.desktop-navigation a:hover,
 .desktop-navigation a.active { color: var(--fair-blue); }
-.desktop-navigation a:hover::after,
 .desktop-navigation a.active::after { transform: scaleX(1); }
+
+@media (hover: hover) and (pointer: fine) {
+  .desktop-navigation a:hover { color: var(--fair-blue); }
+  .desktop-navigation a:hover::after { transform: scaleX(1); }
+}
 
 .header-actions { display: flex; align-items: center; gap: .55rem; }
 
@@ -468,11 +471,12 @@ p { margin-bottom: 1rem; }
   flex-direction: column;
   overflow-y: auto;
   color: #fff;
-  /* El halo ámbar de la esquina superior derecha ata el cajón al amarillo de
-     feria sin teñir el texto ni bajar el contraste del fondo azul. */
+  /* Luz cálida arriba y profundidad índigo abajo: los halos amplios evitan
+     bandas visibles y conectan el cajón con la paleta nocturna de la feria. */
   background:
-    radial-gradient(118% 52% at 100% 0%, rgba(244, 180, 0, .17) 0%, rgba(244, 180, 0, 0) 62%),
-    linear-gradient(180deg, var(--fair-blue) 0%, var(--fair-blue-deep) 44%, #06163a 100%);
+    radial-gradient(105% 48% at 100% 0%, rgba(244, 180, 0, .11) 0%, rgba(244, 180, 0, 0) 68%),
+    radial-gradient(90% 46% at 0% 100%, rgba(38, 72, 150, .18) 0%, rgba(38, 72, 150, 0) 72%),
+    linear-gradient(155deg, #0a245e 0%, var(--fair-blue) 34%, #050f37 70%, var(--fair-blue-deep) 100%);
   box-shadow: var(--shadow-drawer);
   overscroll-behavior: contain;
 }
@@ -503,9 +507,9 @@ p { margin-bottom: 1rem; }
   justify-content: space-between;
   gap: 1rem;
   padding: max(.85rem, env(safe-area-inset-top)) max(1.05rem, env(safe-area-inset-right)) .85rem 1.05rem;
-  background: linear-gradient(180deg, rgba(11, 35, 89, .97) 0%, rgba(11, 35, 89, .88) 100%);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, .1);
+  background: linear-gradient(180deg, rgba(5, 16, 52, .86) 0%, rgba(5, 16, 52, .58) 100%);
+  backdrop-filter: blur(16px) saturate(120%);
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
 }
 
 .mobile-navigation__brand {
@@ -634,8 +638,8 @@ p { margin-bottom: 1rem; }
 
 .mobile-navigation nav a.active {
   color: #fff;
-  background: rgba(244, 180, 0, .12);
-  border-color: rgba(244, 180, 0, .32);
+  background: linear-gradient(105deg, rgba(244, 180, 0, .16), rgba(255, 255, 255, .055) 58%, rgba(255, 255, 255, .025));
+  border-color: rgba(244, 180, 0, .38);
 }
 
 .mobile-navigation nav a.active::before { height: 56%; }
@@ -652,8 +656,8 @@ p { margin-bottom: 1rem; }
   display: grid;
   gap: 1rem;
   padding: 1.15rem 1rem max(1.15rem, env(safe-area-inset-bottom));
-  background: rgba(255, 255, 255, .035);
-  border-top: 1px solid rgba(255, 255, 255, .1);
+  background: linear-gradient(180deg, rgba(3, 11, 45, 0), rgba(2, 7, 25, .28));
+  border-top: 1px solid rgba(255, 255, 255, .07);
 }
 
 .mobile-navigation__cta {
@@ -786,8 +790,8 @@ p { margin-bottom: 1rem; }
   background: var(--fair-blue);
   border-radius: var(--radius-large);
   box-shadow:
-    16px 18px 34px rgba(13, 43, 107, .24),
-    -14px -14px 30px rgba(255, 255, 255, .96);
+    0 4px 10px rgba(13, 43, 107, .16),
+    0 22px 44px rgba(13, 43, 107, .22);
 }
 
 /* Área dinámica apagada: el panel se ajusta al contenido, sin la escena de feria. */
@@ -1344,6 +1348,7 @@ p { margin-bottom: 1rem; }
 
 @media (hover: hover) and (pointer: fine) {
   .home-events-agenda__card:hover {
+    z-index: 2;
     border-color: rgba(20, 49, 113, .28);
     box-shadow: 0 20px 42px rgba(15, 38, 87, .16);
     transform: translateY(-5px);
@@ -1545,6 +1550,7 @@ p { margin-bottom: 1rem; }
 
 @media (hover: hover) and (pointer: fine) {
   .home-events-agenda__card:hover {
+    z-index: 2;
     border-color: transparent;
     box-shadow: var(--shadow-soft-raised-hover);
     transform: translateY(-4px);
@@ -1705,6 +1711,7 @@ p { margin-bottom: 1rem; }
 /* El hover enciende el borde y un halo del mismo tono de la tarjeta. */
 @media (hover: hover) and (pointer: fine) {
   .home-visit-route-section .visit-route__step:hover {
+    z-index: 2;
     background: var(--route-soft);
     border-color: var(--route-tone);
     box-shadow:
@@ -1892,10 +1899,24 @@ p { margin-bottom: 1rem; }
   transition: box-shadow .25s var(--ease-out), transform .25s var(--ease-out);
 }
 
-.events-section .event-card:hover,
-.events-section .event-card:focus-within,
-.promotions-section .promotion-card:hover,
-.promotions-section .promotion-card:focus-within {
+/* El levantamiento sólo existe con puntero fino: en táctil el `:hover` se queda
+   pegado tras el tap y la tarjeta se queda elevada, con su sombra invadiendo a
+   las vecinas. `z-index` la sube por encima de sus hermanas mientras dura el
+   estado, si no la siguiente tarjeta del grid le recorta la sombra. */
+@media (hover: hover) and (pointer: fine) {
+  .events-section .event-card:hover,
+  .promotions-section .promotion-card:hover {
+    z-index: 2;
+    box-shadow: var(--shadow-soft-raised-hover);
+    transform: translateY(-3px);
+  }
+}
+
+/* `:focus-within` también se disparaba al tocar el enlace; con `:focus-visible`
+   el realce queda reservado a la navegación por teclado. */
+.events-section .event-card:has(:focus-visible),
+.promotions-section .promotion-card:has(:focus-visible) {
+  z-index: 2;
   box-shadow: var(--shadow-soft-raised-hover);
   transform: translateY(-3px);
 }
@@ -2296,13 +2317,15 @@ p { margin-bottom: 1rem; }
 .discovery-board__item .card-meta { margin-bottom: .3rem; color: #dbe4ff !important; font-size: .8rem; }
 .discovery-board__item .text-link { color: #fff; font-size: .85rem; }
 
-.discovery-board .discovery-board__item:hover {
-  border-color: transparent;
-  box-shadow: none;
-  transform: translateX(4px);
-}
+@media (hover: hover) and (pointer: fine) {
+  .discovery-board .discovery-board__item:hover {
+    border-color: transparent;
+    box-shadow: none;
+    transform: translateX(4px);
+  }
 
-.discovery-board .discovery-board__item:hover .content-card__image { transform: none; }
+  .discovery-board .discovery-board__item:hover .content-card__image { transform: none; }
+}
 
 @media (min-width: 980px) {
   .discovery-board {
@@ -2497,9 +2520,11 @@ p { margin-bottom: 1rem; }
   color: #fff;
   background: var(--fair-blue);
   border-radius: var(--radius-large);
+  /* El filo claro va por dentro: define el canto del panel azul sin proyectar
+     ningún halo blanco sobre la página. */
   box-shadow:
-    18px 24px 46px rgba(8, 29, 77, .3),
-    -10px -10px 26px rgba(255, 255, 255, .88),
+    0 4px 12px rgba(8, 29, 77, .18),
+    0 24px 48px rgba(8, 29, 77, .26),
     inset 1px 1px 0 rgba(255, 255, 255, .14),
     inset -2px -2px 0 rgba(3, 17, 48, .3);
 }
@@ -2681,9 +2706,11 @@ p { margin-bottom: 1rem; }
   transition: transform var(--transition), background var(--transition);
 }
 
-.promotion-participation__cta:hover {
-  background: #ffc61a;
-  transform: translateY(-1px);
+@media (hover: hover) and (pointer: fine) {
+  .promotion-participation__cta:hover {
+    background: #ffc61a;
+    transform: translateY(-1px);
+  }
 }
 
 .promotion-detail-page__content { max-width: 1320px; }
@@ -2952,6 +2979,7 @@ p { margin-bottom: 1rem; }
 }
 
 .category-filter button {
+  position: relative;
   min-height: 38px;
   max-width: 100%;
   flex: 0 1 auto;
@@ -2968,7 +2996,9 @@ p { margin-bottom: 1rem; }
   transition: box-shadow var(--transition), color var(--transition), background var(--transition);
 }
 
-.category-filter button:hover { box-shadow: var(--shadow-soft-raised); }
+@media (hover: hover) and (pointer: fine) {
+  .category-filter button:hover { z-index: 1; box-shadow: var(--shadow-soft-pill-raised); }
+}
 
 .category-filter button.is-active {
   color: #fff;
@@ -2995,8 +3025,16 @@ p { margin-bottom: 1rem; }
   transition: box-shadow .25s var(--ease-out), transform .25s var(--ease-out);
 }
 
-.directory-section .local-card:hover,
-.directory-section .local-card:focus-within {
+@media (hover: hover) and (pointer: fine) {
+  .directory-section .local-card:hover {
+    z-index: 2;
+    box-shadow: var(--shadow-soft-raised-hover);
+    transform: translateY(-3px);
+  }
+}
+
+.directory-section .local-card:has(:focus-visible) {
+  z-index: 2;
   box-shadow: var(--shadow-soft-raised-hover);
   transform: translateY(-3px);
 }
@@ -3082,8 +3120,16 @@ p { margin-bottom: 1rem; }
   transition: box-shadow .25s var(--ease-out), transform .25s var(--ease-out);
 }
 
-.bus-directory .bus-route-card:hover,
-.bus-directory .bus-route-card:focus-within {
+@media (hover: hover) and (pointer: fine) {
+  .bus-directory .bus-route-card:hover {
+    z-index: 2;
+    box-shadow: var(--shadow-soft-raised-hover);
+    transform: translateY(-3px);
+  }
+}
+
+.bus-directory .bus-route-card:has(:focus-visible) {
+  z-index: 2;
   box-shadow: var(--shadow-soft-raised-hover);
   transform: translateY(-3px);
 }
@@ -3106,8 +3152,8 @@ p { margin-bottom: 1rem; }
   background: var(--fair-blue);
   border-radius: var(--radius-large);
   box-shadow:
-    20px 26px 50px rgba(8, 29, 77, .32),
-    -10px -10px 28px rgba(255, 255, 255, .9),
+    0 5px 14px rgba(8, 29, 77, .2),
+    0 26px 52px rgba(8, 29, 77, .28),
     inset 1px 1px 0 rgba(255, 255, 255, .14),
     inset -2px -2px 0 rgba(3, 17, 48, .34);
 }
@@ -3333,10 +3379,8 @@ p { margin-bottom: 1rem; }
   background: #fff;
   border-radius: 16px;
   box-shadow:
-    18px 22px 44px rgba(67, 86, 123, .27),
-    -12px -12px 28px rgba(255, 255, 255, .98),
-    inset 1px 1px 0 rgba(255, 255, 255, .82),
-    inset -2px -2px 0 rgba(91, 116, 160, .12);
+    0 2px 6px rgba(13, 43, 107, .07),
+    0 20px 44px rgba(13, 43, 107, .13);
 }
 
 .about-board__header {
@@ -3670,7 +3714,9 @@ p { margin-bottom: 1rem; }
   position: relative;
   overflow: hidden;
   color: #fff;
-  background: var(--fair-blue-deep);
+  background:
+    radial-gradient(80% 110% at 8% 0%, rgba(38, 72, 150, .18), rgba(38, 72, 150, 0) 62%),
+    linear-gradient(155deg, var(--fair-blue) 0%, var(--fair-blue-deep) 78%);
 }
 
 .footer-awning {
@@ -3690,12 +3736,24 @@ p { margin-bottom: 1rem; }
   padding-block: clamp(1.6rem, 3vw, 2.4rem);
 }
 
+/* `width: max-content` ciñe la columna de marca a su elemento más ancho —hoy el
+   botón de facturas, mañana lo que toque—, así que da un eje propio sobre el que
+   centrar la fila de redes. `max-width` la devuelve al ancho disponible si la
+   etiqueta del botón crece o la pantalla se estrecha. */
 .footer-brand {
   display: grid;
   align-content: start;
   justify-items: start;
+  width: max-content;
+  max-width: 100%;
   gap: 1.05rem;
 }
+
+/* Los tres iconos suman ~130px frente a los ~190 del logo y los ~225 del botón:
+   pegados al borde izquierdo quedaban descolgados entre dos piezas mucho más
+   anchas. Centrados sobre el bloque comparten eje óptico con ambas, y como el
+   ancho lo fija el contenido, se sostiene en cualquier tamaño de pantalla. */
+.footer-brand .social-links { justify-self: center; }
 
 .footer-brand__logo {
   position: relative;
@@ -3707,7 +3765,9 @@ p { margin-bottom: 1rem; }
   transition: opacity var(--transition);
 }
 
-.footer-brand__logo:hover { opacity: .86; }
+@media (hover: hover) and (pointer: fine) {
+  .footer-brand__logo:hover { opacity: .86; }
+}
 
 /* El logo institucional es azul y rojo sobre transparente: sobre el azul
    profundo del pie se normaliza a blanco puro para conservar el contraste
@@ -3775,7 +3835,9 @@ p { margin-bottom: 1rem; }
   transition: color var(--transition);
 }
 
-.footer-links a:hover { color: #fff; text-decoration: underline; }
+@media (hover: hover) and (pointer: fine) {
+  .footer-links a:hover { color: #fff; text-decoration: underline; }
+}
 
 .footer-visit {
   display: grid;
@@ -3855,9 +3917,11 @@ p { margin-bottom: 1rem; }
   transition: transform var(--transition), background var(--transition);
 }
 
-.footer-cta:hover {
-  background: #ffc61a;
-  transform: translateY(-1px);
+@media (hover: hover) and (pointer: fine) {
+  .footer-cta:hover {
+    background: #ffc61a;
+    transform: translateY(-1px);
+  }
 }
 
 .social-links { display: flex; gap: .5rem; }
@@ -3874,11 +3938,13 @@ p { margin-bottom: 1rem; }
   transition: color var(--transition), transform var(--transition), background var(--transition), border-color var(--transition);
 }
 
-.social-links a:hover {
-  color: var(--fair-blue-deep);
-  background: var(--fair-yellow);
-  border-color: var(--fair-yellow);
-  transform: translateY(-2px);
+@media (hover: hover) and (pointer: fine) {
+  .social-links a:hover {
+    color: var(--fair-blue-deep);
+    background: var(--fair-yellow);
+    border-color: var(--fair-yellow);
+    transform: translateY(-2px);
+  }
 }
 
 .footer-bottom {

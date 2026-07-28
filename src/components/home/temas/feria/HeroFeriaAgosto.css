@@ -157,12 +157,16 @@
   box-shadow: 0 10px 26px rgba(4, 10, 45, .38);
 }
 
-.hfa__btn:hover {
-  transform: translateY(-2px);
-}
+/* Sólo con puntero fino: en táctil el `:hover` se queda pegado tras el tap y el
+   botón permanece desplazado y con la sombra encima del botón contiguo. */
+@media (hover: hover) and (pointer: fine) {
+  .hfa__btn:hover {
+    transform: translateY(-2px);
+  }
 
-.hfa__btn--primario:hover { background: var(--hfa-naranja-alto); }
-.hfa__btn--claro:hover { background: #f2f5ff; }
+  .hfa__btn--primario:hover { background: var(--hfa-naranja-alto); }
+  .hfa__btn--claro:hover { background: #f2f5ff; }
+}
 
 .hfa__btn:active { transform: translateY(0); }
 

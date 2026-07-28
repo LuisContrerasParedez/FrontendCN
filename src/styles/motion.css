@@ -216,8 +216,12 @@
     transform: translateX(-28px);
   }
 
-  .home-events-agenda.reveal .home-events-agenda__item,
-  .home-events-agenda.reveal .home-events-agenda__card--loading {
+  /* El esqueleto de carga queda fuera de la entrada. Antes la compartía con la
+     tarjeta real, así que la animación corría dos veces: una con el placeholder
+     y otra al llegar los datos del CMS, cuando React lo sustituye por el
+     `<article>`. Si los datos caían a mitad del recorrido, la tarjeta saltaba de
+     vuelta al origen y volvía a entrar: el «rebote» del primer evento. */
+  .home-events-agenda.reveal .home-events-agenda__item {
     opacity: 0;
     clip-path: inset(0 0 0 18% round var(--radius-medium));
     transform: translateX(38px) rotate(1.25deg);
@@ -227,19 +231,33 @@
     animation: home-agenda-heading-in .62s var(--ease-out) both;
   }
 
-  .home-events-agenda.reveal.is-visible .home-events-agenda__item,
-  .home-events-agenda.reveal.is-visible .home-events-agenda__card--loading {
+  .home-events-agenda.reveal.is-visible .home-events-agenda__item {
     animation: home-agenda-ticket-in .72s .1s var(--ease-out) both;
   }
 
-  .home-events-agenda.reveal.is-visible .home-events-agenda__item:nth-child(2),
-  .home-events-agenda.reveal.is-visible .home-events-agenda__card--loading:nth-child(2) { animation-delay: .2s; }
+  .home-events-agenda.reveal.is-visible .home-events-agenda__item:nth-child(2) { animation-delay: .2s; }
+  .home-events-agenda.reveal.is-visible .home-events-agenda__item:nth-child(3) { animation-delay: .3s; }
+  .home-events-agenda.reveal.is-visible .home-events-agenda__item:nth-child(4) { animation-delay: .4s; }
+}
 
-  .home-events-agenda.reveal.is-visible .home-events-agenda__item:nth-child(3),
-  .home-events-agenda.reveal.is-visible .home-events-agenda__card--loading:nth-child(3) { animation-delay: .3s; }
+/* Por debajo de 720px la agenda deja de ser cuadrícula y pasa a ser un carrusel
+   con `scroll-snap-type: inline mandatory`. El área de anclaje de cada tarjeta
+   es su caja *ya transformada*, así que un `translateX` animado desplaza los
+   puntos de anclaje fotograma a fotograma y el navegador reengancha el scroll
+   mientras dura la entrada: la primera tarjeta avanza y el anclaje la devuelve
+   de golpe. Ese es el rebote que sobrevivía en móvil.
 
-  .home-events-agenda.reveal.is-visible .home-events-agenda__item:nth-child(4),
-  .home-events-agenda.reveal.is-visible .home-events-agenda__card--loading:nth-child(4) { animation-delay: .4s; }
+   En el carrusel la entrada va sin desplazamiento en el eje del scroll; el
+   barrido del `clip-path` basta para que se siga leyendo como un boleto que
+   llega. Fuera del carrusel (>=720px) la entrada lateral se conserva. */
+@media (prefers-reduced-motion: no-preference) and (max-width: 719px) {
+  .home-events-agenda.reveal .home-events-agenda__item {
+    transform: none;
+  }
+
+  .home-events-agenda.reveal.is-visible .home-events-agenda__item {
+    animation-name: home-agenda-ticket-in-rail;
+  }
 }
 
 @keyframes home-agenda-heading-in {
@@ -247,10 +265,22 @@
   to { opacity: 1; transform: none; }
 }
 
+/* El boleto entra y se detiene: un solo tramo, sin pasarse de su sitio. La
+   parada al 68% lo llevaba 4px más allá y con la rotación invertida, y como
+   `--ease-out` es casi instantánea en su primer cuarto, ese ida y vuelta se
+   leía como un rebote en vez de como una llegada. */
 @keyframes home-agenda-ticket-in {
-  0% { opacity: 0; clip-path: inset(0 0 0 18% round var(--radius-medium)); transform: translateX(38px) rotate(1.25deg); }
-  68% { opacity: 1; clip-path: inset(0 round var(--radius-medium)); transform: translateX(-4px) rotate(-.35deg); }
-  100% { opacity: 1; clip-path: inset(0 round var(--radius-medium)); transform: none; }
+  from { opacity: 0; clip-path: inset(0 0 0 18% round var(--radius-medium)); transform: translateX(38px) rotate(1.25deg); }
+  /* El recorte final se abre más allá de la caja: con `animation-fill-mode:
+     both` el último fotograma se queda puesto para siempre, y un `inset(0)`
+     recortaba la sombra del hover contra el borde exacto de la tarjeta. */
+  to { opacity: 1; clip-path: inset(-60px round 0); transform: none; }
+}
+
+/* Variante del carrusel móvil: mismo barrido, sin tocar el eje del scroll. */
+@keyframes home-agenda-ticket-in-rail {
+  from { opacity: 0; clip-path: inset(0 0 0 18% round var(--radius-medium)); }
+  to { opacity: 1; clip-path: inset(-60px round 0); }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -405,8 +435,11 @@
 @media (hover: hover) and (pointer: fine) {
   .button:hover { transform: translateY(-2px); filter: brightness(.96); }
 
+  /* `--shadow-lift` difumina 38px: sin `z-index` la tarjeta siguiente del grid
+     se dibuja encima y la sombra aparece cortada contra su vecina. */
   .content-card:hover,
   .bus-route-card:hover {
+    z-index: 2;
     border-color: transparent;
     box-shadow: var(--shadow-lift);
     transform: translateY(-4px);

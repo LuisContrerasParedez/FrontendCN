@@ -104,7 +104,7 @@ export function ThemeProvider({ refreshToken, children }) {
     root.dataset.theme = key;
     document.body.dataset.theme = key;
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.content = validHex(theme?.ColorPrimario) || '#0d2b6b';
+    if (meta) meta.content = validHex(theme?.ColorPrimario) || '#071a4f';
 
     return () => {
       applied.current.forEach((property) => root.style.removeProperty(property));

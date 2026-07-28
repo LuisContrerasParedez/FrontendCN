@@ -36,7 +36,7 @@ const VISIT_STEPS = [
 
 export default function VisitRoute() {
   return (
-    <nav className="container visit-route" aria-label="Cuatro formas de vivir Centra Norte">
+    <nav className="container visit-route" aria-label="Formas de vivir Centra Norte">
       {VISIT_STEPS.map((step) => (
         <Link key={step.to} className={'visit-route__step visit-route__step--' + step.tone} to={step.to}>
           <span className="visit-route__icon" aria-hidden="true"><Icon name={step.icon} size={24} /></span>

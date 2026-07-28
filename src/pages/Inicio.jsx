@@ -106,7 +106,7 @@ export default function Inicio() {
         <div className="container home-visit-route-section__heading">
           <SectionHeading
             eyebrow="Tu recorrido"
-            title="Cuatro formas de vivir Centra Norte"
+            title="Formas de vivir Centra Norte"
             description="Compra, disfruta nuevas experiencias, planifica tu visita y continúa tu viaje desde un solo lugar."
           />
         </div>
