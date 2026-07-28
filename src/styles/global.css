@@ -9,6 +9,10 @@ html {
   min-width: 320px;
   overflow-x: hidden;
   overscroll-behavior-x: none;
+  /* Reserva el carril de la barra: sin esto, cada `overflow: hidden` sobre body
+     (la carga inicial y el menú móvil) le quita la barra a la página y todo el
+     contenido salta horizontalmente al aparecer y desaparecer. */
+  scrollbar-gutter: stable;
   scroll-behavior: smooth;
   scroll-padding-top: 92px;
   /* Escala global ~10% más chica: todo lo que use rem (texto, --section-space,
@@ -89,40 +93,22 @@ body.initial-load-is-active { overflow: hidden; }
   display: grid;
   justify-items: center;
   gap: .6rem;
-  width: min(100%, 260px);
+  width: min(100%, 320px);
   text-align: center;
 }
 
-.initial-loading-screen__content > strong {
-  margin-top: .35rem;
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  line-height: 1;
-  letter-spacing: -.025em;
+.initial-loading-screen__logo {
+  display: block;
+  width: min(100%, 300px);
+  height: auto;
+  margin-bottom: .25rem;
+  object-fit: contain;
 }
 
-.initial-loading-screen__content > span:not(.initial-loading-screen__mark, .initial-loading-screen__track) {
+.initial-loading-screen__content > span:not(.initial-loading-screen__track) {
   color: var(--fair-muted);
   font-size: .86rem;
 }
-
-.initial-loading-screen__mark {
-  display: grid;
-  grid-template-columns: repeat(2, 18px);
-  gap: 4px;
-  transform: rotate(45deg);
-}
-
-.initial-loading-screen__mark i {
-  width: 18px;
-  aspect-ratio: 1;
-  border-radius: 2px;
-  background: var(--fair-yellow);
-}
-
-.initial-loading-screen__mark i:nth-child(2) { background: var(--fair-coral); }
-.initial-loading-screen__mark i:nth-child(3) { background: var(--fair-blue); }
-.initial-loading-screen__mark i:nth-child(4) { background: var(--fair-green); }
 
 .initial-loading-screen__track {
   position: relative;
@@ -1004,6 +990,588 @@ p { margin-bottom: 1rem; }
   line-clamp: 2;
 }
 
+/* Agenda breve del inicio: se comporta como una cartelera editorial y no
+   repite ni la cuadrícula ni el movimiento continuo del carrusel de locales. */
+.home-events-agenda {
+  position: relative;
+  z-index: 2;
+  padding: clamp(2rem, 4vw, 3.25rem) 0 clamp(1rem, 2.4vw, 1.75rem);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 7% 12%, rgba(244, 177, 0, .13), transparent 26%),
+    linear-gradient(180deg, #fffdf8 0%, #f8f5ed 100%);
+}
+
+.home-events-agenda::after {
+  position: absolute;
+  right: -90px;
+  bottom: -120px;
+  width: 280px;
+  height: 280px;
+  border: 38px solid rgba(20, 49, 113, .045);
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+}
+
+.home-events-agenda__inner { position: relative; z-index: 1; }
+
+.home-events-agenda__header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: clamp(1.1rem, 2vw, 1.6rem);
+}
+
+/* Tamaño, tipografía y color viven en la regla compartida de títulos de
+   sección (ver ".section-heading h2"). */
+.home-events-agenda__header h2 { margin: .42rem 0 0; }
+
+/* Tipografía y color viven en la regla compartida de kickers de sección
+   (ver ".section-heading .section-kicker"). */
+.home-events-agenda__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.home-events-agenda__all {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding-bottom: .2rem;
+  color: var(--fair-blue);
+  border-bottom: 2px solid var(--fair-yellow);
+  font-size: .88rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.home-events-agenda__list {
+  display: grid;
+  grid-auto-columns: min(84vw, 390px);
+  grid-auto-flow: column;
+  gap: 1rem;
+  padding: .2rem var(--gutter) .8rem;
+  margin-inline: calc(var(--gutter) * -1);
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+  scroll-padding-inline: var(--gutter);
+  scroll-snap-type: inline mandatory;
+}
+
+.home-events-agenda__item { min-width: 0; scroll-snap-align: start; }
+
+.home-events-agenda__card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(105px, 34%) minmax(0, 1fr);
+  min-height: 170px;
+  height: 100%;
+  overflow: hidden;
+  color: var(--fair-ink);
+  background: rgba(255, 255, 255, .94);
+  border: 1px solid rgba(20, 49, 113, .12);
+  border-radius: var(--radius-medium);
+  box-shadow: 0 14px 34px rgba(15, 38, 87, .10);
+  text-decoration: none;
+  transition: border-color .24s var(--ease-out), box-shadow .24s var(--ease-out), transform .24s var(--ease-out);
+}
+
+.home-events-agenda__card::before,
+.home-events-agenda__card::after {
+  position: absolute;
+  left: calc(34% - 7px);
+  z-index: 3;
+  width: 14px;
+  height: 14px;
+  background: #f9f6ee;
+  border: 1px solid rgba(20, 49, 113, .12);
+  border-radius: 50%;
+  content: '';
+}
+
+.home-events-agenda__card::before { top: -7px; }
+.home-events-agenda__card::after { bottom: -7px; }
+
+.home-events-agenda__media { position: relative; display: block; min-width: 0; overflow: hidden; background: var(--fair-blue); }
+.home-events-agenda__media .responsive-picture { display: block; height: 100%; }
+
+.home-events-agenda__image,
+.home-events-agenda__media .responsive-image-fallback {
+  width: 100%;
+  height: 100%;
+  min-height: 170px;
+  object-fit: cover;
+}
+
+.home-events-agenda__media .responsive-image-fallback {
+  display: grid;
+  place-content: center;
+  color: #fff;
+}
+
+.home-events-agenda__media .responsive-image-fallback small { display: none; }
+
+.home-events-agenda__media-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(20, 49, 113, .05), rgba(20, 49, 113, .42));
+}
+
+.home-events-agenda__content {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .75rem;
+  padding: 1.1rem;
+}
+
+.home-events-agenda__date {
+  width: 46px;
+  min-height: 58px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  color: #fff;
+  background: var(--fair-coral-deep);
+  border-radius: 8px;
+  box-shadow: 3px 4px 0 rgba(20, 49, 113, .12);
+  line-height: 1;
+  transform: rotate(-2deg);
+}
+
+.home-events-agenda__date strong { font-family: var(--font-display); font-size: 1.3rem; }
+.home-events-agenda__date span { margin-top: .28rem; font-size: .62rem; font-weight: 850; letter-spacing: .08em; }
+.home-events-agenda__date--pending { color: var(--fair-blue); background: var(--fair-yellow); }
+
+.home-events-agenda__copy { min-width: 0; display: grid; gap: .28rem; }
+.home-events-agenda__copy small { color: var(--fair-coral-deep); font-size: .69rem; font-weight: 800; text-transform: capitalize; }
+.home-events-agenda__copy strong { display: -webkit-box; overflow: hidden; color: var(--fair-blue); font-family: var(--font-display); font-size: 1.02rem; line-height: 1.15; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+.home-events-agenda__copy > span { display: -webkit-box; overflow: hidden; color: var(--fair-muted); font-size: .75rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+
+.home-events-agenda__arrow {
+  width: 31px;
+  height: 31px;
+  display: grid;
+  place-items: center;
+  align-self: end;
+  color: var(--fair-blue);
+  background: #f2ead5;
+  border-radius: 50%;
+}
+
+.home-events-agenda__card--loading { grid-template-columns: 34% 1fr; border-color: transparent; box-shadow: none; }
+.home-events-agenda__card--loading span { background: #e2e5e3; }
+.home-events-agenda__card--loading i { display: block; margin: 1.25rem; background: linear-gradient(#d9deda 0 18%, transparent 18% 34%, #e5e8e5 34% 48%, transparent 48% 62%, #e5e8e5 62% 76%, transparent 76%); border-radius: 5px; }
+
+@media (min-width: 720px) {
+  .home-events-agenda__list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-flow: row;
+    gap: clamp(.85rem, 1.5vw, 1.25rem);
+    padding: .2rem 0 .8rem;
+    margin-inline: 0;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 579px) {
+  .home-events-agenda__header { align-items: start; flex-direction: column; gap: .8rem; }
+  .home-events-agenda__all { align-self: flex-start; }
+  .home-events-agenda__content { grid-template-columns: auto minmax(0, 1fr); padding: .9rem; }
+  .home-events-agenda__arrow { display: none; }
+  .home-events-agenda__copy > span { display: none; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-events-agenda__card:hover {
+    border-color: rgba(20, 49, 113, .28);
+    box-shadow: 0 20px 42px rgba(15, 38, 87, .16);
+    transform: translateY(-5px);
+  }
+
+  .home-events-agenda__card:hover .home-events-agenda__arrow { color: #fff; background: var(--fair-blue); transform: rotate(8deg); }
+}
+
+/* Rediseño cuadrado: toma la misma proporción, tipografía y densidad de las
+   tarjetas de locales, pero conserva fecha y acentos propios de la agenda. */
+.home-events-agenda {
+  padding-block: clamp(2.5rem, 4.5vw, 4rem);
+  background:
+    linear-gradient(90deg, rgba(244, 177, 0, .07), transparent 22%, transparent 78%, rgba(39, 132, 67, .055)),
+    #fffdf9;
+}
+
+.home-events-agenda::after {
+  right: clamp(-130px, -6vw, -80px);
+  bottom: -170px;
+  width: 330px;
+  height: 330px;
+  border-width: 46px;
+  opacity: .7;
+}
+
+.home-events-agenda__header,
+.home-events-agenda__list {
+  width: 100%;
+  margin-inline: auto;
+}
+
+.home-events-agenda__header { margin-bottom: clamp(1.4rem, 2.5vw, 2rem); }
+
+.home-events-agenda__list {
+  grid-auto-columns: min(84vw, 370px);
+  gap: clamp(1rem, 1.7vw, 1.4rem);
+}
+
+.home-events-agenda__card {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1.15fr) minmax(0, .85fr);
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  background: #fff;
+  border: 0;
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft-raised);
+}
+
+.home-events-agenda__card::before {
+  inset: 57.5% 0 auto;
+  width: auto;
+  height: 4px;
+  background: var(--event-accent, var(--fair-coral));
+  border: 0;
+  border-radius: 0;
+}
+
+.home-events-agenda__card::after { display: none; }
+.home-events-agenda__item:nth-child(1) { --event-accent: var(--fair-yellow); --event-date: var(--fair-blue); }
+.home-events-agenda__item:nth-child(2) { --event-accent: var(--fair-coral); --event-date: var(--fair-coral-deep); }
+.home-events-agenda__item:nth-child(3) { --event-accent: var(--fair-green); --event-date: var(--fair-green); }
+.home-events-agenda__item:nth-child(4) { --event-accent: #ef7d00; --event-date: #b84c00; }
+
+.home-events-agenda__media {
+  min-height: 0;
+  height: 100%;
+  background: #e9edf4;
+}
+
+.home-events-agenda__media .responsive-picture,
+.home-events-agenda__image,
+.home-events-agenda__media .responsive-image-fallback {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.home-events-agenda__image { transition: transform .45s var(--ease-out); }
+
+.home-events-agenda__media-shade {
+  background: linear-gradient(180deg, transparent 52%, rgba(8, 29, 77, .44));
+}
+
+.home-events-agenda__date {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 2;
+  width: 54px;
+  min-height: 58px;
+  background: var(--event-date, var(--fair-blue));
+  border: 2px solid rgba(255, 255, 255, .9);
+  box-shadow: 0 8px 20px rgba(8, 29, 77, .24);
+  transform: none;
+}
+
+.home-events-agenda__content {
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 1rem 1.15rem 1.1rem;
+}
+
+.home-events-agenda__copy { display: flex; flex-direction: column; gap: 0; }
+
+.home-events-agenda__copy small {
+  margin-bottom: .35rem;
+  overflow: hidden;
+  color: var(--event-date, var(--fair-coral-deep));
+  font-size: .64rem;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.home-events-agenda__copy h3 {
+  display: -webkit-box;
+  margin: 0 0 .5rem;
+  overflow: hidden;
+  color: var(--fair-blue);
+  font-family: var(--font-display);
+  font-size: 1.22rem;
+  line-height: 1.18;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.home-events-agenda__copy p {
+  display: -webkit-box;
+  margin: 0 0 .55rem;
+  overflow: hidden;
+  color: var(--fair-muted);
+  font-size: .75rem;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.home-events-agenda__action {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: .35rem;
+  margin-top: auto;
+  color: var(--fair-blue);
+  font-size: .78rem;
+  font-weight: 800;
+}
+
+.home-events-agenda__action svg { color: var(--event-date, var(--fair-coral-deep)); }
+
+.home-events-agenda__card--loading {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1.15fr) minmax(0, .85fr);
+  aspect-ratio: 1 / 1;
+  border-radius: 20px;
+}
+
+.home-events-agenda__card--loading i { margin: 1rem 1.15rem; }
+
+@media (min-width: 720px) {
+  .home-events-agenda__list {
+    grid-template-columns: repeat(2, minmax(0, 370px));
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-events-agenda__list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1280px) {
+  .home-events-agenda__list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1280px) and (max-width: 1599px) {
+  .home-events-agenda__card {
+    grid-template-rows: minmax(0, 1.05fr) minmax(0, .95fr);
+  }
+
+  .home-events-agenda__card::before { top: 52.5%; }
+  .home-events-agenda__content { padding: .85rem 1rem .95rem; }
+  .home-events-agenda__copy p { display: none; }
+}
+
+@media (max-width: 579px) {
+  .home-events-agenda__content { display: flex; padding: 1rem 1.15rem 1.1rem; }
+  .home-events-agenda__copy p { display: -webkit-box; }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .home-events-agenda__card:hover {
+    border-color: transparent;
+    box-shadow: var(--shadow-soft-raised-hover);
+    transform: translateY(-4px);
+  }
+
+  .home-events-agenda__card:hover .home-events-agenda__image { transform: scale(1.035); }
+}
+
+.home-visit-route-section {
+  position: relative;
+  padding: clamp(2.75rem, 4.5vw, 4.25rem) 0;
+  overflow: hidden;
+  color: var(--fair-ink);
+  background:
+    radial-gradient(circle at 9% 10%, rgba(244, 177, 0, .11), transparent 22rem),
+    radial-gradient(circle at 92% 90%, rgba(39, 132, 67, .08), transparent 24rem),
+    var(--color-surface);
+}
+
+.home-visit-route-section::before {
+  position: absolute;
+  top: -170px;
+  right: 8%;
+  width: 330px;
+  height: 330px;
+  border: 48px solid rgba(20, 49, 113, .035);
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+}
+
+.home-visit-route-section__heading {
+  position: relative;
+  z-index: 1;
+}
+.home-visit-route-section__heading .section-heading { margin-bottom: clamp(1.5rem, 2.6vw, 2.25rem); }
+.home-visit-route-section__heading .section-heading h2 { max-width: none; }
+.home-visit-route-section__heading .section-heading p:last-child { max-width: 62ch; color: var(--fair-muted); }
+
+.home-visit-route-section .visit-route {
+  position: relative;
+  z-index: 1;
+  grid-template-columns: none;
+  grid-auto-columns: min(84vw, 370px);
+  grid-auto-flow: column;
+  gap: clamp(1rem, 1.7vw, 1.4rem);
+  padding-block: .2rem .85rem;
+  margin-top: 0;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+  scroll-snap-type: inline mandatory;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Tarjeta plena de color. Conserva el cuadrado y la retícula de la agenda de
+   eventos y de los locales para que las tres secciones midan igual; el borde
+   transparente reserva el sitio del anillo que se enciende en hover. */
+.home-visit-route-section .visit-route__step {
+  --route-soft: color-mix(in srgb, var(--route-tone) 15%, #fff);
+  min-height: 0;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(.75rem, 1.2vw, 1.15rem);
+  padding: clamp(1.25rem, 2vw, 2rem) clamp(1.1rem, 1.8vw, 1.75rem);
+  color: var(--fair-ink);
+  text-align: center;
+  background: var(--route-soft);
+  border: 2px solid transparent;
+  border-radius: 22px;
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--route-tone) 13%, transparent);
+  scroll-snap-align: start;
+}
+
+.home-visit-route-section .visit-route__icon {
+  flex: none;
+  width: clamp(74px, 5.8vw, 96px);
+  height: clamp(74px, 5.8vw, 96px);
+  display: grid;
+  place-items: center;
+  color: var(--route-tone);
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--route-tone) 15%, transparent);
+}
+
+.home-visit-route-section .visit-route__icon svg { width: 44%; height: 44%; }
+
+.home-visit-route-section .visit-route__copy {
+  justify-items: center;
+  gap: .4rem;
+  padding: 0;
+}
+
+.home-visit-route-section .visit-route__copy strong {
+  color: var(--fair-ink);
+  font-size: clamp(1.4rem, 1.9vw, 1.8rem);
+  line-height: 1.15;
+}
+
+/* Sobre el teñido azul al 15% (#dbdfe9) el --fair-muted se queda en 4.51:1;
+   este gris más profundo deja las cuatro tarjetas por encima de 5.9:1. */
+.home-visit-route-section .visit-route__copy small {
+  max-width: 20ch;
+  color: #4a5162;
+  font-size: clamp(.92rem, 1.05vw, 1.02rem);
+  line-height: 1.4;
+}
+
+.home-visit-route-section .visit-route__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  margin-top: .25rem;
+  padding: .62rem 1.3rem;
+  color: #fff;
+  background: var(--route-tone);
+  border-radius: 999px;
+  box-shadow: 0 6px 14px color-mix(in srgb, var(--route-tone) 28%, transparent);
+  font-family: var(--font-display);
+  font-size: clamp(.94rem, 1.05vw, 1.02rem);
+  font-weight: 700;
+}
+
+.home-visit-route-section .visit-route__arrow {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+  color: currentColor;
+  background: none;
+  border-radius: 0;
+}
+
+@media (min-width: 720px) {
+  .home-visit-route-section .visit-route {
+    grid-template-columns: repeat(2, minmax(0, 370px));
+    grid-auto-flow: row;
+    justify-content: center;
+    padding-block: .2rem .85rem;
+    overflow: visible;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-visit-route-section .visit-route { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1280px) {
+  .home-visit-route-section .visit-route { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* El hover enciende el borde y un halo del mismo tono de la tarjeta. */
+@media (hover: hover) and (pointer: fine) {
+  .home-visit-route-section .visit-route__step:hover {
+    background: var(--route-soft);
+    border-color: var(--route-tone);
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--route-tone) 17%, transparent),
+      0 20px 34px color-mix(in srgb, var(--route-tone) 25%, transparent);
+    transform: translateY(-6px);
+  }
+
+  .home-visit-route-section .visit-route__step:hover .visit-route__icon {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 26px color-mix(in srgb, var(--route-tone) 22%, transparent);
+  }
+}
+
+/* El anillo global de foco vive en box-shadow y aquí lo pisa la sombra de la
+   tarjeta, así que se recompone junto al borde encendido. */
+.home-visit-route-section .visit-route__step:focus-visible {
+  border-color: var(--route-tone);
+  box-shadow:
+    var(--focus),
+    0 20px 34px color-mix(in srgb, var(--route-tone) 25%, transparent);
+}
+
 .visit-route {
   position: relative;
   display: grid;
@@ -1019,7 +1587,7 @@ p { margin-bottom: 1rem; }
   position: relative;
   min-height: 112px;
   display: grid;
-  grid-template-columns: 32px 42px 1fr auto;
+  grid-template-columns: 42px 1fr auto;
   align-items: center;
   gap: .8rem;
   padding: 1rem;
@@ -1030,24 +1598,13 @@ p { margin-bottom: 1rem; }
 
 .visit-route__step:last-child { border-bottom: 0; }
 
-.visit-route__number {
-  width: 30px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  color: #fff;
-  background: var(--route-tone, var(--fair-blue));
-  border-radius: 50%;
-  font-size: .77rem;
-  font-weight: 850;
-}
-
 .visit-route__step--blue { --route-tone: var(--fair-blue); }
-/* El coral de feria (#e84b3c) sirve de fondo al número en blanco y solo da
-   3.82:1. Se usa un coral más profundo para ese tono de paso; las franjas y
-   toldos de feria conservan --fair-coral. */
+/* El coral de feria (#e84b3c) sirve de fondo a la píldora «Ver Más» en blanco
+   y solo da 3.82:1. Se usa un coral más profundo para ese tono de tarjeta; las
+   franjas y toldos de feria conservan --fair-coral. */
 .visit-route__step--coral { --route-tone: var(--fair-coral-deep); }
 .visit-route__step--green { --route-tone: var(--fair-green); }
+.visit-route__step--orange { --route-tone: #b84c00; }
 
 .visit-route__icon {
   width: 42px;
@@ -1096,7 +1653,32 @@ p { margin-bottom: 1rem; }
   margin-bottom: clamp(2.2rem, 5vw, 3.5rem);
 }
 
-.section-heading h2 { max-width: 20ch; margin-bottom: .75rem; color: var(--fair-ink); }
+/* Todos los títulos de sección comparten escala, tipografía y color: la
+   referencia es "Próximos eventos", así que si cambia esta regla cambia el
+   sistema completo. */
+.section-heading h2,
+.home-events-agenda__header h2 {
+  color: var(--fair-blue);
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 2.7vw, 2.45rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -.03em;
+}
+
+/* Mismo criterio para los kickers que acompañan a esos títulos. Se limita al
+   contexto de sección: ".section-kicker" suelto sigue sirviendo a los héroes
+   de página, que tienen su propio tratamiento de pastilla. */
+.section-heading .section-kicker,
+.home-events-agenda__eyebrow {
+  color: var(--fair-coral-ink);
+  font-size: .72rem;
+  font-weight: 850;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.section-heading h2 { max-width: 20ch; margin-bottom: .75rem; }
 .section-heading p:last-child { max-width: 62ch; margin: 0; color: var(--fair-muted); }
 
 .content-grid,
@@ -2936,7 +3518,7 @@ p { margin-bottom: 1rem; }
 }
 
 .footer-awning {
-  height: 8px;
+  height: 6px;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
 }
@@ -2948,144 +3530,169 @@ p { margin-bottom: 1rem; }
 
 .footer-main {
   display: grid;
-  gap: clamp(2rem, 5vw, 3.5rem);
-  padding-block: clamp(2.5rem, 5vw, 4rem);
+  gap: clamp(1.4rem, 3vw, 2.4rem);
+  padding-block: clamp(1.6rem, 3vw, 2.4rem);
 }
 
 .footer-brand {
-  display: flex;
-  align-items: flex-start;
-  flex-direction: column;
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 1.05rem;
 }
 
-.footer-brand > p { max-width: 31ch; margin: 0; color: #cbd7f2; }
+.footer-brand__logo {
+  position: relative;
+  min-width: 176px;
+  min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  transition: opacity var(--transition);
+}
+
+.footer-brand__logo:hover { opacity: .86; }
+
+/* El logo institucional es azul y rojo sobre transparente: sobre el azul
+   profundo del pie se normaliza a blanco puro para conservar el contraste
+   sin necesidad de una placa clara detrás. */
+.footer-logo {
+  width: clamp(172px, 36vw, 200px);
+  height: auto;
+  aspect-ratio: 292 / 71;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.footer-logo.is-loaded { opacity: 1; }
 
 .footer-wordmark {
+  position: absolute;
+  inset: 0;
   display: inline-flex;
-  align-items: baseline;
-  gap: .32rem;
-  width: max-content;
-  margin-bottom: .9rem;
+  align-items: center;
+  gap: .3rem;
   color: #fff;
   font-family: var(--font-display);
-  font-size: clamp(1.8rem, 4vw, 2.15rem);
+  font-size: clamp(1.45rem, 3.4vw, 1.7rem);
   font-weight: 800;
-  line-height: .82;
+  line-height: 1;
   letter-spacing: -.035em;
-  text-decoration: none;
   white-space: nowrap;
+  transition: opacity var(--transition);
 }
 
 .footer-wordmark b { color: var(--fair-yellow); }
+.footer-wordmark.is-hidden { opacity: 0; }
 
 .footer-navigation {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1.5rem, 4vw, 3rem);
+  gap: clamp(1.25rem, 3vw, 2.5rem);
 }
 
 .footer-main h2 {
-  margin-bottom: .85rem;
+  margin-bottom: .5rem;
   color: var(--fair-yellow);
   font-family: var(--font-body);
-  font-size: .76rem;
+  font-size: .72rem;
   font-weight: 850;
-  letter-spacing: .08em;
+  letter-spacing: .09em;
   text-transform: uppercase;
 }
 
+.footer-links { display: grid; justify-items: start; }
+
 .footer-links a {
-  min-height: 38px;
+  min-height: 34px;
   display: flex;
   align-items: center;
   width: max-content;
   max-width: 100%;
-  padding-block: .3rem;
+  padding-block: .2rem;
   color: #cbd7f2;
-  line-height: 1.35;
+  font-size: .88rem;
+  line-height: 1.3;
   text-decoration: none;
+  transition: color var(--transition);
 }
 
 .footer-links a:hover { color: #fff; text-decoration: underline; }
 
 .footer-visit {
-  padding-top: 2rem;
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  padding-top: 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, .16);
 }
 
-.footer-visit__heading {
-  display: flex;
-  align-items: center;
-  gap: .8rem;
-  margin-bottom: 1.15rem;
-}
-
-.footer-visit__heading > span {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  flex: 0 0 auto;
-  place-items: center;
-  color: var(--fair-blue-deep);
-  background: var(--fair-yellow);
-  border-radius: 50%;
-}
-
-.footer-visit__heading h2 { margin: 0; }
-
 .footer-visit address {
-  max-width: 46ch;
-  margin-bottom: 1.2rem;
+  display: flex;
+  gap: .45rem;
+  max-width: 40ch;
+  margin: 0 0 .8rem;
   color: #fff;
+  font-size: .88rem;
   font-style: normal;
-  font-weight: 700;
-  line-height: 1.45;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.footer-visit address svg {
+  flex: 0 0 auto;
+  margin-top: .12rem;
+  color: var(--fair-yellow);
 }
 
 .footer-visit__hours {
   display: grid;
-  gap: .65rem;
-  margin: 0 0 1.2rem;
+  gap: .3rem;
+  margin: 0 0 .85rem;
 }
 
 .footer-visit__hours div {
-  display: grid;
-  grid-template-columns: minmax(90px, .42fr) minmax(0, 1fr);
-  gap: .75rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 .45rem;
 }
 
 .footer-visit__hours dt {
   color: #9fb2dd;
-  font-size: .72rem;
+  font-size: .73rem;
   font-weight: 800;
 }
 
-.footer-visit__hours dd { margin: 0; color: #e8efff; font-weight: 680; }
+.footer-visit__hours dd { margin: 0; color: #e8efff; font-size: .86rem; font-weight: 680; }
 
 .footer-visit__link {
-  min-height: 44px;
+  min-height: 38px;
   display: inline-flex;
   align-items: center;
-  gap: .45rem;
+  gap: .4rem;
   width: max-content;
   max-width: 100%;
   color: var(--fair-yellow);
+  font-size: .86rem;
   font-weight: 850;
   text-underline-offset: .25em;
 }
 
 .footer-cta {
-  min-height: 46px;
+  min-height: 42px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: .55rem;
+  gap: .5rem;
   width: max-content;
   max-width: 100%;
-  padding: .75rem 1.1rem;
+  padding: .6rem 1rem;
   color: var(--fair-ink);
   font-weight: 850;
-  font-size: .88rem;
+  font-size: .84rem;
   background: var(--fair-yellow);
   border-radius: var(--radius-small);
   text-decoration: none;
@@ -3097,11 +3704,11 @@ p { margin-bottom: 1rem; }
   transform: translateY(-1px);
 }
 
-.social-links { display: flex; gap: .55rem; margin-top: 1.35rem; }
+.social-links { display: flex; gap: .5rem; }
 
 .social-links a {
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   display: grid;
   place-items: center;
   color: #fff;
@@ -3119,14 +3726,16 @@ p { margin-bottom: 1rem; }
 }
 
 .footer-bottom {
-  display: grid;
-  gap: 1.25rem;
-  padding-block: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .2rem 1.25rem;
+  padding-block: .8rem;
   border-top: 1px solid rgba(255, 255, 255, .18);
 }
 
-.footer-legal { display: grid; gap: .15rem; }
-.footer-bottom p { margin: 0; color: #9fb2dd; font-size: .76rem; }
+.footer-bottom p { margin: 0; color: #9fb2dd; font-size: .74rem; }
 
 .responsive-picture { display: block; }
 

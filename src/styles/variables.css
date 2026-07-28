@@ -10,6 +10,10 @@
   /* Mismo coral, un paso más profundo: se usa cuando lleva texto o iconos
      blancos encima y hace falta llegar a 4.5:1 (WCAG 1.4.3). */
   --fair-coral-deep: #d33c2b;
+  /* Coral para texto pequeño en negrita sobre fondos claros o levemente
+     teñidos (kickers de sección): #d33c2b se queda en 4.45:1 sobre el degradado
+     amarillo del inicio, este llega a 4.86:1. */
+  --fair-coral-ink: #c93826;
   --fair-green: #28783c;
   --fair-paper: #ffffff;
   --fair-surface: #ffffff;

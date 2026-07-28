@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useOutletContext, useSearchParams } from 'react-router';
 import useApi from '../hooks/useApi';
 import { obtenerLocales } from '../services/localesService';
@@ -17,6 +17,7 @@ const PAGE_SIZE = 12;
 export default function Locales() {
   const { refreshToken, config, pages } = useOutletContext();
   const [params, setParams] = useSearchParams();
+  const toolbarRef = useRef(null);
   const state = useApi(() => obtenerLocales(), [refreshToken]);
   const pageContent = pages.find((page) => page.TipoPagina === 'LOCALES');
   const query = params.get('buscar') || '';
@@ -57,6 +58,12 @@ export default function Locales() {
     else next.set(key, String(value));
     if (key !== 'pagina') next.delete('pagina');
     setParams(next);
+    /* Filtrar y buscar conservan la posición de lectura. Cambiar de página sí
+       reencuadra, porque el control vive al final de la lista y de otro modo la
+       página nueva empezaría fuera de la vista. Sin `behavior` explícito hereda
+       el scroll-behavior de la hoja de estilos: suave, o instantáneo cuando el
+       visitante pide movimiento reducido. */
+    if (key === 'pagina') toolbarRef.current?.scrollIntoView({ block: 'start' });
   };
 
   return (
@@ -75,7 +82,7 @@ export default function Locales() {
         </div>
       </PageHero>
       <section className="section container directory-section">
-        <div className="directory-toolbar reveal">
+        <div className="directory-toolbar reveal" ref={toolbarRef}>
           <div className="directory-tools">
             <SearchField value={query} onChange={(value) => update('buscar', value)} label="Buscar local" placeholder="Buscar local o categoría" />
             {!state.loading ? <p className="result-count" role="status" aria-live="polite" aria-atomic="true">{filtered.length} {filtered.length === 1 ? 'resultado' : 'resultados'}</p> : null}

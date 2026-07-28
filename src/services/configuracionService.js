@@ -1,9 +1,11 @@
 // La configuración del sitio (contacto, redes, SEO) no existe como dato en la
 // base pública actual, así que se sirve de forma estática desde el frontend.
+export const SITE_LOGO_URL = 'https://paginabeta.centranorte.com.gt/imagenes/Centra_Norte_Logo.png';
+
 const CONFIGURACION_ESTATICA = {
   NombreSitio: 'Centra Norte',
   Slogan: 'El mall donde grandes cosas pasan',
-  LogoUrl: 'https://paginabeta.centranorte.com.gt/imagenes/Centra_Norte_Logo.png',
+  LogoUrl: SITE_LOGO_URL,
   Telefono: '2500-9800',
   Direccion: 'Km 8.5 Carretera al Atlántico, 40-26 zona 17, Guatemala',
   HorarioSemana: '9:00 a.m. a 8:00 p.m.',

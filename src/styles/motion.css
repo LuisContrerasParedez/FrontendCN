@@ -1,3 +1,39 @@
+/* Transición de pantalla a pantalla: un desvanecimiento. El envoltorio de Layout
+   se recrea con cada pathname nuevo, así que la entrada cubre cualquier
+   navegación sin tocar los enlaces: <Link>, navigate() y los botones
+   atrás/adelante del navegador.
+
+   No arranca en opacity 0. Como la pantalla saliente desaparece de golpe, un
+   cero deja un hueco en blanco entre las dos y el ojo lo lee como un parpadeo;
+   partiendo de un velo el contenido está presente desde el primer fotograma y
+   solo termina de asentarse.
+
+   Tampoco escala. Un escalado obliga al navegador a rasterizar el texto en un
+   tamaño intermedio durante toda la animación, y ese temblor de las letras es
+   la otra mitad del parpadeo. Un desplazamiento no lo provoca: viaja como capa
+   ya dibujada.
+
+   El desplazamiento arranca por encima de su sitio y baja. Al revés agrandaría
+   el área desplazable de .site-main —su overflow-y computa a auto por llevar
+   overflow-x: hidden— y asomaría una barra de scroll durante la transición;
+   hacia arriba no se genera área desplazable. */
+.page-transition { animation: page-fade-in .7s cubic-bezier(.22, .61, .36, 1) both; }
+
+/* El desplazamiento sí es movimiento y ahí se descarta; el velo se conserva. */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition { animation: page-fade-plain .22s linear both; }
+}
+
+@keyframes page-fade-in {
+  from { opacity: .6; translate: 0 -10px; }
+  to { opacity: 1; translate: none; }
+}
+
+@keyframes page-fade-plain {
+  from { opacity: .6; }
+  to { opacity: 1; }
+}
+
 /* Una entrada orquestada en el primer viewport; el resto son estados de control. */
 .has-reveal .monthly-hero__content > * {
   animation: hero-copy-in .72s var(--ease-out) both;
@@ -170,6 +206,117 @@
 @keyframes motion-section-in {
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: none; }
+}
+
+/* La agenda aparece como boletos que llegan lateralmente. Es una sola entrada,
+   sin bucles, para diferenciarla del carrusel continuo de locales. */
+@media (prefers-reduced-motion: no-preference) {
+  .home-events-agenda.reveal .home-events-agenda__header {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
+
+  .home-events-agenda.reveal .home-events-agenda__item,
+  .home-events-agenda.reveal .home-events-agenda__card--loading {
+    opacity: 0;
+    clip-path: inset(0 0 0 18% round var(--radius-medium));
+    transform: translateX(38px) rotate(1.25deg);
+  }
+
+  .home-events-agenda.reveal.is-visible .home-events-agenda__header {
+    animation: home-agenda-heading-in .62s var(--ease-out) both;
+  }
+
+  .home-events-agenda.reveal.is-visible .home-events-agenda__item,
+  .home-events-agenda.reveal.is-visible .home-events-agenda__card--loading {
+    animation: home-agenda-ticket-in .72s .1s var(--ease-out) both;
+  }
+
+  .home-events-agenda.reveal.is-visible .home-events-agenda__item:nth-child(2),
+  .home-events-agenda.reveal.is-visible .home-events-agenda__card--loading:nth-child(2) { animation-delay: .2s; }
+
+  .home-events-agenda.reveal.is-visible .home-events-agenda__item:nth-child(3),
+  .home-events-agenda.reveal.is-visible .home-events-agenda__card--loading:nth-child(3) { animation-delay: .3s; }
+
+  .home-events-agenda.reveal.is-visible .home-events-agenda__item:nth-child(4),
+  .home-events-agenda.reveal.is-visible .home-events-agenda__card--loading:nth-child(4) { animation-delay: .4s; }
+}
+
+@keyframes home-agenda-heading-in {
+  from { opacity: 0; transform: translateX(-28px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes home-agenda-ticket-in {
+  0% { opacity: 0; clip-path: inset(0 0 0 18% round var(--radius-medium)); transform: translateX(38px) rotate(1.25deg); }
+  68% { opacity: 1; clip-path: inset(0 round var(--radius-medium)); transform: translateX(-4px) rotate(-.35deg); }
+  100% { opacity: 1; clip-path: inset(0 round var(--radius-medium)); transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-visit-route-section.reveal .home-visit-route-section__heading {
+    opacity: 0;
+    translate: 0 24px;
+  }
+
+  .home-visit-route-section.reveal.is-visible .home-visit-route-section__heading {
+    opacity: 1;
+    translate: none;
+    animation: home-route-heading-in .62s var(--ease-out) both;
+  }
+
+  .home-visit-route-section.reveal .visit-route__step {
+    --route-entry-x: 0;
+    --route-entry-rotation: 0deg;
+    opacity: 0;
+    translate: var(--route-entry-x) 46px;
+    scale: .9;
+    rotate: var(--route-entry-rotation);
+  }
+
+  .home-visit-route-section.reveal .visit-route__step:nth-child(1) { --route-entry-x: -34px; --route-entry-rotation: -3deg; }
+  .home-visit-route-section.reveal .visit-route__step:nth-child(2) { --route-entry-x: -14px; --route-entry-rotation: -1.5deg; }
+  .home-visit-route-section.reveal .visit-route__step:nth-child(3) { --route-entry-x: 14px; --route-entry-rotation: 1.5deg; }
+  .home-visit-route-section.reveal .visit-route__step:nth-child(4) { --route-entry-x: 34px; --route-entry-rotation: 3deg; }
+
+  .home-visit-route-section.reveal.is-visible .visit-route__step {
+    opacity: 1;
+    translate: none;
+    scale: 1;
+    rotate: 0deg;
+    animation: home-route-deal-in .82s cubic-bezier(.2, .8, .2, 1.12) both;
+  }
+
+  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(1) { animation-delay: .08s; }
+  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(2) { animation-delay: .16s; }
+  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(3) { animation-delay: .24s; }
+  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(4) { animation-delay: .32s; }
+
+  .home-visit-route-section.reveal.is-visible .visit-route__icon {
+    animation: home-route-icon-pop .55s cubic-bezier(.2, .85, .25, 1.35) both;
+  }
+
+  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(1) .visit-route__icon { animation-delay: .3s; }
+  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(2) .visit-route__icon { animation-delay: .38s; }
+  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(3) .visit-route__icon { animation-delay: .46s; }
+  .home-visit-route-section.reveal.is-visible .visit-route__step:nth-child(4) .visit-route__icon { animation-delay: .54s; }
+}
+
+@keyframes home-route-heading-in {
+  from { opacity: 0; translate: 0 24px; }
+  to { opacity: 1; translate: none; }
+}
+
+@keyframes home-route-deal-in {
+  0% { opacity: 0; translate: var(--route-entry-x) 46px; scale: .9; rotate: var(--route-entry-rotation); }
+  68% { opacity: 1; translate: 0 -7px; scale: 1.015; rotate: 0deg; }
+  100% { opacity: 1; translate: none; scale: 1; rotate: 0deg; }
+}
+
+@keyframes home-route-icon-pop {
+  0% { opacity: 0; scale: .55; rotate: -10deg; }
+  72% { opacity: 1; scale: 1.08; rotate: 2deg; }
+  100% { opacity: 1; scale: 1; rotate: 0deg; }
 }
 
 /* En los directorios móviles la información ya está dentro del primer

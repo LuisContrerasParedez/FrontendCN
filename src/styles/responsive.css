@@ -49,17 +49,12 @@
 
   .visit-route__step {
     min-height: 132px;
-    grid-template-columns: 32px 1fr auto;
-    grid-template-rows: auto auto;
+    grid-template-columns: 42px 1fr auto;
     border-right: 1px solid var(--fair-border);
     border-bottom: 0;
   }
 
   .visit-route__step:last-child { border-right: 0; }
-  .visit-route__icon { grid-column: 1; grid-row: 2; }
-  .visit-route__number { grid-column: 1; grid-row: 1; }
-  .visit-route__copy { grid-column: 2; grid-row: 1 / 3; }
-  .visit-route__arrow { grid-column: 3; grid-row: 1 / 3; }
 
   .welcome-section__grid {
     grid-template-columns: minmax(0, 1.05fr) minmax(300px, .95fr);
@@ -162,18 +157,11 @@
   }
 
   .footer-main {
-    grid-template-columns: minmax(220px, .75fr) minmax(0, 1.25fr);
+    grid-template-columns: minmax(210px, .7fr) minmax(0, 1.3fr);
     align-items: start;
   }
 
   .footer-visit { grid-column: 1 / -1; }
-
-  .footer-bottom {
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
-  }
-
-  .footer-legal { justify-items: end; text-align: right; }
 }
 
 @media (min-width: 860px) {
@@ -241,15 +229,16 @@
     gap: clamp(3rem, 6vw, 6rem);
   }
 
+  /* Cuatro columnas visuales: marca | Descubre | Información | visita */
   .footer-main {
-    grid-template-columns: minmax(230px, .78fr) minmax(300px, 1fr) minmax(360px, 1.25fr);
-    gap: clamp(2.5rem, 4vw, 5rem);
+    grid-template-columns: minmax(215px, .7fr) minmax(310px, 1.15fr) minmax(300px, 1fr);
+    gap: clamp(2rem, 3.5vw, 4rem);
   }
 
   .footer-visit {
     grid-column: auto;
     padding-top: 0;
-    padding-left: clamp(2rem, 4vw, 4rem);
+    padding-left: clamp(1.75rem, 3vw, 3.5rem);
     border-top: 0;
     border-left: 1px solid rgba(255, 255, 255, .16);
   }
@@ -672,12 +661,7 @@
   .header-visit-link { display: none; }
   .monthly-hero__content h1 { font-size: clamp(2.7rem, 12vw, 3.6rem); }
 
-  .visit-route__step {
-    grid-template-columns: 30px 1fr auto;
-    gap: .7rem;
-  }
-
-  .visit-route__icon { display: none; }
+  .visit-route__step { gap: .7rem; }
   .pagination { align-items: stretch; flex-wrap: wrap; }
   .pagination span { width: 100%; order: -1; }
 }
@@ -707,6 +691,9 @@
   .events-ticket-board__feature,
   .events-ticket-board__rail-item,
   .home-events-grid .event-card,
+  .home-events-agenda__header,
+  .home-events-agenda__item,
+  .home-events-agenda__card--loading,
   .locals-marquee__track,
   .locals-marquee__group > li,
   .locals-marquee__card::before,

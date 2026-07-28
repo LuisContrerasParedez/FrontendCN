@@ -5,33 +5,15 @@ import { FECHAS_POR_DEFECTO } from './escena/escenografia';
 import { IconoBus, IconoFlecha } from './iconos';
 import './HeroFeriaAgosto.css';
 
-/*
- * Hero de la temática "Feria de Agosto".
- * Cumple el contrato común de temas (ver ../index.js): recibe los textos y las
- * acciones desde el CMS y no sabe nada de la página que lo monta.
- */
-
-/*
- * Textos de respaldo: SEGUNDA opción. El contenido real viene de la BD
- * (VistaFrontendTematicaActiva → TituloHero / DescripcionHero) y solo si no
- * llega nada se usan estos. No se declaran en la página para no duplicarlos.
- * Las etiquetas de los botones no tienen todavía columna en la BD; en cuanto
- * el servicio las exponga, se pasan como props y estos valores dejan de usarse.
- */
 const RESPALDO = {
   titulo: 'La Feria de Agosto se vive en Centra Norte',
   descripcion: 'Disfruta juegos, sabores, actividades familiares, promociones y una experiencia llena de tradición y color.',
-  accionPrimaria: { texto: 'Explorar locales', href: '/locales' },
+  accionPrimaria: { texto: 'Explorar eventos', href: '/eventos' },
   accionSecundaria: { texto: 'Consultar buses', href: '/buses' }
 };
 
 // Un campo vacío en la BD cuenta como "no vino nada", no como texto válido.
 const oRespaldo = (valor, respaldo) => String(valor ?? '').trim() || respaldo;
-
-const accionORespaldo = (accion, respaldo) => ({
-  texto: oRespaldo(accion?.texto, respaldo.texto),
-  href: oRespaldo(accion?.href, respaldo.href)
-});
 
 // El título llega del CMS como una sola cadena, así que el resalte se aplica
 // buscando la palabra indicada dentro de ella; si no aparece, se pinta plano.
@@ -52,8 +34,6 @@ export default function HeroFeriaAgosto({
   titulo,
   acento = 'vive',
   descripcion,
-  accionPrimaria,
-  accionSecundaria,
   fechas = FECHAS_POR_DEFECTO,
   nivelTitulo = 'h1',
   id = 'feria-agosto',
@@ -67,8 +47,6 @@ export default function HeroFeriaAgosto({
   // recurre a las de muestra cuando no se pasa la prop en absoluto.
   const listaFechas = Array.isArray(fechas) ? fechas : FECHAS_POR_DEFECTO;
   const textoDescripcion = oRespaldo(descripcion, RESPALDO.descripcion);
-  const primaria = accionORespaldo(accionPrimaria, RESPALDO.accionPrimaria);
-  const secundaria = accionORespaldo(accionSecundaria, RESPALDO.accionSecundaria);
   const { antes, resalte, despues } = partirTitulo(oRespaldo(titulo, RESPALDO.titulo), acento);
 
   return (
@@ -88,13 +66,13 @@ export default function HeroFeriaAgosto({
           {textoDescripcion ? <p className="hfa__lead">{textoDescripcion}</p> : null}
 
           <div className="hfa__acciones">
-            <SmartLink className="hfa__btn hfa__btn--primario" href={primaria.href}>
-              {primaria.texto}
+            <SmartLink className="hfa__btn hfa__btn--primario" href={RESPALDO.accionPrimaria.href}>
+              {RESPALDO.accionPrimaria.texto}
               <IconoFlecha />
             </SmartLink>
-            <SmartLink className="hfa__btn hfa__btn--claro" href={secundaria.href}>
+            <SmartLink className="hfa__btn hfa__btn--claro" href={RESPALDO.accionSecundaria.href}>
               <IconoBus />
-              {secundaria.texto}
+              {RESPALDO.accionSecundaria.texto}
             </SmartLink>
           </div>
         </div>

@@ -41,6 +41,9 @@ Assert-Condition ($apacheRules.Contains('Strict-Transport-Security')) 'Falta HST
 Assert-Condition ($apacheRules.Contains('upgrade-insecure-requests')) 'Falta bloquear contenido HTTP mixto mediante CSP.'
 Assert-Condition ($apacheRules.Contains('https://wspagina.centranorte.com.gt')) 'La CSP no permite el subdominio independiente del WS.'
 
+$sourceIndex = [IO.File]::ReadAllText((Join-Path $projectRoot 'index.html'))
+Assert-Condition ($sourceIndex -notmatch '(?is)<script(?![^>]*\bsrc=)[^>]*>\s*\S') 'index.html contiene JavaScript inline bloqueado por la CSP.'
+
 $deployScript = [IO.File]::ReadAllText((Join-Path $projectRoot 'deploy.ps1'))
 Assert-Condition ($deployScript -match 'for persistent in imagenes; do') 'El despliegue debe conservar unicamente imagenes.'
 Assert-Condition ($deployScript -notmatch 'for persistent in imagenes api') 'El frontend no debe conservar una API anidada.'
@@ -56,6 +59,8 @@ foreach ($file in $frontendFiles) {
 $distPath = Join-Path $projectRoot 'dist'
 Assert-Condition (Test-Path -LiteralPath (Join-Path $distPath 'index.html') -PathType Leaf) 'dist/index.html no existe.'
 Assert-Condition (Test-Path -LiteralPath (Join-Path $distPath 'assets') -PathType Container) 'dist/assets no existe.'
+$distIndex = [IO.File]::ReadAllText((Join-Path $distPath 'index.html'))
+Assert-Condition ($distIndex -notmatch '(?is)<script(?![^>]*\bsrc=)[^>]*>\s*\S') 'dist/index.html contiene JavaScript inline bloqueado por la CSP.'
 $serverFiles = @(Get-ChildItem -LiteralPath $distPath -Recurse -Force -File | Where-Object { $_.Extension -in @('.php', '.sql') })
 Assert-Condition ($serverFiles.Count -eq 0) 'dist contiene archivos de servidor.'
 

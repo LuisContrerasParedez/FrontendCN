@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router';
 import ResponsiveImage from '../ui/ResponsiveImage';
 import SmartLink from '../ui/SmartLink';
 import Icon from '../ui/Icon';
-import VisitRoute from './VisitRoute';
 import { safeUrl } from '../../utils/safeUrl';
 
 const FALLBACK = {
@@ -527,7 +526,6 @@ export default function MonthlyHero({ theme, banner, loading = false, events = [
         </div>
       </div>
 
-      <VisitRoute />
     </section>
   );
 }

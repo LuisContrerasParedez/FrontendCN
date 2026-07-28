@@ -10,7 +10,10 @@ import { useTheme } from '../../theme/ThemeProvider';
 
 export default function Layout({ refreshToken }) {
   const location = useLocation();
-  const routeKey = `${location.pathname}${location.search}`;
+  /* Solo la ruta cuenta como navegación. La query string lleva los filtros del
+     directorio (categoría, búsqueda, página) y cambiarlos no debe mover al
+     visitante de donde está leyendo. */
+  const routeKey = location.pathname;
   const themeState = useTheme();
   const configState = useApi(() => obtenerConfiguracion(), [refreshToken]);
   const pagesState = useApi(() => obtenerPaginas(), [refreshToken]);
@@ -21,6 +24,7 @@ export default function Layout({ refreshToken }) {
     path: location.pathname,
     loading: location.pathname === '/'
   });
+  const [hasBooted, setHasBooted] = useState(false);
   const reportPageLoading = useCallback((loading) => {
     setPageLoadState({ path: location.pathname, loading: Boolean(loading) });
   }, [location.pathname]);
@@ -30,7 +34,13 @@ export default function Layout({ refreshToken }) {
   const pageInitialLoading = pageLoadState.path === location.pathname
     ? pageLoadState.loading
     : location.pathname === '/';
-  const initialLoading = baseInitialLoading || pageInitialLoading;
+  const bootLoading = baseInitialLoading || pageInitialLoading;
+
+  const initialLoading = !hasBooted && bootLoading;
+
+  useEffect(() => {
+    if (!bootLoading) setHasBooted(true);
+  }, [bootLoading]);
 
   useEffect(() => {
     document.body.classList.toggle('initial-load-is-active', initialLoading);
@@ -57,13 +67,20 @@ export default function Layout({ refreshToken }) {
   }, []);
 
   useLayoutEffect(() => {
+    const isSameRoute = previousRoute.current === routeKey;
+    previousRoute.current = routeKey;
+
+
+    if (isSameRoute && !initialLoading) {
+      return undefined;
+    }
+
     resetPageScroll();
     pendingScrollReset.current = true;
 
-    if (previousRoute.current === routeKey) {
+    if (initialLoading) {
       return undefined;
     }
-    previousRoute.current = routeKey;
 
     let secondFrame;
     const firstFrame = window.requestAnimationFrame(() => {
@@ -80,7 +97,7 @@ export default function Layout({ refreshToken }) {
       window.cancelAnimationFrame(firstFrame);
       window.cancelAnimationFrame(secondFrame);
     };
-  }, [resetPageScroll, routeKey]);
+  }, [initialLoading, resetPageScroll, routeKey]);
 
   useEffect(() => {
     if (initialLoading || !pendingScrollReset.current) return undefined;
@@ -102,11 +119,15 @@ export default function Layout({ refreshToken }) {
 
   useEffect(() => {
     let frameId;
+    /* Solo se escribe cuando hay corrimiento real: asignar scrollLeft en cada
+       evento de scroll cancelaba cualquier desplazamiento suave en curso
+       (scroll-behavior: smooth, anclas, reencuadre de la paginación). */
     const resetHorizontalOffset = () => {
       window.cancelAnimationFrame(frameId);
       frameId = window.requestAnimationFrame(() => {
-        document.documentElement.scrollLeft = 0;
-        document.body.scrollLeft = 0;
+        const root = document.documentElement;
+        if (root.scrollLeft !== 0) root.scrollLeft = 0;
+        if (document.body.scrollLeft !== 0) document.body.scrollLeft = 0;
         if (window.scrollX !== 0) {
           window.scrollTo({ top: window.scrollY, left: 0, behavior: 'auto' });
         }
@@ -133,21 +154,22 @@ export default function Layout({ refreshToken }) {
       {initialLoading ? <InitialLoadingScreen /> : null}
       <div
         className="site-shell__content"
-        aria-hidden={initialLoading || undefined}
         inert={initialLoading ? '' : undefined}
       >
         <Header config={config} />
         <main id="contenido-principal" className="site-main" tabIndex="-1">
-          <Outlet context={{
-            refreshToken,
-            config,
-            configState,
-            pages: pagesState.data || [],
-            pagesState,
-            theme: themeState.theme,
-            themeState,
-            reportPageLoading
-          }} />
+          <div key={location.pathname} className="page-transition">
+            <Outlet context={{
+              refreshToken,
+              config,
+              configState,
+              pages: pagesState.data || [],
+              pagesState,
+              theme: themeState.theme,
+              themeState,
+              reportPageLoading
+            }} />
+          </div>
         </main>
         <Footer config={config} />
       </div>

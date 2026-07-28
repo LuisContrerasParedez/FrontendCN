@@ -1,3 +1,5 @@
+import { SITE_LOGO_URL } from '../../services/configuracionService';
+
 export function LoadingState({ label = 'Cargando contenido' }) {
   return (
     <div className="loading-grid" aria-live="polite" aria-busy="true" aria-label={label}>
@@ -15,10 +17,12 @@ export function InitialLoadingScreen() {
       aria-label="Cargando la información de Centra Norte"
     >
       <div className="initial-loading-screen__content">
-        <span className="initial-loading-screen__mark" aria-hidden="true">
-          <i /><i /><i /><i />
-        </span>
-        <strong>Centra Norte</strong>
+        <img
+          className="initial-loading-screen__logo"
+          src={SITE_LOGO_URL}
+          alt=""
+          aria-hidden="true"
+        />
         <span>Preparando tu visita…</span>
         <span className="initial-loading-screen__track" aria-hidden="true"><i /></span>
       </div>

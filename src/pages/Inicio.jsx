@@ -13,6 +13,7 @@ import { obtenerEventos } from '../services/eventosService';
 import { obtenerLocales } from '../services/localesService';
 import MonthlyHero from '../components/home/MonthlyHero';
 import HeroTematico from '../components/home/temas/HeroTematico';
+import HomeEventsAgenda from '../components/home/HomeEventsAgenda';
 import VisitRoute from '../components/home/VisitRoute';
 import LocalsMarquee from '../components/home/LocalsMarquee';
 import SectionHeading from '../components/ui/SectionHeading';
@@ -70,15 +71,14 @@ export default function Inicio() {
             clave={theme?.ClaveTema}
             titulo={theme?.TituloHero}
             descripcion={theme?.DescripcionHero}
-            accionPrimaria={{ texto: theme?.TextoBotonPrimario, href: theme?.UrlBotonPrimario }}
-            accionSecundaria={{ texto: theme?.TextoBotonSecundario, href: theme?.UrlBotonSecundario }}
             fechas={cabinDates}
           />
-          <VisitRoute />
         </>
       ) : (
         <MonthlyHero theme={theme} banner={activeBanner} loading={themeState.loading} events={wheelEvents} />
       )}
+      <div className="footer-awning" aria-hidden="true">{Array.from({ length: 10 }, (_, index) => <i key={index} />)}</div>
+      <HomeEventsAgenda events={events.data || []} loading={events.loading} />
       <div className="footer-awning" aria-hidden="true">{Array.from({ length: 10 }, (_, index) => <i key={index} />)}</div>
 
       <section className="section reveal home-content-section home-content-section--local-marquee">
@@ -100,6 +100,18 @@ export default function Inicio() {
           </div>
         ) : null}
       </section>
+
+      <div className="footer-awning" aria-hidden="true">{Array.from({ length: 10 }, (_, index) => <i key={index} />)}</div>
+      <div className="home-visit-route-section reveal">
+        <div className="container home-visit-route-section__heading">
+          <SectionHeading
+            eyebrow="Tu recorrido"
+            title="Cuatro formas de vivir Centra Norte"
+            description="Compra, disfruta nuevas experiencias, planifica tu visita y continúa tu viaje desde un solo lugar."
+          />
+        </div>
+        <VisitRoute />
+      </div>
 
     </div>
   );
