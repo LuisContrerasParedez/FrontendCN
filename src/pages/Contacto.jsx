@@ -44,46 +44,46 @@ export default function Contacto() {
             {config.HorarioDomingo ? <div><dt>Domingo</dt><dd>{config.HorarioDomingo}</dd></div> : null}
             {config.HorarioEspecial ? <div><dt>Horario especial</dt><dd>{config.HorarioEspecial}</dd></div> : null}
           </dl>
-          <ContactForm />
+          <section className="contact-map-card" aria-labelledby="contact-map-title">
+            <div className="contact-map-card__map">
+              <iframe
+                key={mapResetKey}
+                title="Mapa de la ubicación de Centra Norte en Google Maps"
+                src={mapEmbedUrl}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+              />
+              <button
+                className="contact-map-card__recenter"
+                type="button"
+                onClick={() => setMapResetKey((currentKey) => currentKey + 1)}
+                aria-label="Volver a centrar el mapa en la ubicación exacta de Centra Norte"
+              >
+                <Icon name="mapPin" size={18} strokeWidth={2} />
+                <span>Ubicación exacta</span>
+              </button>
+            </div>
+            <div className="contact-map-card__body">
+              <div>
+                <h3 id="contact-map-title">Centra Norte</h3>
+                <p>{address}</p>
+              </div>
+              <nav className="contact-map-card__actions" aria-label="Abrir indicaciones para llegar">
+                <SmartLink className="button button--primary" href={googleMapsUrl}>
+                  <Icon name="mapPin" size={19} /> Google Maps
+                </SmartLink>
+                <SmartLink className="button button--waze" href={wazeUrl}>
+                  <Icon name="car" size={20} /> Waze
+                </SmartLink>
+              </nav>
+            </div>
+          </section>
           <div className="contact-actions">
             {whatsapp ? <a className="button button--outline" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noreferrer noopener">Escribir por WhatsApp</a> : null}
           </div>
         </div>
-        <section className="contact-map-card motion-panel reveal" aria-labelledby="contact-map-title">
-          <div className="contact-map-card__map">
-            <iframe
-              key={mapResetKey}
-              title="Mapa de la ubicación de Centra Norte en Google Maps"
-              src={mapEmbedUrl}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              allowFullScreen
-            />
-            <button
-              className="contact-map-card__recenter"
-              type="button"
-              onClick={() => setMapResetKey((currentKey) => currentKey + 1)}
-              aria-label="Volver a centrar el mapa en la ubicación exacta de Centra Norte"
-            >
-              <Icon name="mapPin" size={18} strokeWidth={2} />
-              <span>Ubicación exacta</span>
-            </button>
-          </div>
-          <div className="contact-map-card__body">
-            <div>
-              <h3 id="contact-map-title">Centra Norte</h3>
-              <p>{address}</p>
-            </div>
-            <nav className="contact-map-card__actions" aria-label="Abrir indicaciones para llegar">
-              <SmartLink className="button button--primary" href={googleMapsUrl}>
-                <Icon name="mapPin" size={19} /> Google Maps
-              </SmartLink>
-              <SmartLink className="button button--waze" href={wazeUrl}>
-                <Icon name="car" size={20} /> Waze
-              </SmartLink>
-            </nav>
-          </div>
-        </section>
+        <ContactForm className="motion-panel reveal" />
       </section>
       {!forms.loading && !forms.error && forms.data?.length ? <section className="section section--tint"><div className="container narrow-section motion-panel reveal"><h2>Formularios de contacto</h2><div className="form-list">{forms.data.map((form) => <article key={form.CodigoFormularioEnlace}><div><h3>{form.Titulo}</h3>{form.Descripcion ? <p>{form.Descripcion}</p> : null}</div><SmartLink className="button button--primary" href={form.UrlFormulario} aria-label={form.TextoBoton + ': ' + form.Titulo}>{form.TextoBoton}</SmartLink></article>)}</div></div></section> : null}
     </div>

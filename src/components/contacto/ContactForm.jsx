@@ -10,7 +10,7 @@ const INITIAL_FORM = {
   sitioWeb: ''
 };
 
-export default function ContactForm() {
+export default function ContactForm({ className = '' }) {
   const [form, setForm] = useState(INITIAL_FORM);
   const [captchaToken, setCaptchaToken] = useState('');
   const [resetCaptcha, setResetCaptcha] = useState(0);
@@ -52,7 +52,7 @@ export default function ContactForm() {
   };
 
   return (
-    <section className="contact-form-card" aria-labelledby="contact-form-title">
+    <section className={`contact-form-card ${className}`.trim()} aria-labelledby="contact-form-title">
       <div className="contact-form-card__heading">
         <p className="eyebrow">¿Podemos ayudarte?</p>
         <h3 id="contact-form-title">Ponte en contacto con nosotros</h3>

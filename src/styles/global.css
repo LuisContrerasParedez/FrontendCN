@@ -3442,8 +3442,7 @@ p { margin-bottom: 1rem; }
 
 .contact-form-card {
   position: relative;
-  max-width: 760px;
-  margin-top: 2rem;
+  align-self: start;
   padding: clamp(1.15rem, 3vw, 1.75rem);
   overflow: hidden;
   background: var(--fair-soft);
@@ -3563,11 +3562,12 @@ p { margin-bottom: 1rem; }
   overflow: hidden !important;
 }
 
-.contact-form-card + .contact-actions { margin-top: 1.5rem; }
+.contact-map-card + .contact-actions { margin-top: 1.5rem; }
 
 .contact-map-card {
+  max-width: 760px;
+  margin-top: 2rem;
   overflow: hidden;
-  align-self: start;
   background: #fff;
   border: 0;
   border-radius: var(--radius-medium);

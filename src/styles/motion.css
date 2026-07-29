@@ -132,7 +132,7 @@
     animation: locales-toolbar-in .72s var(--ease-out) both;
   }
 
-  .contact-layout .contact-map-card.motion-panel { animation-delay: .12s; }
+  .contact-layout > .contact-form-card.motion-panel { animation-delay: .12s; }
 
   .motion-grid.reveal > .content-card > .content-card__link {
     opacity: 0;
