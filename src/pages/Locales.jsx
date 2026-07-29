@@ -58,11 +58,6 @@ export default function Locales() {
     else next.set(key, String(value));
     if (key !== 'pagina') next.delete('pagina');
     setParams(next);
-    /* Filtrar y buscar conservan la posición de lectura. Cambiar de página sí
-       reencuadra, porque el control vive al final de la lista y de otro modo la
-       página nueva empezaría fuera de la vista. Sin `behavior` explícito hereda
-       el scroll-behavior de la hoja de estilos: suave, o instantáneo cuando el
-       visitante pide movimiento reducido. */
     if (key === 'pagina') toolbarRef.current?.scrollIntoView({ block: 'start' });
   };
 

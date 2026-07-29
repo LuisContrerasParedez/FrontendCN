@@ -1,9 +1,4 @@
-/* Solo los subsets latin/latin-ext (cubren español) del paquete completo de
-   @fontsource-variable/montserrat, que por defecto usa font-display: swap y
-   agrega subsets (cyrillic, greek, vietnamese) que este sitio no necesita.
-   font-display: optional evita el salto visible de fuente/tamaño en la carga:
-   si la fuente no está en caché a tiempo, el navegador se queda con el
-   fallback para esa visita en vez de reemplazarlo a mitad de lectura. */
+
 @font-face {
   font-family: 'Montserrat Variable';
   font-style: normal;

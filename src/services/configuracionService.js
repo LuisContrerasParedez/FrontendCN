@@ -1,5 +1,4 @@
-// La configuración del sitio (contacto, redes, SEO) no existe como dato en la
-// base pública actual, así que se sirve de forma estática desde el frontend.
+
 export const SITE_LOGO_URL = 'https://paginabeta.centranorte.com.gt/imagenes/Centra_Norte_Logo.png';
 
 const CONFIGURACION_ESTATICA = {

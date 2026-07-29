@@ -1,22 +1,4 @@
-/* Transición de pantalla a pantalla: un desvanecimiento. El envoltorio de Layout
-   se recrea con cada pathname nuevo, así que la entrada cubre cualquier
-   navegación sin tocar los enlaces: <Link>, navigate() y los botones
-   atrás/adelante del navegador.
 
-   No arranca en opacity 0. Como la pantalla saliente desaparece de golpe, un
-   cero deja un hueco en blanco entre las dos y el ojo lo lee como un parpadeo;
-   partiendo de un velo el contenido está presente desde el primer fotograma y
-   solo termina de asentarse.
-
-   Tampoco escala. Un escalado obliga al navegador a rasterizar el texto en un
-   tamaño intermedio durante toda la animación, y ese temblor de las letras es
-   la otra mitad del parpadeo. Un desplazamiento no lo provoca: viaja como capa
-   ya dibujada.
-
-   El desplazamiento arranca por encima de su sitio y baja. Al revés agrandaría
-   el área desplazable de .site-main —su overflow-y computa a auto por llevar
-   overflow-x: hidden— y asomaría una barra de scroll durante la transición;
-   hacia arriba no se genera área desplazable. */
 .page-transition { animation: page-fade-in .7s cubic-bezier(.22, .61, .36, 1) both; }
 
 /* El desplazamiento sí es movimiento y ahí se descarta; el velo se conserva. */
@@ -240,16 +222,7 @@
   .home-events-agenda.reveal.is-visible .home-events-agenda__item:nth-child(4) { animation-delay: .4s; }
 }
 
-/* Por debajo de 720px la agenda deja de ser cuadrícula y pasa a ser un carrusel
-   con `scroll-snap-type: inline mandatory`. El área de anclaje de cada tarjeta
-   es su caja *ya transformada*, así que un `translateX` animado desplaza los
-   puntos de anclaje fotograma a fotograma y el navegador reengancha el scroll
-   mientras dura la entrada: la primera tarjeta avanza y el anclaje la devuelve
-   de golpe. Ese es el rebote que sobrevivía en móvil.
 
-   En el carrusel la entrada va sin desplazamiento en el eje del scroll; el
-   barrido del `clip-path` basta para que se siga leyendo como un boleto que
-   llega. Fuera del carrusel (>=720px) la entrada lateral se conserva. */
 @media (prefers-reduced-motion: no-preference) and (max-width: 719px) {
   .home-events-agenda.reveal .home-events-agenda__item {
     transform: none;
@@ -265,26 +238,16 @@
   to { opacity: 1; transform: none; }
 }
 
-/* El boleto entra y se detiene: un solo tramo, sin pasarse de su sitio. La
-   parada al 68% lo llevaba 4px más allá y con la rotación invertida, y como
-   `--ease-out` es casi instantánea en su primer cuarto, ese ida y vuelta se
-   leía como un rebote en vez de como una llegada. */
 @keyframes home-agenda-ticket-in {
   from { opacity: 0; clip-path: inset(0 0 0 18% round var(--radius-medium)); transform: translateX(38px) rotate(1.25deg); }
-  /* El recorte final se abre más allá de la caja: con `animation-fill-mode:
-     both` el último fotograma se queda puesto para siempre, y un `inset(0)`
-     recortaba la sombra del hover contra el borde exacto de la tarjeta. */
   to { opacity: 1; clip-path: inset(-60px round 0); transform: none; }
 }
 
-/* Variante del carrusel móvil: mismo barrido, sin tocar el eje del scroll. */
 @keyframes home-agenda-ticket-in-rail {
   from { opacity: 0; clip-path: inset(0 0 0 18% round var(--radius-medium)); }
   to { opacity: 1; clip-path: inset(-60px round 0); }
 }
 
-/* El relato entra de un lado y el mosaico se arma ficha por ficha en diagonal,
-   en el orden en que se leen: arriba-izquierda, arriba-derecha, y así. */
 @media (prefers-reduced-motion: no-preference) {
   .home-transport.reveal .home-transport__copy {
     opacity: 0;
@@ -329,8 +292,7 @@
   100% { opacity: 1; translate: none; scale: 1; }
 }
 
-/* En los directorios móviles la información ya está dentro del primer
-   viewport. No debe depender de un desplazamiento para volverse visible. */
+
 @media (max-width: 719px) and (prefers-reduced-motion: no-preference) {
   .locales-page .directory-toolbar.reveal,
   .locales-page .locals-grid-reveal.reveal .local-card .content-card__link,
@@ -347,9 +309,6 @@
 
 .mobile-navigation { animation: drawer-in .34s var(--ease-drawer) both; }
 .nav-backdrop { animation: backdrop-in .24s var(--ease-out) both; }
-
-/* La salida corre más corta que la entrada: al abrir el usuario decide, al
-   cerrar solo espera respuesta del sistema. */
 .mobile-navigation.is-closing { animation: drawer-out .22s var(--ease-drawer) both; }
 .nav-backdrop.is-closing { animation: backdrop-out .2s var(--ease-out) both; }
 
@@ -373,8 +332,6 @@
   to { opacity: 0; }
 }
 
-/* El contenido entra escalonado detrás del panel. Se anima `translate` y no
-   `transform` para que el fill-mode no bloquee el scale(.985) de :active. */
 @media (prefers-reduced-motion: no-preference) {
   .mobile-navigation nav > *,
   .mobile-navigation__foot {
@@ -410,8 +367,6 @@
     transform .24s var(--ease-out);
 }
 
-/* El rótulo del destino se mueve en opacidad y `translate`, que no entran en la
-   transición compartida de arriba; lleva la suya. */
 .home-transport__label {
   transition:
     opacity .2s var(--ease-out),
@@ -423,8 +378,7 @@
 @media (hover: hover) and (pointer: fine) {
   .button:hover { transform: translateY(-2px); filter: brightness(.96); }
 
-  /* `--shadow-lift` difumina 38px: sin `z-index` la tarjeta siguiente del grid
-     se dibuja encima y la sombra aparece cortada contra su vecina. */
+
   .content-card:hover,
   .bus-route-card:hover {
     z-index: 2;

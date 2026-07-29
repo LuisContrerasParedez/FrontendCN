@@ -1,7 +1,4 @@
-/* ==========================================================================
-   Centra Norte — programa familiar de feria
-   Base móvil, luminosa, plana y orientada a la visita.
-   ========================================================================== */
+
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -9,14 +6,9 @@ html {
   min-width: 320px;
   overflow-x: hidden;
   overscroll-behavior-x: none;
-  /* Reserva el carril de la barra: sin esto, cada `overflow: hidden` sobre body
-     (la carga inicial y el menú móvil) le quita la barra a la página y todo el
-     contenido salta horizontalmente al aparecer y desaparecer. */
   scrollbar-gutter: stable;
   scroll-behavior: smooth;
   scroll-padding-top: 92px;
-  /* Escala global ~10% más chica: todo lo que use rem (texto, --section-space,
-     paddings en rem) se achica en conjunto sin tocar cada regla suelta. */
   font-size: 90%;
 }
 
@@ -471,8 +463,6 @@ p { margin-bottom: 1rem; }
   flex-direction: column;
   overflow-y: auto;
   color: #fff;
-  /* Luz cálida arriba y profundidad índigo abajo: los halos amplios evitan
-     bandas visibles y conectan el cajón con la paleta nocturna de la feria. */
   background:
     radial-gradient(105% 48% at 100% 0%, rgba(244, 180, 0, .11) 0%, rgba(244, 180, 0, 0) 68%),
     radial-gradient(90% 46% at 0% 100%, rgba(38, 72, 150, .18) 0%, rgba(38, 72, 150, 0) 72%),
@@ -517,9 +507,6 @@ p { margin-bottom: 1rem; }
   align-items: center;
   min-height: 34px;
 }
-
-/* Mismo tratamiento que en el pie: el emblema institucional es azul y rojo, y
-   sobre el azul del cajón se normaliza a blanco puro. */
 .mobile-navigation__logo {
   width: 132px;
   height: auto;

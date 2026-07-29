@@ -1,10 +1,4 @@
-/*
-THESIS: Centra Norte se presenta como un programa familiar de feria, no como un centro comercial genérico ni un tablero de tarjetas.
-OWN-WORLD: Azul plaza y papel claro dominan; amarillo, coral y verde orientan. Toldos planos, cortes de boleto y señalización compacta forman el lenguaje.
-STORY: La persona entiende qué puede comprar, disfrutar y cómo seguir su viaje; después descubre contenido real y prepara su visita.
-FIRST VIEWPORT: Mensaje y acciones a la izquierda, imagen real o cartel gráfico a la derecha, y una ruta Comprar–Disfrutar–Viajar cerrando la vista.
-FORM: Programa de feria familiar, sexta dirección del recorrido local; clave de semilla adf597e1.
-*/
+
 import { useEffect } from 'react';
 import { useOutletContext } from 'react-router';
 import useApi from '../hooks/useApi';
