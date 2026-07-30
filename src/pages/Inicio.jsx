@@ -4,7 +4,7 @@ import { useOutletContext } from 'react-router';
 import useApi from '../hooks/useApi';
 import { obtenerBanners } from '../services/bannersService';
 import { obtenerEventos } from '../services/eventosService';
-import { obtenerLocales } from '../services/localesService';
+import { obtenerLocalesCarrusel } from '../services/localesService';
 import { obtenerRutasBus } from '../services/busesService';
 import MonthlyHero from '../components/home/MonthlyHero';
 import HeroTematico from '../components/home/temas/HeroTematico';
@@ -30,7 +30,8 @@ export default function Inicio() {
   const { refreshToken, config, theme, themeState, pages, reportPageLoading } = useOutletContext();
   const banners = useApi(() => obtenerBanners(), [refreshToken]);
   const events = useApi(() => obtenerEventos(), [refreshToken]);
-  const locals = useApi(() => obtenerLocales(), [refreshToken]);
+  // El backend elige la muestra: los destacados o, si no hay ninguno, un sorteo.
+  const locals = useApi(() => obtenerLocalesCarrusel(), [refreshToken]);
   const routes = useApi(() => obtenerRutasBus(), [refreshToken]);
   const homePage = pages.find((page) => page.TipoPagina === 'INICIO');
   const wheelEvents = (events.data || []).slice(0, 9);
@@ -89,8 +90,8 @@ export default function Inicio() {
         </div>
         {locals.loading ? <div className="container locals-marquee__state"><LoadingState label="Cargando locales" /></div> : null}
         {locals.error ? <div className="container locals-marquee__state"><ErrorState message="Los locales no están disponibles por el momento." onRetry={locals.refetch} /></div> : null}
-        {!locals.loading && !locals.error && locals.data?.length ? <LocalsMarquee locals={locals.data} /> : null}
-        {!locals.loading && !locals.error && !locals.data?.length ? (
+        {!locals.loading && !locals.error && locals.data?.datos.length ? <LocalsMarquee locals={locals.data.datos} /> : null}
+        {!locals.loading && !locals.error && !locals.data?.datos.length ? (
           <div className="container">
             <EmptyState title="No hay locales disponibles por el momento." />
           </div>

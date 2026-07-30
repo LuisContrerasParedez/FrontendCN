@@ -62,13 +62,16 @@ Los servicios de `src/services` consumen estos recursos de `WS_PaginaCN`:
 
 | Contenido | Endpoint |
 | --- | --- |
-| Locales | `GET /api/locales?limite=100` |
+| Directorio de locales | `GET /api/locales?pagina=1&limite=12` |
+| Carrusel de locales | `GET /api/locales/carrusel?limite=12` |
+| Detalle de un local | `GET /api/locales/{codigo}` |
+| Categorías de locales | `GET /api/categorias` |
 | Eventos | `GET /api/eventos` |
 | Promociones | `GET /api/promociones` |
-| Rutas de buses | `GET /api/rutas` |
+| Rutas principales, destinos y empresas de buses | `GET /api/rutas` |
 | Tema de inicio | `GET /api/tema-inicio` |
 
-La API devuelve objetos y arreglos JSON directamente. Las fichas individuales se resuelven en el cliente a partir del listado correspondiente porque la API pública actual no expone rutas de detalle.
+La API devuelve objetos y arreglos JSON directamente. Los locales paginan en el servidor: la respuesta trae `datos` y `paginacion`, y la ficha de un local se pide a su propia ruta, así que abrir el enlace directo o recargar no depende del listado. Las demás fichas individuales todavía se resuelven en el cliente a partir de su listado porque la API pública no expone rutas de detalle para ellas.
 
 ## Validación
 

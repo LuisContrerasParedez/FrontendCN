@@ -88,7 +88,7 @@ export default function HomeTransport({ routes = [], loading = false }) {
                     />
                     <span className="home-transport__shade" aria-hidden="true" />
                     <span className="home-transport__label">
-                      <span>{route.Destino}</span>
+                      <span>{route.NombreRuta}</span>
                       <Icon name="arrowUpRight" size={16} />
                     </span>
                   </Link>

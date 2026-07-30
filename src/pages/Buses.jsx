@@ -16,7 +16,17 @@ export default function Buses() {
   const content = pages.find((page) => page.TipoPagina === 'BUSES');
   const visible = useMemo(() => {
     const term = query.trim().toLocaleLowerCase('es');
-    return (state.data || []).filter((route) => !term || String(route.Destino || '').toLocaleLowerCase('es').includes(term));
+    return (state.data || []).filter((route) => {
+      if (!term) return true;
+      const searchable = [
+        route.NombreRuta,
+        ...(route.Destinos || []).flatMap((destination) => [
+          destination.NombreDestino,
+          ...(destination.Empresas || []).map((company) => company.Nombre)
+        ])
+      ];
+      return searchable.some((value) => String(value || '').toLocaleLowerCase('es').includes(term));
+    });
   }, [state.data, query]);
 
   useReveal([state.data, query]);
@@ -27,8 +37,8 @@ export default function Buses() {
       <PageHero eyebrow="Punto de transporte" title={content?.Titulo || 'Buses'} description={content?.Resumen || 'Encuentra el bus que te lleva a tu destino.'} />
       <section className="section container bus-directory">
         <div className="bus-search motion-panel reveal">
-          <div><h2>Busca tu destino</h2><p>Escribe el lugar al que quieres viajar.</p></div>
-          <SearchField value={query} onChange={setQuery} label="Buscar destino" placeholder="Ej. Zacapa" />
+          <div><h2>Busca tu destino</h2><p>Escribe una ruta, destino o empresa de transporte.</p></div>
+          <SearchField value={query} onChange={setQuery} label="Buscar ruta, destino o empresa" placeholder="Ej. Guastatoya" />
         </div>
         {!state.loading ? <p className="result-count" role="status" aria-live="polite" aria-atomic="true">{visible.length} {visible.length === 1 ? 'ruta' : 'rutas'}</p> : null}
         {state.loading ? <LoadingState label="Cargando rutas" /> : null}

@@ -1,5 +1,5 @@
 
-export const SITE_LOGO_URL = 'https://paginabeta.centranorte.com.gt/imagenes/Centra_Norte_Logo.png';
+export const SITE_LOGO_URL = 'https://centranorte.com.gt/imagenes/Centra_Norte_Logo.png';
 
 const CONFIGURACION_ESTATICA = {
   NombreSitio: 'Centra Norte',

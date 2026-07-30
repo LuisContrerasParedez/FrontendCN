@@ -11,12 +11,23 @@ import { safeUrl } from '../utils/safeUrl';
 export default function LocalDetalle() {
   const { codigo } = useParams();
   const { refreshToken, config } = useOutletContext();
+  // La ficha se pide por su propio endpoint: abrir el enlace directo o recargar
+  // muestra la misma información, sin depender del listado ni del carrusel.
   const state = useApi(() => obtenerLocal(codigo), [codigo, refreshToken]);
   const local = state.data;
 
   if (state.loading) return <div className="section container"><LoadingState label="Cargando información del local" /></div>;
   if (state.error) return <div className="section container"><ErrorState message="No pudimos cargar este local." onRetry={state.refetch} /></div>;
-  if (!local) return <div className="section container"><Seo title="Local no encontrado" config={config} noIndex /><EmptyState title="Este local no está disponible." message="Consulta el directorio para encontrar otros comercios y servicios." /></div>;
+  // Sin local: el código no es válido o la API respondió 404.
+  if (!local) {
+    return (
+      <div className="section container">
+        <Seo title="Local no encontrado" config={config} noIndex />
+        <Breadcrumbs items={[{ label: 'Inicio', to: '/' }, { label: 'Locales', to: '/locales' }, { label: 'Local no encontrado' }]} />
+        <EmptyState title="Este local no está disponible." message="Consulta el directorio para encontrar otros comercios y servicios." />
+      </div>
+    );
+  }
 
   const image = safeUrl(local.ImagenUrl);
 

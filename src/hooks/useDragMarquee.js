@@ -18,8 +18,10 @@ const VELOCITY_SMOOTHING = .6; // mezcla entre la velocidad previa y la muestra 
  * se funde sola con el desplazamiento continuo.
  *
  * @param {number} duration Segundos que tarda el track en recorrer medio ancho (igual que el CSS).
+ * @param {boolean} enabled Falso cuando la fila no se desplaza (pocos locales): sin dos grupos
+ *                          idénticos el arrastre no tendría dónde repetirse.
  */
-export default function useDragMarquee(duration) {
+export default function useDragMarquee(duration, enabled = true) {
   const viewportRef = useRef(null);
   const trackRef = useRef(null);
   const [interactive, setInteractive] = useState(false);
@@ -29,7 +31,7 @@ export default function useDragMarquee(duration) {
 
     const coarse = window.matchMedia('(pointer: coarse)');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const sync = () => setInteractive(coarse.matches && !reduced.matches);
+    const sync = () => setInteractive(enabled && coarse.matches && !reduced.matches);
 
     sync();
     coarse.addEventListener('change', sync);
@@ -38,7 +40,7 @@ export default function useDragMarquee(duration) {
       coarse.removeEventListener('change', sync);
       reduced.removeEventListener('change', sync);
     };
-  }, []);
+  }, [enabled]);
 
   useEffect(() => {
     const viewport = viewportRef.current;

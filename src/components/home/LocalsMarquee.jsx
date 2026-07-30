@@ -1,14 +1,8 @@
 import useDragMarquee from '../../hooks/useDragMarquee';
 import LocalCard from '../locales/LocalCard';
 
-const MINIMUM_CARDS_PER_GROUP = 8;
-
-function buildMarqueeGroup(locals) {
-  if (!locals.length) return [];
-
-  const repetitions = Math.max(1, Math.ceil(MINIMUM_CARDS_PER_GROUP / locals.length));
-  return Array.from({ length: repetitions }, () => locals).flat();
-}
+/** Tarjetas mínimas para que la fila infinita no muestre huecos al desplazarse. */
+const MINIMO_PARA_DESPLAZAR = 8;
 
 function LocalGroup({ locals, duplicate = false }) {
   return (
@@ -18,7 +12,7 @@ function LocalGroup({ locals, duplicate = false }) {
       aria-label={duplicate ? undefined : 'Locales para descubrir'}
     >
       {locals.map((local, index) => (
-        <li key={`${local.CodigoLocal}-${index}`} style={{ '--local-card-index': index }}>
+        <li key={local.CodigoLocal} style={{ '--local-card-index': index }}>
           <LocalCard
             local={local}
             headingLevel={3}
@@ -31,20 +25,29 @@ function LocalGroup({ locals, duplicate = false }) {
   );
 }
 
+/**
+ * Fila de locales del inicio. La API decide qué locales llegan (destacados o
+ * una muestra aleatoria) y aquí no se repite ninguno: cuando no alcanzan para
+ * llenar la fila se muestran una sola vez, quietos y centrados.
+ */
 export default function LocalsMarquee({ locals = [] }) {
-  const marqueeLocals = buildMarqueeGroup(locals);
-  const duration = Math.max(64, marqueeLocals.length * 8);
-  const { viewportRef, trackRef, interactive } = useDragMarquee(duration);
+  const desplaza = locals.length >= MINIMO_PARA_DESPLAZAR;
+  const duration = Math.max(64, locals.length * 8);
+  const { viewportRef, trackRef, interactive } = useDragMarquee(duration, desplaza);
+
+  if (!locals.length) return null;
 
   return (
     <div
       ref={viewportRef}
-      className={`locals-marquee${interactive ? ' locals-marquee--draggable' : ''}`}
-      style={{ '--locals-marquee-duration': `${duration}s` }}
+      className={`locals-marquee${desplaza ? '' : ' locals-marquee--static'}${interactive ? ' locals-marquee--draggable' : ''}`}
+      style={desplaza ? { '--locals-marquee-duration': `${duration}s` } : undefined}
     >
       <div ref={trackRef} className="locals-marquee__track">
-        <LocalGroup locals={marqueeLocals} />
-        <LocalGroup locals={marqueeLocals} duplicate />
+        <LocalGroup locals={locals} />
+        {/* El segundo grupo es el mismo contenido: da continuidad al bucle y
+            queda oculto para lectores de pantalla. */}
+        {desplaza ? <LocalGroup locals={locals} duplicate /> : null}
       </div>
     </div>
   );
