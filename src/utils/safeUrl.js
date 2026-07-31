@@ -1,4 +1,4 @@
-const PUBLIC_IMAGES_ORIGIN = (import.meta.env.VITE_IMAGES_BASE_URL || 'https://centranorte.com.gt').replace(/\/+$/, '');
+const PUBLIC_IMAGES_ORIGIN = (import.meta.env.VITE_IMAGES_BASE_URL || window.location.origin).replace(/\/+$/, '');
 
 function isAllowedProtocol(protocol) {
   return protocol === 'http:' || protocol === 'https:';
@@ -40,6 +40,16 @@ export function safeUrl(value) {
 
   try {
     const parsed = new URL(trimmed, window.location.origin);
+    const publicOrigin = new URL(PUBLIC_IMAGES_ORIGIN);
+    const isManagedImage = /^\/imagenes(?:\/|$)/i.test(parsed.pathname);
+    const isPublicHostFamily = parsed.hostname === publicOrigin.hostname
+      || parsed.hostname.endsWith(`.${publicOrigin.hostname}`);
+
+    // Las URLs administradas pueden haber sido guardadas con un subdominio
+    // anterior. El origen publico configurado decide siempre donde servirlas.
+    if (isManagedImage && isPublicHostFamily) {
+      return new URL(`${parsed.pathname}${parsed.search}${parsed.hash}`, `${publicOrigin.origin}/`).toString();
+    }
     return isAllowedProtocol(parsed.protocol) ? parsed.toString() : '';
   } catch {
     return '';

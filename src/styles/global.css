@@ -2657,32 +2657,6 @@ p { margin-bottom: 1rem; }
   color: #46516a;
 }
 
-.promotion-participation__cta {
-  min-height: 46px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: .55rem;
-  width: max-content;
-  max-width: 100%;
-  margin-top: clamp(1.4rem, 3vw, 2.25rem);
-  padding: .75rem 1.1rem;
-  color: var(--fair-ink);
-  font-weight: 850;
-  font-size: .88rem;
-  background: var(--fair-yellow);
-  border-radius: var(--radius-small);
-  text-decoration: none;
-  transition: transform var(--transition), background var(--transition);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .promotion-participation__cta:hover {
-    background: #ffc61a;
-    transform: translateY(-1px);
-  }
-}
-
 .promotion-detail-page__content { max-width: 1320px; }
 
 .invoice-link {
@@ -3505,7 +3479,63 @@ p { margin-bottom: 1rem; }
 .breadcrumbs li:not(:last-child)::after { margin-left: .4rem; content: "/"; color: #9297a2; }
 
 .detail-page { padding-bottom: clamp(4.5rem, 6vw, 8rem); }
-.detail-page__breadcrumbs { padding-top: 1.5rem; }
+.detail-page__breadcrumbs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .6rem 1rem;
+  padding-top: 1.5rem;
+  margin-bottom: 30px;
+}
+
+.detail-page__breadcrumbs .breadcrumbs {
+  min-width: 0;
+  margin-left: auto;
+}
+
+.detail-back-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  width: max-content;
+  max-width: 100%;
+  padding: .45rem .8rem .45rem .55rem;
+  color: var(--fair-blue);
+  background: rgba(255, 255, 255, .72);
+  border: 1px solid var(--fair-border);
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(13, 43, 107, .06);
+  font-size: .84rem;
+  font-weight: 750;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: color var(--transition), background var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.detail-back-link__icon {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--fair-blue);
+  background: var(--fair-soft);
+  border-radius: 50%;
+  transition: transform var(--transition);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .detail-back-link:hover {
+    color: var(--fair-blue-deep);
+    background: var(--fair-soft);
+    border-color: #c6cedb;
+    box-shadow: 0 2px 6px rgba(13, 43, 107, .08);
+  }
+
+  .detail-back-link:hover .detail-back-link__icon { transform: translateX(-2px); }
+}
 
 .detail-page__grid {
   max-width: 1201px;

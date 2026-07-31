@@ -1,5 +1,7 @@
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
-const PRODUCTION_API_ORIGIN = 'https://wspagina.centranorte.com.gt';
+const PRODUCTION_API_URL = import.meta.env.PROD
+  ? new URL(API_BASE_URL, window.location.origin)
+  : null;
 
 /**
  * Error de una respuesta de la API. Conserva el código para que la vista pueda
@@ -17,7 +19,12 @@ function buildUrl(path, params) {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   const url = new URL(`${API_BASE_URL}${cleanPath}`, window.location.origin);
 
-  if (import.meta.env.PROD && (url.protocol !== 'https:' || url.origin !== PRODUCTION_API_ORIGIN || !url.pathname.startsWith('/api/'))) {
+  const productionApiPath = PRODUCTION_API_URL?.pathname.replace(/\/$/, '');
+  if (import.meta.env.PROD && (
+    url.protocol !== 'https:'
+    || url.origin !== PRODUCTION_API_URL.origin
+    || (url.pathname !== productionApiPath && !url.pathname.startsWith(`${productionApiPath}/`))
+  )) {
     throw new Error('La API de produccion debe utilizar el subdominio HTTPS autorizado.');
   }
 

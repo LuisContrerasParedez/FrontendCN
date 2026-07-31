@@ -6,6 +6,9 @@ Este proyecto publica exclusivamente el build estático de React/Vite mediante O
 
 - `.tools/deploy.local.ps1`: configuración real del destino; está ignorada.
 - `.tools/deploy.local.example.ps1`: plantilla sin datos reales.
+- `despliegueProduccion.ps1`: flujo independiente para publicar el dominio principal.
+- `.tools/despliegueProduccion.local.ps1`: destino privado del flujo de producción; está ignorado.
+- `.tools/despliegueProduccion.local.example.ps1`: plantilla del destino de producción.
 - `deploy.ps1`: build, validación, respaldo, publicación y pruebas HTTP.
 - `rollback.ps1`: restauración validada de respaldos remotos.
 
@@ -15,10 +18,30 @@ La clave SSH debe permanecer fuera del proyecto. No guardes su contenido ni su p
 
 1. El dominio debe tener un certificado TLS válido.
 2. `WS_PaginaCN` debe estar publicado en el `public_html` independiente de `wspagina.centranorte.com.gt`.
-3. La API debe permitir exclusivamente `https://paginabeta.centranorte.com.gt` en `CORS_ORIGINS`.
+3. La API debe permitir exclusivamente el origen definido por `VITE_SITE_URL` en `CORS_ORIGINS`.
 4. La ruta pública configurada debe aceptar archivos estáticos y reglas de `.htaccess`.
 
 La configuración, credenciales y proceso de la API se administran únicamente desde `WS_PaginaCN`.
+
+El despliegue existente conserva sus archivos y su configuración. Para publicar
+el frontend en el dominio principal se usa exclusivamente:
+
+```powershell
+.\despliegueProduccion.ps1 -DryRun
+.\despliegueProduccion.ps1
+```
+
+También puede iniciarse con `publicar-produccion.cmd`. Este flujo utiliza rutas
+temporales, estado y configuración separados de `deploy.ps1`. Durante la primera
+publicación, `PersistentSourcePath` copia las imágenes administradas del sitio
+actual al dominio principal sin modificar el origen; si ya existen archivos en
+producción, estos tienen prioridad.
+
+Antes de publicar el frontend, el despliegue existente de `WS_PaginaCN` debe
+actualizar su configuración con ambos orígenes separados por coma:
+`CORS_ORIGINS=https://paginabeta.centranorte.com.gt,https://centranorte.com.gt`.
+El nuevo flujo comprueba el encabezado del dominio principal después de activar
+el frontend y restaura automáticamente la versión anterior si la API no lo autoriza.
 
 ## Prueba sin publicar
 

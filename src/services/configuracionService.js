@@ -1,5 +1,7 @@
 
-export const SITE_LOGO_URL = 'https://centranorte.com.gt/imagenes/Centra_Norte_Logo.png';
+const IMAGES_BASE_URL = (import.meta.env.VITE_IMAGES_BASE_URL || window.location.origin).replace(/\/+$/, '');
+
+export const SITE_LOGO_URL = `${IMAGES_BASE_URL}/imagenes/Centra_Norte_Logo.png`;
 
 const CONFIGURACION_ESTATICA = {
   NombreSitio: 'Centra Norte',

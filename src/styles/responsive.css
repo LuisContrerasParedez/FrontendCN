@@ -586,7 +586,13 @@
   .transport-actions .button { width: 100%; }
 
   .detail-page__breadcrumbs { padding-top: .75rem; }
-  .breadcrumbs { padding-block: .85rem; font-size: .78rem; }
+  .detail-page__breadcrumbs .breadcrumbs {
+    order: 2;
+    width: 100%;
+    margin-left: 0;
+    padding-block: .25rem .6rem;
+  }
+  .breadcrumbs { font-size: .78rem; }
   .detail-page__grid { gap: 1rem; }
   .detail-page__media,
   .detail-card { border-radius: var(--radius-medium); }

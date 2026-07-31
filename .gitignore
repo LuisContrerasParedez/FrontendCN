@@ -4,7 +4,10 @@ deploy/
 backups/
 .tools/*
 !.tools/deploy.local.example.ps1
+!.tools/despliegueProduccion.local.example.ps1
 .deploy-work/
+.deploy-produccion-work/
+deploy-produccion/
 *.log
 *.zip
 *.tar.gz

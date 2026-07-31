@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { existsSync, readFileSync } from 'node:fs';
 import { copyFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { URL } from 'node:url';
 
 function parseEnvFile(path) {
   if (!existsSync(path)) {
@@ -60,14 +61,34 @@ export default defineConfig(({ mode }) => {
   const env = loadProjectEnv(mode);
   const apiProxyTarget = env.VITE_API_PROXY_TARGET || 'http://127.0.0.1:8080';
   const apiBaseUrl = (env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
-  const productionApiUrl = 'https://wspagina.centranorte.com.gt/api';
 
-  if (mode === 'production' && apiBaseUrl !== productionApiUrl) {
-    throw new Error(`En produccion VITE_API_BASE_URL debe ser ${productionApiUrl}.`);
-  }
+  if (mode === 'production') {
+    for (const key of ['VITE_API_BASE_URL', 'VITE_SITE_URL', 'VITE_IMAGES_BASE_URL']) {
+      if (!env[key]) {
+        throw new Error(`En produccion falta la variable obligatoria ${key}.`);
+      }
+    }
 
-  if (mode === 'production' && env.VITE_SITE_URL && !env.VITE_SITE_URL.startsWith('https://')) {
-    throw new Error('En produccion VITE_SITE_URL debe utilizar HTTPS.');
+    let apiUrl;
+    let siteUrl;
+    let imagesUrl;
+    try {
+      apiUrl = new URL(env.VITE_API_BASE_URL);
+      siteUrl = new URL(env.VITE_SITE_URL);
+      imagesUrl = new URL(env.VITE_IMAGES_BASE_URL);
+    } catch {
+      throw new Error('Las URLs de produccion deben ser absolutas y validas.');
+    }
+
+    if (apiUrl.protocol !== 'https:' || apiUrl.pathname.replace(/\/+$/, '') !== '/api') {
+      throw new Error('En produccion VITE_API_BASE_URL debe usar HTTPS y terminar en /api.');
+    }
+    if (siteUrl.protocol !== 'https:' || imagesUrl.protocol !== 'https:') {
+      throw new Error('En produccion VITE_SITE_URL y VITE_IMAGES_BASE_URL deben utilizar HTTPS.');
+    }
+    if (siteUrl.origin !== imagesUrl.origin) {
+      throw new Error('VITE_IMAGES_BASE_URL debe utilizar el mismo origen publico que VITE_SITE_URL.');
+    }
   }
 
   if (mode !== 'production' && apiBaseUrl !== '/api') {

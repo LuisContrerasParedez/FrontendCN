@@ -22,6 +22,8 @@ Assert-Condition (-not (Test-Path -LiteralPath (Join-Path $projectRoot 'api'))) 
 
 $envExample = [IO.File]::ReadAllText((Join-Path $projectRoot '.env.example'))
 Assert-Condition ($envExample -match '(?m)^VITE_API_BASE_URL=https://wspagina\.centranorte\.com\.gt/api\s*$') 'La API de produccion debe utilizar el subdominio HTTPS independiente.'
+Assert-Condition ($envExample -match '(?m)^VITE_SITE_URL=https://centranorte\.com\.gt\s*$') 'El origen canonico de produccion no es el esperado.'
+Assert-Condition ($envExample -notmatch '(?im)^VITE_SITE_URL=https?://[^/\s]*beta[^/\s]*') 'La plantilla de produccion conserva un dominio beta.'
 Assert-Condition ($envExample -notmatch '(?m)^VITE_API_PROXY_TARGET=') '.env.example no debe mezclar el proxy local con produccion.'
 
 $localExample = [IO.File]::ReadAllText((Join-Path $projectRoot '.env.local.example'))
@@ -35,6 +37,7 @@ Assert-Condition ($localEnv -match '(?m)^VITE_API_BASE_URL=/api\s*$') '.env.loca
 
 $viteConfig = [IO.File]::ReadAllText((Join-Path $projectRoot 'vite.config.js'))
 Assert-Condition ($viteConfig -match 'envDir:\s*false') 'Vite debe desactivar la carga implicita que mezcla .env.local en produccion.'
+Assert-Condition ($viteConfig -notmatch '(?i)https?://[^/\s]*beta[^/\s]*') 'Vite conserva una URL beta quemada.'
 
 $apacheRules = [IO.File]::ReadAllText((Join-Path $projectRoot '.htaccess'))
 Assert-Condition ($apacheRules.Contains('Strict-Transport-Security')) 'Falta HSTS en el frontend.'

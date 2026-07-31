@@ -1,11 +1,8 @@
 import ResponsiveImage from '../ui/ResponsiveImage';
 import Icon from '../ui/Icon';
-import SmartLink from '../ui/SmartLink';
 import { safeUrl } from '../../utils/safeUrl';
 
 const DEFAULT_TITLE = 'Gasta más de Q200 y participa por premios especiales';
-const FACTURAS_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSf66DJ94PuZaOk_W2eAdKwa3CN2eKQK05JC8yZ29UwuBDlwsw/viewform';
-const FACTURAS_LABEL = 'Carga tus facturas aquí';
 
 const participationSteps = [
   {
@@ -71,10 +68,6 @@ export default function PromotionParticipation({ promotion, headingLevel = 2 }) 
             </li>
           ))}
         </ol>
-        <SmartLink className="promotion-participation__cta" href={FACTURAS_URL} aria-label={FACTURAS_LABEL}>
-          <Icon name="upload" size={18} />
-          {FACTURAS_LABEL}
-        </SmartLink>
       </div>
     </section>
   );

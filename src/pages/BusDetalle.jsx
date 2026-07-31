@@ -1,7 +1,7 @@
 import { useOutletContext, useParams } from 'react-router';
 import useApi from '../hooks/useApi';
 import { obtenerRutaBus } from '../services/busesService';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
+import DetailNavigation from '../components/ui/DetailNavigation';
 import ResponsiveImage from '../components/ui/ResponsiveImage';
 import { EmptyState, ErrorState, LoadingState } from '../components/ui/ContentStates';
 import Icon from '../components/ui/Icon';
@@ -13,10 +13,29 @@ export default function BusDetalle() {
   const { refreshToken, config } = useOutletContext();
   const state = useApi(() => obtenerRutaBus(codigo), [codigo, refreshToken]);
   const route = state.data;
+  const navigationItems = (currentLabel) => [{ label: 'Inicio', to: '/' }, { label: 'Buses', to: '/buses' }, { label: currentLabel }];
 
-  if (state.loading) return <div className="section container"><LoadingState label="Cargando información de la ruta" /></div>;
-  if (state.error) return <div className="section container"><ErrorState message="No pudimos cargar esta ruta." onRetry={state.refetch} /></div>;
-  if (!route) return <div className="section container"><Seo title="Ruta no encontrada" config={config} noIndex /><EmptyState title="Esta ruta no está disponible." message="Consulta el directorio de buses para ver otros destinos." /></div>;
+  if (state.loading) return (
+    <div className="detail-page">
+      <DetailNavigation backTo="/buses" backLabel="Volver a buses" items={navigationItems('Cargando ruta')} />
+      <div className="section container"><LoadingState label="Cargando información de la ruta" /></div>
+    </div>
+  );
+  if (state.error) return (
+    <div className="detail-page">
+      <DetailNavigation backTo="/buses" backLabel="Volver a buses" items={navigationItems('Ruta de bus')} />
+      <div className="section container"><ErrorState message="No pudimos cargar esta ruta." onRetry={state.refetch} /></div>
+    </div>
+  );
+  if (!route) return (
+    <div className="detail-page">
+      <DetailNavigation backTo="/buses" backLabel="Volver a buses" items={navigationItems('Ruta no encontrada')} />
+      <div className="section container">
+        <Seo title="Ruta no encontrada" config={config} noIndex />
+        <EmptyState title="Esta ruta no está disponible." message="Consulta el directorio de buses para ver otros destinos." />
+      </div>
+    </div>
+  );
 
   const image = safeUrl(route.ImagenUrl);
   const destinations = Array.isArray(route.Destinos) ? route.Destinos : [];
@@ -28,7 +47,7 @@ export default function BusDetalle() {
   return (
     <article className="detail-page bus-route-detail">
       <Seo title={route.NombreRuta} description={description} image={route.ImagenUrl} config={config} />
-      <div className="container detail-page__breadcrumbs"><Breadcrumbs items={[{ label: 'Inicio', to: '/' }, { label: 'Buses', to: '/buses' }, { label: route.NombreRuta }]} /></div>
+      <DetailNavigation backTo="/buses" backLabel="Volver a buses" items={navigationItems(route.NombreRuta)} />
       <div className={`container detail-page__grid bus-route-detail__hero${image ? '' : ' bus-route-detail__hero--without-media'}`}>
         {image ? (
           <div className="detail-page__media">

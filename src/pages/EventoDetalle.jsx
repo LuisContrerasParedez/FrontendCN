@@ -1,7 +1,7 @@
 import { useOutletContext, useParams } from 'react-router';
 import useApi from '../hooks/useApi';
 import { obtenerEvento } from '../services/eventosService';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
+import DetailNavigation from '../components/ui/DetailNavigation';
 import ResponsiveImage from '../components/ui/ResponsiveImage';
 import { EmptyState, ErrorState, LoadingState } from '../components/ui/ContentStates';
 import Seo from '../components/ui/Seo';
@@ -28,9 +28,29 @@ export default function EventoDetalle() {
   const state = useApi(() => obtenerEvento(codigo), [codigo, refreshToken]);
   const event = state.data;
 
-  if (state.loading) return <div className="section container"><LoadingState label="Cargando información del evento" /></div>;
-  if (state.error) return <div className="section container"><ErrorState message="No pudimos cargar este evento." onRetry={state.refetch} /></div>;
-  if (!event) return <div className="section container"><Seo title="Evento no encontrado" config={config} noIndex /><EmptyState title="Este evento no está disponible." message="Consulta la agenda para ver otras actividades." /></div>;
+  const navigationItems = (currentLabel) => [{ label: 'Inicio', to: '/' }, { label: 'Eventos', to: '/eventos' }, { label: currentLabel }];
+
+  if (state.loading) return (
+    <div className="detail-page">
+      <DetailNavigation backTo="/eventos" backLabel="Volver a eventos" items={navigationItems('Cargando evento')} />
+      <div className="section container"><LoadingState label="Cargando información del evento" /></div>
+    </div>
+  );
+  if (state.error) return (
+    <div className="detail-page">
+      <DetailNavigation backTo="/eventos" backLabel="Volver a eventos" items={navigationItems('Evento')} />
+      <div className="section container"><ErrorState message="No pudimos cargar este evento." onRetry={state.refetch} /></div>
+    </div>
+  );
+  if (!event) return (
+    <div className="detail-page">
+      <DetailNavigation backTo="/eventos" backLabel="Volver a eventos" items={navigationItems('Evento no encontrado')} />
+      <div className="section container">
+        <Seo title="Evento no encontrado" config={config} noIndex />
+        <EmptyState title="Este evento no está disponible." message="Consulta la agenda para ver otras actividades." />
+      </div>
+    </div>
+  );
 
   const image = safeUrl(event.ImagenPrincipalUrl);
   const fecha = formatRange(event.FechaInicio, event.FechaFin);
@@ -38,7 +58,7 @@ export default function EventoDetalle() {
   return (
     <article className="detail-page">
       <Seo title={event.Titulo} description={event.Resumen || `${event.Titulo} en Centra Norte.`} image={event.ImagenPrincipalUrl} config={config} />
-      <div className="container detail-page__breadcrumbs"><Breadcrumbs items={[{ label: 'Inicio', to: '/' }, { label: 'Eventos', to: '/eventos' }, { label: event.Titulo }]} /></div>
+      <DetailNavigation backTo="/eventos" backLabel="Volver a eventos" items={navigationItems(event.Titulo)} />
       <div className="container detail-page__grid">
         {image ? (
           <div className="detail-page__media">

@@ -2,7 +2,7 @@ import { useOutletContext, useParams } from 'react-router';
 import useApi from '../hooks/useApi';
 import { obtenerPromocion } from '../services/promocionesService';
 import PromotionParticipation from '../components/promociones/PromotionParticipation';
-import Breadcrumbs from '../components/ui/Breadcrumbs';
+import DetailNavigation from '../components/ui/DetailNavigation';
 import { EmptyState, ErrorState, LoadingState } from '../components/ui/ContentStates';
 import Seo from '../components/ui/Seo';
 import { sanitizeHtml } from '../utils/sanitizeHtml';
@@ -31,18 +31,36 @@ export default function PromocionDetalle() {
   const state = useApi(() => obtenerPromocion(codigo), [codigo, refreshToken]);
   const promotion = state.data;
 
-  if (state.loading) return <div className="section container"><LoadingState label="Cargando información de la promoción" /></div>;
-  if (state.error) return <div className="section container"><ErrorState message="No pudimos cargar esta promoción." onRetry={state.refetch} /></div>;
-  if (!promotion) return <div className="section container"><Seo title="Promoción no encontrada" config={config} noIndex /><EmptyState title="Esta promoción no está disponible." message="Consulta las promociones vigentes para conocer otros beneficios." /></div>;
+  const navigationItems = (currentLabel) => [{ label: 'Inicio', to: '/' }, { label: 'Promociones', to: '/promociones' }, { label: currentLabel }];
+
+  if (state.loading) return (
+    <div className="detail-page">
+      <DetailNavigation backTo="/promociones" backLabel="Volver a promociones" items={navigationItems('Cargando promoción')} />
+      <div className="section container"><LoadingState label="Cargando información de la promoción" /></div>
+    </div>
+  );
+  if (state.error) return (
+    <div className="detail-page">
+      <DetailNavigation backTo="/promociones" backLabel="Volver a promociones" items={navigationItems('Promoción')} />
+      <div className="section container"><ErrorState message="No pudimos cargar esta promoción." onRetry={state.refetch} /></div>
+    </div>
+  );
+  if (!promotion) return (
+    <div className="detail-page">
+      <DetailNavigation backTo="/promociones" backLabel="Volver a promociones" items={navigationItems('Promoción no encontrada')} />
+      <div className="section container">
+        <Seo title="Promoción no encontrada" config={config} noIndex />
+        <EmptyState title="Esta promoción no está disponible." message="Consulta las promociones vigentes para conocer otros beneficios." />
+      </div>
+    </div>
+  );
 
   const validity = formatValidity(promotion.FechaInicio, promotion.FechaFin);
 
   return (
     <article className="detail-page promotion-detail-page">
       <Seo title={promotion.Titulo} description={`${promotion.Titulo} en Centra Norte.`} image={promotion.ImagenPrincipalUrl} config={config} />
-      <div className="container detail-page__breadcrumbs">
-        <Breadcrumbs items={[{ label: 'Inicio', to: '/' }, { label: 'Promociones', to: '/promociones' }, { label: promotion.Titulo }]} />
-      </div>
+      <DetailNavigation backTo="/promociones" backLabel="Volver a promociones" items={navigationItems(promotion.Titulo)} />
       <div className="container promotion-detail-page__content">
         <PromotionParticipation promotion={promotion} headingLevel={1} />
         {promotion.Descripcion || validity ? (
