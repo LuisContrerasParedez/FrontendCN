@@ -43,9 +43,25 @@ $apacheRules = [IO.File]::ReadAllText((Join-Path $projectRoot '.htaccess'))
 Assert-Condition ($apacheRules.Contains('Strict-Transport-Security')) 'Falta HSTS en el frontend.'
 Assert-Condition ($apacheRules.Contains('upgrade-insecure-requests')) 'Falta bloquear contenido HTTP mixto mediante CSP.'
 Assert-Condition ($apacheRules.Contains('https://wspagina.centranorte.com.gt')) 'La CSP no permite el subdominio independiente del WS.'
+Assert-Condition ($apacheRules.Contains('https://www.googletagmanager.com')) 'La CSP no permite Google Tag Manager.'
+Assert-Condition ($apacheRules.Contains('https://*.google-analytics.com')) 'La CSP no permite las conexiones de Google Analytics.'
 
 $sourceIndex = [IO.File]::ReadAllText((Join-Path $projectRoot 'index.html'))
-Assert-Condition ($sourceIndex -notmatch '(?is)<script(?![^>]*\bsrc=)[^>]*>\s*\S') 'index.html contiene JavaScript inline bloqueado por la CSP.'
+$gtmContainerId = 'GTM-N7HCM3QF'
+$inlineScriptPattern = '(?is)<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>'
+$sourceInlineScripts = [regex]::Matches($sourceIndex, $inlineScriptPattern)
+Assert-Condition ($sourceInlineScripts.Count -eq 1) 'index.html debe contener unicamente el cargador inline autorizado de GTM.'
+$sourceGtmCode = $sourceInlineScripts[0].Groups[1].Value
+Assert-Condition ($sourceGtmCode.Contains($gtmContainerId)) 'El cargador inline no corresponde al contenedor GTM autorizado.'
+$sha256 = [Security.Cryptography.SHA256]::Create()
+try {
+    $sourceGtmHash = 'sha256-' + [Convert]::ToBase64String($sha256.ComputeHash([Text.Encoding]::UTF8.GetBytes($sourceGtmCode)))
+} finally {
+    $sha256.Dispose()
+}
+Assert-Condition ($apacheRules.Contains("'$sourceGtmHash'")) 'La CSP no contiene el hash vigente del cargador GTM.'
+Assert-Condition ($sourceIndex -match '(?is)<body[^>]*>\s*<!-- Google Tag Manager \(noscript\) -->\s*<noscript>') 'El fallback noscript de GTM debe aparecer inmediatamente despues de body.'
+Assert-Condition ($sourceIndex.Contains("ns.html?id=$gtmContainerId")) 'El fallback noscript no corresponde al contenedor GTM autorizado.'
 
 $deployScript = [IO.File]::ReadAllText((Join-Path $projectRoot 'deploy.ps1'))
 Assert-Condition ($deployScript -match 'for persistent in imagenes; do') 'El despliegue debe conservar unicamente imagenes.'
@@ -63,7 +79,17 @@ $distPath = Join-Path $projectRoot 'dist'
 Assert-Condition (Test-Path -LiteralPath (Join-Path $distPath 'index.html') -PathType Leaf) 'dist/index.html no existe.'
 Assert-Condition (Test-Path -LiteralPath (Join-Path $distPath 'assets') -PathType Container) 'dist/assets no existe.'
 $distIndex = [IO.File]::ReadAllText((Join-Path $distPath 'index.html'))
-Assert-Condition ($distIndex -notmatch '(?is)<script(?![^>]*\bsrc=)[^>]*>\s*\S') 'dist/index.html contiene JavaScript inline bloqueado por la CSP.'
+$distInlineScripts = [regex]::Matches($distIndex, $inlineScriptPattern)
+Assert-Condition ($distInlineScripts.Count -eq 1) 'dist/index.html debe contener unicamente el cargador inline autorizado de GTM.'
+$distGtmCode = $distInlineScripts[0].Groups[1].Value
+$sha256 = [Security.Cryptography.SHA256]::Create()
+try {
+    $distGtmHash = 'sha256-' + [Convert]::ToBase64String($sha256.ComputeHash([Text.Encoding]::UTF8.GetBytes($distGtmCode)))
+} finally {
+    $sha256.Dispose()
+}
+Assert-Condition ($distGtmCode.Contains($gtmContainerId)) 'El build no contiene el cargador GTM autorizado.'
+Assert-Condition ($apacheRules.Contains("'$distGtmHash'")) 'La CSP no autoriza el cargador GTM generado en dist.'
 $serverFiles = @(Get-ChildItem -LiteralPath $distPath -Recurse -Force -File | Where-Object { $_.Extension -in @('.php', '.sql') })
 Assert-Condition ($serverFiles.Count -eq 0) 'dist contiene archivos de servidor.'
 
