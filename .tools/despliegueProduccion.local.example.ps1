@@ -4,7 +4,6 @@
     SshPort = 0
     PrivateKeyPath = 'C:\RUTA\FUERA\DEL\PROYECTO\clave_privada'
     RemotePublicPath = '/RUTA/ABSOLUTA/centranorte.com.gt/public_html'
-    PersistentSourcePath = '/RUTA/ABSOLUTA/ORIGEN-ACTUAL/public_html'
     PublicUrl = 'https://centranorte.com.gt'
     ApiPublicUrl = 'https://wspagina.centranorte.com.gt/api'
     BackupRetention = 5

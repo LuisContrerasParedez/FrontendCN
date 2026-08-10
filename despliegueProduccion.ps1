@@ -73,7 +73,6 @@ public_root="$1"
 package_path="$2"
 version="$3"
 no_backup="$4"
-source_root="$5"
 parent="${public_root%/*}"
 staging="$parent/.deploy-staging-$version"
 backups="$parent/.deploy-backups"
@@ -82,14 +81,13 @@ lock="$parent/.centranorte-deploy-lock"
 [ -f "$lock/version" ]
 [ "$(cat "$lock/version")" = "$version" ]
 [ "$public_root" != "/" ]
-[ "$source_root" != "/" ]
 [ -f "$package_path" ]
 [ ! -e "$staging" ]
 
 mkdir -m 755 "$staging"
 tar --warning=no-timestamp -xzf "$package_path" -C "$staging"
 
-for required in index.html .htaccess; do
+for required in index.html Default.html spa.html 404.html sitemap.xml .htaccess; do
     [ -f "$staging/$required" ] || { echo "Falta archivo obligatorio en staging: $required" >&2; exit 21; }
 done
 [ -d "$staging/assets" ]
@@ -111,16 +109,11 @@ else
     echo "No existe una version activa que respaldar."
 fi
 
-# Las imagenes administradas no forman parte del paquete de Vite. La API PHP
-# pertenece a otro subdominio y nunca se conserva ni se copia en este destino.
+# Las imagenes administradas no forman parte del paquete de Vite: se conservan
+# desde el propio destino de produccion, sin depender de ningun otro sitio. La
+# API PHP pertenece a otro subdominio y nunca se conserva ni se copia aqui.
 for persistent in imagenes; do
     persistent_restored=0
-    if [ -d "$source_root/$persistent" ]; then
-        mkdir -p "$staging/$persistent"
-        cp -a "$source_root/$persistent/." "$staging/$persistent/"
-        persistent_restored=1
-        echo "Contenido persistente incorporado desde el sitio actual: $persistent"
-    fi
     if [ -d "$public_root/$persistent" ]; then
         mkdir -p "$staging/$persistent"
         cp -a "$public_root/$persistent/." "$staging/$persistent/"
@@ -337,7 +330,7 @@ try {
     Copy-DirectoryContents -Source $distPath -Destination $deployPath
     Copy-Item -LiteralPath (Join-Path $projectRoot '.htaccess') -Destination $deployPath -Force
 
-    $requiredPackageFiles = @('index.html', '.htaccess')
+    $requiredPackageFiles = @('index.html', 'Default.html', 'spa.html', '404.html', 'sitemap.xml', '.htaccess')
     foreach ($required in $requiredPackageFiles) {
         if (-not (Test-Path -LiteralPath (Join-Path $deployPath $required) -PathType Leaf)) {
             throw "Falta un archivo obligatorio en deploy: $required"
@@ -407,8 +400,7 @@ try {
         [string]$config.RemotePublicPath,
         $remotePackage,
         $version,
-        $(if ($NoBackup) { '1' } else { '0' }),
-        [string]$config.PersistentSourcePath
+        $(if ($NoBackup) { '1' } else { '0' })
     )
 
     Invoke-SshScript -Config $config -Script $activateRemoteScript -Arguments @(

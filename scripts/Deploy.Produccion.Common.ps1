@@ -20,7 +20,7 @@ function Get-DeploymentConfig {
     }
 
     $requiredKeys = @(
-        'SshHost', 'SshUser', 'SshPort', 'PrivateKeyPath', 'RemotePublicPath', 'PersistentSourcePath',
+        'SshHost', 'SshUser', 'SshPort', 'PrivateKeyPath', 'RemotePublicPath',
         'PublicUrl', 'ApiPublicUrl', 'BackupRetention'
     )
     foreach ($key in $requiredKeys) {
@@ -42,14 +42,9 @@ function Get-DeploymentConfig {
     }
     $config.SshPort = $port
 
-    foreach ($pathKey in @('RemotePublicPath', 'PersistentSourcePath')) {
-        $value = [string]$config[$pathKey]
-        if ($value -notmatch '\A/[A-Za-z0-9._/-]+\z' -or $value.Contains('//') -or $value.Contains('/../')) {
-            throw "La ruta remota no es valida: $pathKey"
-        }
-    }
-    if ([string]$config.RemotePublicPath -eq [string]$config.PersistentSourcePath) {
-        throw 'PersistentSourcePath debe ser diferente del destino de produccion.'
+    $remotePublicPath = [string]$config.RemotePublicPath
+    if ($remotePublicPath -notmatch '\A/[A-Za-z0-9._/-]+\z' -or $remotePublicPath.Contains('//') -or $remotePublicPath.Contains('/../')) {
+        throw 'La ruta remota no es valida: RemotePublicPath'
     }
     $publicUri = $null
     if (-not [Uri]::TryCreate([string]$config.PublicUrl, [UriKind]::Absolute, [ref]$publicUri) -or $publicUri.Scheme -ne 'https') {

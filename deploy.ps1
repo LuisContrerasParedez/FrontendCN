@@ -86,7 +86,7 @@ lock="$parent/.centranorte-deploy-lock"
 mkdir -m 755 "$staging"
 tar --warning=no-timestamp -xzf "$package_path" -C "$staging"
 
-for required in index.html .htaccess; do
+for required in index.html Default.html spa.html 404.html sitemap.xml .htaccess; do
     [ -f "$staging/$required" ] || { echo "Falta archivo obligatorio en staging: $required" >&2; exit 21; }
 done
 [ -d "$staging/assets" ]
@@ -319,7 +319,7 @@ try {
     Copy-DirectoryContents -Source $distPath -Destination $deployPath
     Copy-Item -LiteralPath (Join-Path $projectRoot '.htaccess') -Destination $deployPath -Force
 
-    $requiredPackageFiles = @('index.html', '.htaccess')
+    $requiredPackageFiles = @('index.html', 'Default.html', 'spa.html', '404.html', 'sitemap.xml', '.htaccess')
     foreach ($required in $requiredPackageFiles) {
         if (-not (Test-Path -LiteralPath (Join-Path $deployPath $required) -PathType Leaf)) {
             throw "Falta un archivo obligatorio en deploy: $required"

@@ -32,10 +32,10 @@ el frontend en el dominio principal se usa exclusivamente:
 ```
 
 También puede iniciarse con `publicar-produccion.cmd`. Este flujo utiliza rutas
-temporales, estado y configuración separados de `deploy.ps1`. Durante la primera
-publicación, `PersistentSourcePath` copia las imágenes administradas del sitio
-actual al dominio principal sin modificar el origen; si ya existen archivos en
-producción, estos tienen prioridad.
+temporales, estado y configuración separados de `deploy.ps1`, y opera únicamente
+sobre `centranorte.com.gt`: no lee ni escribe nada en `paginabeta`. La carpeta
+`imagenes` se conserva desde el propio `public_html` de producción y, si no
+existiera ahí, se recupera del respaldo más reciente.
 
 Antes de publicar el frontend, el despliegue existente de `WS_PaginaCN` debe
 actualizar su configuración con ambos orígenes separados por coma:
@@ -80,8 +80,15 @@ Antes de reemplazar el sitio, rollback respalda la versión que se encuentra act
 Se incluyen únicamente:
 
 - `index.html` y `Default.html`;
+- un documento HTML por ruta estática (`eventos.html`, `locales.html`, …), más `spa.html` para las rutas de detalle y `404.html`;
 - `assets`, `robots.txt`, `sitemap.xml`, favicon y otros archivos públicos de Vite;
 - `.htaccess`.
+
+Los documentos por ruta, `spa.html`, `404.html` y `sitemap.xml` los genera `build/seo.js` durante `npm run build` a partir de la lista `SITE_ROUTES`. Al agregar o quitar una ruta hay que tocar esa lista **y** el bloque `RewriteRule` correspondiente de `.htaccess`.
+
+Cada documento incluye un encabezado estático (`<div id="seo-fallback">`) con el `h1` y el texto de la ruta, para que el rastreador reciba contenido en la primera respuesta sin depender del renderizado con JavaScript. `src/main.jsx` lo retira justo antes de montar React, que dibuja el encabezado real con los datos de la API.
+
+El `sitemap.xml` también incluye las fichas de detalle (`/locales/:codigo`, `/eventos/:codigo`, `/promociones/:codigo`, `/buses/:codigo`), que el build consulta a `VITE_API_BASE_URL` al compilar. Si la API no responde, el build **no falla**: emite un aviso y publica el sitemap solo con las rutas estáticas.
 
 No se incluyen `src`, `node_modules`, `.env*`, claves, scripts, una carpeta `api`, ejecutables de servidor ni configuración de base de datos. El único directorio remoto persistente del frontend es `imagenes`.
 

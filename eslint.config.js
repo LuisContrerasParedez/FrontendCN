@@ -38,11 +38,17 @@ export default [
     }
   },
   {
-    files: ['vite.config.js'],
+    files: ['vite.config.js', 'build/**/*.js'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
-      globals: { process: 'readonly' }
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        fetch: 'readonly',
+        AbortSignal: 'readonly',
+        URL: 'readonly'
+      }
     }
   }
 ];

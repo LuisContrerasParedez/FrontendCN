@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
+# Plantilla que sirve las rutas de detalle (/locales/:codigo y equivalentes).
+# Es la unica que no lleva canonical propio, porque cada URL debe autocanonizarse,
+# asi que se impide que la plantilla se rastree por su nombre de archivo.
+# Los demas .html generados si llevan canonical hacia su URL limpia y por eso no
+# se bloquean: bloquearlos impediria que Google leyera ese canonical.
+Disallow: /spa.html
 
 Sitemap: https://centranorte.com.gt/sitemap.xml

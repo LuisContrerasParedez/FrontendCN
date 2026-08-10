@@ -1,9 +1,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { existsSync, readFileSync } from 'node:fs';
-import { copyFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { URL } from 'node:url';
+import { staticSeoDocuments } from './build/seo.js';
 
 function parseEnvFile(path) {
   if (!existsSync(path)) {
@@ -45,16 +45,6 @@ function loadProjectEnv(mode) {
     Object.entries(process.env).filter(([key, value]) => key.startsWith('VITE_') && typeof value === 'string')
   );
   return { ...fileEnv, ...runtimeEnv };
-}
-
-function siteGroundDefaultDocument() {
-  return {
-    name: 'siteground-default-document',
-    apply: 'build',
-    async closeBundle() {
-      await copyFile('dist/index.html', 'dist/Default.html');
-    }
-  };
 }
 
 export default defineConfig(({ mode }) => {
@@ -106,7 +96,10 @@ export default defineConfig(({ mode }) => {
     // esa carga implicita para garantizar que produccion use solo .env.
     envDir: false,
     define: exposedEnv,
-    plugins: [react(), siteGroundDefaultDocument()],
+    plugins: [
+      react(),
+      staticSeoDocuments(env.VITE_SITE_URL || 'http://localhost:5173', env.VITE_API_BASE_URL)
+    ],
     publicDir: 'public',
     build: {
       outDir: 'dist',
