@@ -1,4 +1,5 @@
 import HeroFeria from './feria';
+import HeroIndependencia from './septiembre';
 
 /*
  * Registro de temáticas de portada.
@@ -9,7 +10,7 @@ import HeroFeria from './feria';
  *   { titulo, acento, descripcion, accionPrimaria, accionSecundaria,
  *     fechas, nivelTitulo, id, className }
  *
- * Para añadir la siguiente (patrios, halloween, navidad...):
+ * Para añadir la siguiente (halloween, navidad...):
  *   1. crear `temas/<clave>/` con su hero y su escena,
  *   2. registrarla abajo con la clave que devuelva la BD.
  * No hay que tocar la página: `resolverHeroTematico` ya elige por clave.
@@ -17,7 +18,13 @@ import HeroFeria from './feria';
 
 const TEMAS = {
   feria: HeroFeria,
-  'agosto-feria': HeroFeria
+  'agosto-feria': HeroFeria,
+  septiembre: HeroIndependencia,
+  independencia: HeroIndependencia,
+  'septiembre-independencia': HeroIndependencia,
+  'fiestas-patrias': HeroIndependencia,
+  'mes-de-la-patria': HeroIndependencia,
+  '15-de-septiembre': HeroIndependencia
 };
 
 export const TEMA_POR_DEFECTO = 'feria';

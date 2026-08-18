@@ -1,0 +1,767 @@
+:root {
+  --sep-navy-950: #062653;
+  --sep-navy-900: #07366f;
+  --sep-blue-700: #136fae;
+  --sep-blue-500: #48a3dc;
+  --sep-gold-600: #d49b19;
+  --sep-gold-500: #eab539;
+  --sep-gold-300: #f5d675;
+  --sep-paper: #ffffff;
+  --sep-copy: #294866;
+  --sep-shadow: 0 24px 60px rgba(6, 38, 83, .16);
+}
+
+.sepHero,
+.sepHero * {
+  box-sizing: border-box;
+}
+
+.sepHero {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  min-height: 0;
+  height: auto;
+  overflow: hidden;
+  color: var(--sep-navy-950);
+  background: #d7eef9;
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.sepHero::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg,
+      rgba(255,255,255,.94) 0%,
+      rgba(255,255,255,.88) 23%,
+      rgba(255,255,255,.62) 39%,
+      rgba(255,255,255,.15) 55%,
+      rgba(255,255,255,0) 68%),
+    linear-gradient(180deg, rgba(255,255,255,.08) 0%, rgba(255,255,255,0) 64%, rgba(255,255,255,.12) 100%);
+}
+
+.sepHero::after {
+  content: "";
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(6, 38, 83, .05);
+}
+
+.sepHero__scene {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sepScene {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.sepHero__shell {
+  position: relative;
+  z-index: 4;
+  width: min(1480px, calc(100% - 64px));
+  height: 100%;
+  min-height: 0;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 70px 0 178px;
+}
+
+.sepHero__content {
+  width: min(610px, 44vw);
+  margin-left: clamp(0px, 2vw, 24px);
+  transform: translateY(-8px);
+}
+
+.sepHero__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin-bottom: 25px;
+  color: var(--sep-navy-900);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: .29em;
+  text-transform: uppercase;
+  animation: sep-rise-in .72s .08s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.sepHero__eyebrowLine {
+  width: 66px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--sep-gold-500));
+}
+
+.sepHero__eyebrowLine--short {
+  width: 34px;
+  background: linear-gradient(90deg, var(--sep-gold-500), transparent);
+}
+
+.sepHero__eyebrowLeaf {
+  display: inline-grid;
+  place-items: center;
+  color: var(--sep-gold-600);
+  font-size: 8px;
+  transform: rotate(45deg);
+}
+
+.sepHero__title {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  color: var(--sep-navy-950);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(54px, 5.1vw, 86px);
+  font-weight: 700;
+  line-height: .86;
+  letter-spacing: -.055em;
+  text-wrap: balance;
+  text-shadow: 0 2px 24px rgba(255,255,255,.62);
+  animation: sep-rise-in .82s .18s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.sepHero__title > span {
+  display: block;
+}
+
+.sepHero__title > span:nth-child(2) {
+  margin-left: .02em;
+}
+
+.sepHero__description {
+  max-width: 510px;
+  margin: 28px 0 0;
+  color: var(--sep-copy);
+  font-size: clamp(16px, 1.45vw, 20px);
+  font-weight: 500;
+  line-height: 1.58;
+  letter-spacing: -.012em;
+  animation: sep-rise-in .8s .29s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.sepHero__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 34px;
+  animation: sep-rise-in .8s .4s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.sepHero__button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 62px;
+  padding: 0 22px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--sep-navy-950);
+  text-decoration: none;
+  font-size: clamp(15px, 1.2vw, 17px);
+  font-weight: 800;
+  letter-spacing: -.018em;
+  box-shadow: 0 14px 30px rgba(8, 48, 93, .16);
+  transition:
+    transform .25s cubic-bezier(.2,.8,.2,1),
+    box-shadow .25s ease,
+    border-color .25s ease,
+    background-color .25s ease;
+}
+
+.sepHero__button::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(110deg, transparent 18%, rgba(255,255,255,.46) 42%, transparent 65%);
+  transform: translateX(-140%);
+  transition: transform .72s cubic-bezier(.2,.8,.2,1);
+}
+
+.sepHero__button:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 38px rgba(8, 48, 93, .22);
+}
+
+.sepHero__button:hover::before {
+  transform: translateX(140%);
+}
+
+.sepHero__button:active {
+  transform: translateY(-1px) scale(.99);
+}
+
+.sepHero__button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(255,255,255,.92), 0 0 0 7px rgba(7,54,111,.55), 0 18px 36px rgba(8,48,93,.18);
+}
+
+.sepHero__button--primary {
+  min-width: 204px;
+  background: linear-gradient(180deg, var(--sep-gold-300) 0%, var(--sep-gold-500) 66%, #dda51f 100%);
+  border-color: rgba(166, 112, 7, .18);
+}
+
+.sepHero__button--secondary {
+  min-width: 244px;
+  background: rgba(255,255,255,.82);
+  border-color: rgba(19,111,174,.38);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.sepHero__buttonIcon,
+.sepHero__buttonArrow {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.sepHero__button > span:nth-child(2) {
+  position: relative;
+  z-index: 1;
+}
+
+.sepHero__buttonArrow {
+  margin-left: 6px;
+  color: rgba(6,38,83,.58);
+  transition: transform .25s ease, color .25s ease;
+}
+
+.sepHero__button:hover .sepHero__buttonArrow {
+  transform: translate(3px, -3px);
+  color: var(--sep-navy-950);
+}
+
+.sepHero__icon {
+  width: 22px;
+  height: 22px;
+}
+
+.sepHero__icon--arrow {
+  width: 20px;
+  height: 20px;
+}
+
+/* ---------- Escena: cielo / paisaje ---------- */
+
+.sepScene__sun {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sep-sun-breathe 8s ease-in-out infinite;
+}
+
+.sepScene__cloud {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sep-cloud-drift var(--cloud-duration) var(--cloud-delay) ease-in-out infinite alternate;
+}
+
+.sepScene__mountain {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.sepScene__mountain--far {
+  animation: sep-mountain-far 22s ease-in-out infinite alternate;
+}
+
+.sepScene__mountain--mid {
+  animation: sep-mountain-mid 18s ease-in-out infinite alternate;
+}
+
+.sepScene__mountain--near {
+  animation: sep-mountain-near 16s ease-in-out infinite alternate;
+}
+
+.sepScene__floatingLeaf {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sep-floating-leaf var(--leaf-duration) var(--leaf-delay) linear infinite;
+}
+
+/* ---------- Ceiba ---------- */
+
+.sepTree__canopy {
+  transform-box: fill-box;
+  transform-origin: 50% 86%;
+  animation: sep-canopy-breathe 6.8s ease-in-out infinite;
+}
+
+.sepTree__leaf {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sep-canopy-leaf 4.7s var(--leaf-delay) ease-in-out infinite alternate;
+}
+
+.sepTree__perchBranch {
+  transform-box: fill-box;
+  transform-origin: 90% 70%;
+  animation: sep-branch-sway 5.8s ease-in-out infinite;
+}
+
+/* ---------- Quetzal: percha -> vuelo -> regreso ---------- */
+
+.sepQuetzal__route {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sep-quetzal-route 16s cubic-bezier(.45,.02,.2,1) infinite;
+}
+
+.sepQuetzal {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sep-quetzal-body 16s linear infinite;
+}
+
+.sepQuetzal__head {
+  transform-box: fill-box;
+  transform-origin: 45% 75%;
+  animation: sep-quetzal-head 4s ease-in-out infinite;
+}
+
+.sepQuetzal__tail {
+  transform-box: fill-box;
+  transform-origin: 48% 8%;
+  animation: sep-quetzal-tail 3.1s ease-in-out infinite alternate;
+}
+
+.sepQuetzal__wing {
+  transform-box: fill-box;
+  transform-origin: 50% 68%;
+}
+
+.sepQuetzal__wing--back {
+  animation: sep-wing-back 16s linear infinite;
+}
+
+.sepQuetzal__wing--front {
+  animation: sep-wing-front 16s linear infinite;
+}
+
+.sepQuetzal__feet {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sep-feet-cycle 16s linear infinite;
+}
+
+/* ---------- Monja blanca ---------- */
+
+.sepOrchid {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: sep-orchid-sway 5.2s var(--orchid-delay) ease-in-out infinite alternate;
+}
+
+.sepOrchid__flower {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sep-orchid-float 4.4s var(--orchid-delay) ease-in-out infinite;
+}
+
+/* ---------- Cinta inferior ---------- */
+
+.sepRibbon {
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: clamp(142px, 17vw, 190px);
+  pointer-events: none;
+}
+
+.sepRibbon__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.sepRibbon__wave {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: sep-ribbon-wave 7s ease-in-out infinite alternate;
+}
+
+.sepRibbon__flag {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(18px, 2vw, 27px);
+  width: clamp(132px, 10.5vw, 174px);
+  height: clamp(65px, 5.4vw, 82px);
+  transform: translateX(-50%) rotate(-5deg);
+  filter: drop-shadow(0 13px 12px rgba(5,47,84,.22));
+  animation: sep-flag-float 4.8s ease-in-out infinite;
+}
+
+.sepRibbon__flagBody {
+  position: absolute;
+  inset: 0 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  overflow: hidden;
+  border-radius: 7px;
+  border: 1px solid rgba(255,255,255,.56);
+  background: #fff;
+}
+
+.sepRibbon__flagBlue {
+  background: linear-gradient(135deg, #65b4e5, #3196d2);
+}
+
+.sepRibbon__flagWhite {
+  display: grid;
+  place-items: center;
+  background: #fff;
+}
+
+.sepRibbon__flagWhite img,
+.sepRibbon__flagWhite svg {
+  width: 74%;
+  height: 74%;
+  object-fit: contain;
+}
+
+.sepRibbon__flagFold {
+  position: absolute;
+  top: 9%;
+  bottom: 9%;
+  width: 29px;
+  background: linear-gradient(180deg, #63b5e6, #1c80bf);
+  opacity: .92;
+}
+
+.sepRibbon__flagFold--left {
+  left: 2px;
+  transform: skewY(-10deg);
+  border-radius: 8px 0 0 8px;
+}
+
+.sepRibbon__flagFold--right {
+  right: 2px;
+  transform: skewY(10deg);
+  border-radius: 0 8px 8px 0;
+}
+
+/* ---------- Animaciones ---------- */
+
+@keyframes sep-rise-in {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sep-sun-breathe {
+  0%, 100% { opacity: .9; transform: scale(.97); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+
+@keyframes sep-cloud-drift {
+  from { transform: translate3d(-14px, 0, 0); }
+  to { transform: translate3d(28px, 5px, 0); }
+}
+
+@keyframes sep-mountain-far {
+  from { transform: translateX(-5px); }
+  to { transform: translateX(7px); }
+}
+
+@keyframes sep-mountain-mid {
+  from { transform: translateX(5px); }
+  to { transform: translateX(-9px); }
+}
+
+@keyframes sep-mountain-near {
+  from { transform: translateX(-4px); }
+  to { transform: translateX(12px); }
+}
+
+@keyframes sep-floating-leaf {
+  0% { opacity: 0; transform: translate3d(0,-18px,0) rotate(-12deg); }
+  10% { opacity: .8; }
+  45% { transform: translate3d(34px,36px,0) rotate(95deg); }
+  78% { opacity: .7; }
+  100% { opacity: 0; transform: translate3d(-18px,108px,0) rotate(210deg); }
+}
+
+@keyframes sep-canopy-breathe {
+  0%, 100% { transform: rotate(-.45deg) scale(1); }
+  50% { transform: rotate(.55deg) scale(1.006); }
+}
+
+@keyframes sep-canopy-leaf {
+  from { transform: rotate(-2.2deg) translateY(0); }
+  to { transform: rotate(2.8deg) translateY(-1.5px); }
+}
+
+@keyframes sep-branch-sway {
+  0%, 100% { transform: rotate(-.35deg); }
+  50% { transform: rotate(.7deg); }
+}
+
+@keyframes sep-quetzal-route {
+  0%, 14% { transform: translate3d(0,0,0) rotate(0deg); }
+  18% { transform: translate3d(-28px,-34px,0) rotate(-9deg); }
+  27% { transform: translate3d(-210px,-126px,0) rotate(-5deg); }
+  38% { transform: translate3d(-345px,-62px,0) rotate(8deg); }
+  49% { transform: translate3d(-220px,34px,0) rotate(12deg); }
+  60% { transform: translate3d(72px,-84px,0) rotate(-10deg); }
+  68% { transform: translate3d(115px,-15px,0) rotate(8deg); }
+  74% { transform: translate3d(0,0,0) rotate(0deg); }
+  100% { transform: translate3d(0,0,0) rotate(0deg); }
+}
+
+@keyframes sep-quetzal-body {
+  0%, 14%, 74%, 100% { transform: translateY(0) rotate(0); }
+  19%, 27%, 38%, 49%, 60%, 68% { transform: translateY(-3px) rotate(-1deg); }
+  23%, 33%, 44%, 55%, 64% { transform: translateY(3px) rotate(1deg); }
+}
+
+@keyframes sep-quetzal-head {
+  0%, 45%, 100% { transform: rotate(0deg); }
+  18% { transform: rotate(-4deg); }
+  68% { transform: rotate(5deg); }
+}
+
+@keyframes sep-quetzal-tail {
+  from { transform: rotate(-2.5deg); }
+  to { transform: rotate(3.2deg); }
+}
+
+@keyframes sep-wing-back {
+  0%, 14%, 74%, 100% { transform: rotate(7deg) scaleY(.28) translateY(8px); }
+  18% { transform: rotate(-12deg) scaleY(.95); }
+  21% { transform: rotate(16deg) scaleY(.68); }
+  24% { transform: rotate(-18deg) scaleY(1); }
+  27% { transform: rotate(15deg) scaleY(.7); }
+  30% { transform: rotate(-17deg) scaleY(1); }
+  34% { transform: rotate(13deg) scaleY(.7); }
+  38% { transform: rotate(-15deg) scaleY(1); }
+  42% { transform: rotate(15deg) scaleY(.72); }
+  46% { transform: rotate(-17deg) scaleY(1); }
+  50% { transform: rotate(14deg) scaleY(.7); }
+  54% { transform: rotate(-14deg) scaleY(1); }
+  58% { transform: rotate(14deg) scaleY(.7); }
+  62% { transform: rotate(-16deg) scaleY(1); }
+  66% { transform: rotate(15deg) scaleY(.7); }
+  70% { transform: rotate(-9deg) scaleY(.88); }
+}
+
+@keyframes sep-wing-front {
+  0%, 14%, 74%, 100% { transform: rotate(-8deg) scaleY(.27) translateY(8px); }
+  18% { transform: rotate(12deg) scaleY(.95); }
+  21% { transform: rotate(-15deg) scaleY(.68); }
+  24% { transform: rotate(17deg) scaleY(1); }
+  27% { transform: rotate(-14deg) scaleY(.7); }
+  30% { transform: rotate(17deg) scaleY(1); }
+  34% { transform: rotate(-13deg) scaleY(.7); }
+  38% { transform: rotate(15deg) scaleY(1); }
+  42% { transform: rotate(-15deg) scaleY(.72); }
+  46% { transform: rotate(17deg) scaleY(1); }
+  50% { transform: rotate(-14deg) scaleY(.7); }
+  54% { transform: rotate(14deg) scaleY(1); }
+  58% { transform: rotate(-14deg) scaleY(.7); }
+  62% { transform: rotate(16deg) scaleY(1); }
+  66% { transform: rotate(-15deg) scaleY(.7); }
+  70% { transform: rotate(9deg) scaleY(.88); }
+}
+
+@keyframes sep-feet-cycle {
+  0%, 14%, 74%, 100% { opacity: 1; transform: translateY(0); }
+  18%, 70% { opacity: .8; transform: translateY(-5px) rotate(-8deg); }
+  24%, 64% { opacity: .5; transform: translateY(-7px) rotate(-18deg); }
+}
+
+@keyframes sep-orchid-sway {
+  from { transform: rotate(-1.5deg); }
+  to { transform: rotate(2deg); }
+}
+
+@keyframes sep-orchid-float {
+  0%,100% { transform: translateY(0) rotate(-.5deg); }
+  50% { transform: translateY(-3px) rotate(.8deg); }
+}
+
+@keyframes sep-ribbon-wave {
+  from { transform: translateY(2px) scaleY(.992); }
+  to { transform: translateY(-3px) scaleY(1.01); }
+}
+
+@keyframes sep-flag-float {
+  0%,100% { transform: translateX(-50%) translateY(0) rotate(-5deg); }
+  50% { transform: translateX(-50%) translateY(-7px) rotate(-2deg); }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1180px) {
+  .sepHero__shell {
+    width: min(1120px, calc(100% - 44px));
+  }
+
+  .sepHero__content {
+    width: min(540px, 49vw);
+  }
+
+  .sepHero__title {
+    font-size: clamp(50px, 5.8vw, 70px);
+  }
+
+  .sepHero::before {
+    background: linear-gradient(90deg, rgba(255,255,255,.94) 0%, rgba(255,255,255,.86) 33%, rgba(255,255,255,.54) 51%, rgba(255,255,255,0) 72%);
+  }
+
+  .sepHero__scene {
+    transform: translateX(4%);
+    transform-origin: center;
+  }
+}
+
+@media (max-width: 900px) {
+  .sepHero {
+    aspect-ratio: auto;
+    min-height: 900px;
+  }
+
+  .sepHero::before {
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.96) 0%, rgba(255,255,255,.87) 40%, rgba(255,255,255,.34) 63%, rgba(255,255,255,0) 78%),
+      linear-gradient(90deg, rgba(255,255,255,.42), transparent 68%);
+  }
+
+  .sepHero__shell {
+    align-items: flex-start;
+    width: min(100% - 34px, 760px);
+    padding-top: 68px;
+  }
+
+  .sepHero__content {
+    width: min(620px, 92%);
+    margin: 0;
+  }
+
+  .sepHero__title {
+    font-size: clamp(52px, 9.5vw, 76px);
+  }
+
+  .sepHero__description {
+    max-width: 560px;
+  }
+
+  .sepHero__scene {
+    transform: translate(14%, 16%) scale(1.08);
+    transform-origin: center bottom;
+  }
+
+  .sepRibbon {
+    height: 155px;
+  }
+}
+
+@media (max-width: 640px) {
+  .sepHero {
+    aspect-ratio: auto;
+    min-height: 940px;
+  }
+
+  .sepHero__shell {
+    width: calc(100% - 30px);
+    padding-top: 44px;
+    padding-bottom: 150px;
+  }
+
+  .sepHero__eyebrow {
+    margin-bottom: 20px;
+    font-size: 10px;
+    letter-spacing: .24em;
+  }
+
+  .sepHero__eyebrowLine {
+    width: 42px;
+  }
+
+  .sepHero__eyebrowLine--short {
+    width: 22px;
+  }
+
+  .sepHero__content {
+    width: 100%;
+  }
+
+  .sepHero__title {
+    font-size: clamp(47px, 15vw, 67px);
+    line-height: .9;
+    letter-spacing: -.06em;
+  }
+
+  .sepHero__description {
+    width: min(100%, 510px);
+    margin-top: 22px;
+    font-size: 16px;
+    line-height: 1.52;
+  }
+
+  .sepHero__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: min(100%, 360px);
+    gap: 12px;
+    margin-top: 26px;
+  }
+
+  .sepHero__button {
+    width: 100%;
+    min-width: 0;
+    min-height: 58px;
+  }
+
+  .sepHero__scene {
+    transform: translate(26%, 28%) scale(1.25);
+    transform-origin: center bottom;
+  }
+
+  .sepRibbon__flag {
+    bottom: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sepHero *,
+  .sepHero *::before,
+  .sepHero *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+
+  .sepQuetzal__route,
+  .sepQuetzal,
+  .sepQuetzal__wing,
+  .sepQuetzal__tail,
+  .sepQuetzal__head,
+  .sepQuetzal__feet {
+    transform: none !important;
+  }
+}
