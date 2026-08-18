@@ -3,21 +3,6 @@ import ResponsiveImage from '../ui/ResponsiveImage';
 import Icon from '../ui/Icon';
 import { safeUrl } from '../../utils/safeUrl';
 
-// El relato manda y un mosaico de destinos lo acompaña. Las fichas van sin
-// rótulo a la vista para que el bloque se lea como una postal del viaje y no
-// como otra retícula de tarjetas; el destino sigue en el DOM y solo se enciende
-// al pasar el cursor, así que el enlace nunca queda sin nombre accesible.
-//
-// Solo se usan repartos que llenan todas sus celdas, así que el mosaico nunca
-// deja un hueco por más o menos rutas que publique el CMS. `columns` es el
-// número de pistas de la retícula y `narrow` el mismo reparto resuelto para
-// pantallas angostas, donde tres columnas dejarían las fichas del tamaño de un
-// sello. `max` limita el ancho en rem para que una sola ruta no se convierta en
-// un cartel.
-//
-// Cinco es primo: no hay retícula uniforme que lo cuadre. Lleva su propio
-// patrón de anchos —tres arriba y dos abajo sobre seis pistas— y ese es el caso
-// real de la central, con Zacapa, El Progreso, las Verapaces y Jalapa.
 const TILE_LAYOUTS = [
   { count: 6, columns: 3, narrow: 2, max: 90 },
   { count: 5, columns: 6, narrow: 2, max: 90, pattern: 'cinco' },

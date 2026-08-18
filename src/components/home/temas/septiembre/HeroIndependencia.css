@@ -22,7 +22,21 @@
      entero por encima del pliegue; si la cabecera cambia de alto, basta con
      redefinir el token desde fuera. */
   --sep-cabecera: 104px;
-  --sep-liston: clamp(88px, min(12.5vw, 21svh), 156px);
+  /* Peso visual del listón: lo que ocupa la masa de cintas y lo que el texto
+     tiene que dejar libre. */
+  --sep-liston: clamp(76px, min(9vw, 16svh), 126px);
+  /* Caja real del listón. El 35 % extra es la zona de transición: sombra
+     proyectada y el tramo de barrido que se mete en la pradera. */
+  --sep-liston-alto: calc(var(--sep-liston) * 1.35);
+  /* Ancho del lienzo que se sirve a las capas de cinta.
+     El SVG se estira sin conservar proporción, así que en una ventana
+     estrecha la escala horizontal se queda muy por debajo de la vertical y
+     las ondas salen comprimidas —la cinta pasa a parecer una sierra—. La
+     corrección es servir el lienzo más ancho que la caja y centrarlo, que es
+     un recorte horizontal hecho a mano: 1600 / 220 = 7.28 es exactamente el
+     ancho al que las dos escalas coinciden. El `max()` deja que gane el
+     100 % en cuanto la ventana da de sí, que es cuando toca sangrar. */
+  --sep-liston-ancho: max(100%, calc(var(--sep-liston-alto) * 7.28));
 
   /* Puntero normalizado a [-1, 1]. Lo escribe el hero desde rAF; mientras
      nadie mueva el ratón el valor es 0 y la escena queda en su sitio. */
@@ -410,39 +424,133 @@
   animation: sep-rama 8.8s ease-in-out infinite;
 }
 
-/* Acuse de recibo del despegue y del aterrizaje, en el mismo reloj que el ave */
-.sepCeiba__ramaPercha {
-  animation: sep-rama-rebote 17s linear infinite;
+/* Acuse de recibo del aterrizaje y del despegue. Lo dispara el motor de vuelo
+   escribiendo `data-percha` en la escena: el ciclo del ave ya no es un reloj
+   fijo con el que se pueda sincronizar una animación infinita. */
+.sepEsc[data-percha] .sepCeiba__ramaPercha {
+  animation: sep-rama-rebote 1.3s var(--sep-salida) 1;
+}
+
+/* El despegue sacude menos que el aterrizaje: el ave se va, no se deja caer. */
+.sepEsc[data-percha='despega'] .sepCeiba__ramaPercha {
+  animation-duration: 1s;
 }
 
 /* ==================================================================
    Quetzal
+
+   La posición y la actitud del ave las escribe `useVueloQuetzal` sobre
+   `.sepQuetzal__vuelo` desde rAF: los dos extremos del recorrido son los bordes
+   de la VENTANA, y dónde caen dentro del lienzo de 1600 × 900 depende del
+   recorte que haga `slice` en cada resolución. Ningún `@keyframes` con valores
+   fijos puede acertar en todas.
+
+   El motor no toca la anatomía. Sólo publica dos atributos:
+
+     data-fase   entrada · aproximacion · posado · despegue · salida · espera
+     data-pose   posada | vuelo
+
+   y de ellos cuelga todo lo de aquí abajo: aleteo, cola, cabeza, patas,
+   respiración y flexión. Desplazamiento y anatomía quedan desacoplados, que es
+   lo que evita que el ave parezca una estampa arrastrándose por la pantalla.
+
+   `--q-fase` la escribe el motor con la duración de la fase en curso, para que
+   la flexión del despegue encaje sin repetir la constante en dos sitios.
    ================================================================== */
 
-/* Origen local (0,0) = centro del cuerpo. La animación de trayectoria lo
-   traslada sobre la curva; nada más en el ave usa coordenadas de escena.
+/* Amplitud del batido, en grados. Registrada como número para poder
+   interpolarla: al pasar de crucero a frenada el aleteo se cierra poco a poco
+   en vez de dar un salto. La duración del batido, en cambio, es la MISMA en
+   todas las fases a propósito: cambiar `animation-duration` en marcha
+   recalcula el avance del ciclo y el ala pega un tirón. */
+@property --q-aleteo {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 34;
+}
+
+/* Origen local (0,0) = centro del cuerpo. El motor traslada ese origen en
+   coordenadas de escena; nada más en el ave las usa.
    Sin `filter` aquí: una sombra proyectada sobre el único elemento que se
    mueve y se deforma en cada fotograma obliga a rasterizarlo entero 60 veces
-   por segundo, y es con diferencia lo más caro de toda la escena. */
+   por segundo, y es con diferencia lo más caro de toda la escena.
+   El `transform` base —el ave posada en su rama— lo pone el JSX a partir de
+   `PERCHA`: es lo que se ve en SSR, sin JS y con movimiento reducido. */
 .sepQuetzal__vuelo {
   transform-box: view-box;
   transform-origin: 0 0;
-  /* Estado base = pose posada, idéntico al fotograma del 0 %. Es lo que se ve
-     cuando `prefers-reduced-motion` desactiva la animación: sin él el elemento
-     vuelve a su transform declarado —ninguno— y el ave aparece clavada en la
-     esquina superior izquierda de la escena en vez de en su rama. */
-  transform: translate(952px, 372px);
-  animation: sep-quetzal-vuelo 17s linear infinite;
+  will-change: transform;
+  transition: --q-aleteo 0.5s var(--sep-suave);
 }
 
-.sepQuetzal__cuerpo {
-  animation: sep-quetzal-impulso 17s var(--sep-suave) infinite;
+/* Frenando: bate menos, va a recogerse. */
+.sepQuetzal__vuelo[data-fase='aproximacion'] {
+  --q-aleteo: 22;
 }
 
+/* Despegue: el único momento de fuerza de todo el circuito. */
+.sepQuetzal__vuelo[data-fase='despegue'] {
+  --q-aleteo: 50;
+}
+
+.sepQuetzal__vuelo[data-fase='salida'] {
+  --q-aleteo: 40;
+}
+
+/* Flexión: se agacha, empuja y se estira. Dura exactamente lo que la fase. */
+.sepQuetzal__vuelo[data-fase='despegue'] .sepQuetzal__cuerpo {
+  animation: sep-q-flexion var(--q-fase, 0.85s) var(--sep-suave) both;
+}
+
+/* Y amortigua al posarse, una sola vez al entrar en la fase. */
+.sepQuetzal__vuelo[data-fase='posado'] .sepQuetzal__cuerpo {
+  animation: sep-q-amortigua 0.6s var(--sep-salida) 1;
+}
+
+/* Respiración: sólo posado, y deliberadamente al filo de lo perceptible. */
+.sepQuetzal__respiro {
+  transform-box: fill-box;
+  transform-origin: 50% 88%;
+}
+
+.sepQuetzal__vuelo[data-fase='posado'] .sepQuetzal__respiro {
+  animation: sep-q-respira 3.6s ease-in-out infinite;
+}
+
+/* La cabeza sólo se mueve en la rama: en vuelo el ave mira a donde va. */
 .sepQuetzal__cabeza {
   transform-box: fill-box;
   transform-origin: 88% 82%;
-  animation: sep-quetzal-cabeza 6.2s ease-in-out infinite;
+}
+
+.sepQuetzal__vuelo[data-fase='posado'] .sepQuetzal__cabeza {
+  animation: sep-q-vistazo 5.4s ease-in-out infinite;
+}
+
+/* ---------- Cruce de pose: ala plegada y cola colgante ⇄ extendidas ---------- */
+
+.sepQuetzal__cola,
+.sepQuetzal__ala,
+.sepQuetzal__alaPlegada,
+.sepQuetzal__patas {
+  transition: opacity 0.2s linear;
+}
+
+.sepQuetzal__cola--posada,
+.sepQuetzal__alaPlegada,
+.sepQuetzal__patas {
+  opacity: 0;
+}
+
+.sepQuetzal__vuelo[data-pose='posada'] .sepQuetzal__cola--posada,
+.sepQuetzal__vuelo[data-pose='posada'] .sepQuetzal__alaPlegada,
+.sepQuetzal__vuelo[data-pose='posada'] .sepQuetzal__patas {
+  opacity: 1;
+}
+
+.sepQuetzal__vuelo[data-pose='posada'] .sepQuetzal__cola--vuelo,
+.sepQuetzal__vuelo[data-pose='posada'] .sepQuetzal__ala {
+  opacity: 0;
 }
 
 /* Origen en el arranque de las plumas caudales, no en el centro del recuadro:
@@ -453,12 +561,10 @@
 
 .sepQuetzal__cola--posada {
   transform-origin: 18% 3%;
-  animation: sep-quetzal-posado 17s linear infinite;
 }
 
 .sepQuetzal__cola--vuelo {
   transform-origin: 5% 11%;
-  animation: sep-quetzal-alzado 17s linear infinite;
 }
 
 /* Cada pluma arranca con un retardo propio, así que la cola llega tarde al
@@ -478,32 +584,40 @@
   animation-delay: calc(var(--pluma) * -0.16s);
 }
 
+.sepQuetzal__patas {
+  transform-box: fill-box;
+  transform-origin: 50% 10%;
+}
+
+/* Reajuste de las patas: sólo posada, y no en cada respiración. */
+.sepQuetzal__vuelo[data-fase='posado'] .sepQuetzal__patas {
+  animation: sep-q-patas 6.8s ease-in-out infinite;
+}
+
+/* ---------- Aleteo ----------
+   Cada ala tiene su propio hombro y su propio reloj, y el batido es
+   INDEPENDIENTE del avance: no se sincroniza con la trayectoria, sólo cambia de
+   amplitud según la fase. El ala de atrás va desfasada medio golpe.
+   `ease-in-out` entre extremos convierte la onda triangular en algo parecido a
+   una senoide; en `linear` el aleteo se ve mecánico. */
 .sepQuetzal__ala {
   transform-box: fill-box;
 }
 
-/* Cada ala tiene su propio hombro y su propio reloj. El batido va en el mismo
-   ciclo de 17 s que la trayectoria porque la frecuencia cambia por tramo:
-   rápido al despegar, lento en el planeo alto y frenando en la aproximación.
-   `ease-in-out` entre extremos convierte la onda triangular en algo parecido a
-   una senoide; en `linear` el aleteo se ve mecánico. */
 .sepQuetzal__ala--cerca {
   transform-origin: 4% 62%;
-  animation:
-    sep-quetzal-alzado 17s linear infinite,
-    sep-aleteo 17s ease-in-out infinite;
+  animation: sep-aleteo 0.42s ease-in-out infinite;
 }
 
 .sepQuetzal__ala--lejos {
   transform-origin: 4% 58%;
-  animation:
-    sep-quetzal-alzado 17s linear infinite,
-    sep-aleteo-lejos 17s ease-in-out infinite;
+  animation: sep-aleteo-lejos 0.42s ease-in-out infinite;
+  animation-delay: -0.07s;
 }
 
-.sepQuetzal__alaPlegada,
-.sepQuetzal__patas {
-  animation: sep-quetzal-posado 17s linear infinite;
+/* Con el ala plegada el batido no se ve: no hay por qué seguir componiéndolo. */
+.sepQuetzal__vuelo[data-pose='posada'] .sepQuetzal__ala {
+  animation-play-state: paused;
 }
 
 /* ---------- Monjas blancas ---------- */
@@ -524,59 +638,112 @@
    Listón inferior
    ================================================================== */
 
+/* La caja es más alta que el peso visual del listón: esa diferencia es la
+   zona de transición donde la sombra proyectada y las crestas de la cinta
+   trasera se meten dentro de la pradera. Sin ella vuelve el corte recto
+   entre paisaje y decoración. */
 .sepListon {
   position: absolute;
   z-index: 3;
   right: 0;
   bottom: -1px;
   left: 0;
-  height: var(--sep-liston);
+  height: var(--sep-liston-alto);
   pointer-events: none;
-  /* Sin `filter` aquí a propósito: las tres ondas se desplazan en bucle y un
-     filtro en el ancestro obligaría a rasterizar toda la franja en cada
-     fotograma. La separación la dan el filo blanco de la cresta y la viñeta
-     inferior del velo. */
+  /* Sin `filter` aquí a propósito: las cuatro cintas llevan su propio
+     `transform` animado y un filtro en el ancestro obligaría a rasterizar
+     toda la franja en cada fotograma. El relieve lo dan los filos, las
+     sombras propias y los pliegues, que son geometría, no post-proceso. */
 }
 
-.sepListon__ondas {
+/* Las capas de cinta se estiran sin conservar proporción: es lo que las hace
+   sangrar de canto a canto a cualquier ancho, y el trazado se dibuja 160 u
+   más allá de cada borde para que el vaivén no descubra nunca los cantos.
+   `--sep-liston-ancho` compensa el estirón en pantallas estrechas: al servir
+   el lienzo más ancho que la caja y centrarlo, la escala horizontal vuelve a
+   parecerse a la vertical y las ondas no salen aplastadas. */
+.sepListon__capa {
+  position: absolute;
+  top: 0;
+  left: calc((100% - var(--sep-liston-ancho)) / 2);
   display: block;
-  width: 100%;
+  width: var(--sep-liston-ancho);
   height: 100%;
 }
 
-.sepListon__capa--cresta {
-  animation: sep-onda-izq 34s linear infinite;
+.sepListon__capa--tras {
+  z-index: 1;
 }
 
-.sepListon__capa--blanca {
-  animation: sep-onda-der 47s linear infinite;
+.sepListon__capa--frente {
+  z-index: 3;
 }
 
-.sepListon__capa--media {
-  animation: sep-onda-izq 63s linear infinite;
+/* Vaivén de tela. No es un desplazamiento en bucle: cada cinta va y vuelve
+   entre dos posiciones separadas por una decena de unidades, con periodos
+   largos y primos entre sí, así que los planos se rozan entre ellos en vez
+   de moverse en bloque. A esta escala el recorrido es del orden de un
+   milímetro por segundo: se percibe como tela, no como animación. */
+.sepListon__cinta {
+  animation: sep-tela var(--tela-tiempo) var(--sep-suave) infinite alternate;
 }
 
+.sepListon__cinta--suelo,
+.sepListon__cinta--tras {
+  --tela-x: 13px;
+  --tela-y: -2.5px;
+  --tela-tiempo: 31s;
+}
+
+.sepListon__cinta--blanca {
+  --tela-x: -16px;
+  --tela-y: 2px;
+  --tela-tiempo: 43s;
+}
+
+.sepListon__cinta--celeste {
+  --tela-x: 11px;
+  --tela-y: -3px;
+  --tela-tiempo: 37s;
+}
+
+.sepListon__cinta--frente {
+  --tela-x: -9px;
+  --tela-y: 1.5px;
+  --tela-tiempo: 53s;
+}
+
+/* La bandera se dimensiona contra el ALTO del listón, no contra el ancho de
+   la ventana: así la relación entre paño y cinta es la misma en 1920 y en un
+   móvil, que es lo que impide que acabe pareciendo un sello pegado encima. */
 .sepListon__bandera {
   position: absolute;
-  bottom: calc(var(--sep-liston) * 0.2);
+  z-index: 2;
+  /* Los dos factores están calculados, no tanteados: sobre el lienzo de 220
+     colocan el canto inferior del paño en y ≈ 196 y el superior en y ≈ 60.
+     La hebra frontal pasa por y ≈ 170 en el centro, así que le cruza por
+     delante los últimos 26. Sin ese solape la bandera se queda apoyada
+     encima del listón en vez de metida dentro. */
+  bottom: calc(var(--sep-liston-alto) * 0.018);
   left: 50%;
-  width: clamp(9.5rem, 12.5vw, 13.5rem);
+  height: clamp(76px, calc(var(--sep-liston-alto) * 0.835), 176px);
   /* Estado base equivalente al primer fotograma: si la animación se desactiva
      por `prefers-reduced-motion`, la bandera sigue centrada. */
-  transform: translateX(-50%) rotate(-2.4deg);
-  filter: drop-shadow(0 10px 14px rgba(6, 44, 80, 0.26));
-  animation: sep-bandera 7.6s ease-in-out infinite;
+  transform: translateX(-50%) rotate(-1.8deg);
+  filter: drop-shadow(0 9px 12px rgba(6, 44, 80, 0.3));
+  animation: sep-bandera 12.4s ease-in-out infinite;
 }
 
 .sepListon__bandera svg {
   display: block;
-  width: 100%;
-  height: auto;
+  width: auto;
+  height: 100%;
+  /* Los cabos dorados salen del viewBox para perderse dentro de las cintas */
   overflow: visible;
 }
 
 .sepListon__brillo {
-  animation: sep-bandera-brillo 6.4s var(--sep-suave) infinite;
+  animation: sep-bandera-brillo 9.2s var(--sep-suave) infinite;
 }
 
 /* ==================================================================
@@ -730,106 +897,118 @@
   }
 }
 
+/* Un solo rebote, no un ciclo: lo dispara el motor de vuelo al aterrizar y al
+   despegar. La rama cede, vuelve pasándose un poco y se asienta. */
 @keyframes sep-rama-rebote {
-  0%,
-  31% {
+  0% {
     transform: rotate(0deg);
   }
-  33% {
+  14% {
     transform: rotate(-0.62deg);
   }
-  35% {
+  38% {
     transform: rotate(0.34deg);
   }
-  37%,
-  85% {
-    transform: rotate(0deg);
+  64% {
+    transform: rotate(-0.14deg);
   }
-  87% {
-    transform: rotate(0.56deg);
-  }
-  89% {
-    transform: rotate(-0.26deg);
-  }
-  91%,
   100% {
     transform: rotate(0deg);
   }
 }
 
-/* Cruce de estado: alas plegadas y cola colgante ⇄ alas extendidas y cola
-   tendida. Ocurre dentro del impulso de despegue y del flare de aterrizaje. */
-@keyframes sep-quetzal-posado {
-  0%,
-  29.5% {
-    opacity: 1;
-  }
-  31.5%,
-  85% {
-    opacity: 0;
-  }
-  87%,
-  100% {
-    opacity: 1;
-  }
-}
+/* ------------------------------------------------------------------
+   Quetzal
 
-@keyframes sep-quetzal-alzado {
-  0%,
-  29.5% {
-    opacity: 0;
-  }
-  31.5%,
-  85% {
-    opacity: 1;
-  }
-  87%,
-  100% {
-    opacity: 0;
-  }
-}
+   Aquí no hay ninguna trayectoria: la escribe `useVueloQuetzal` fotograma a
+   fotograma. Lo que queda es la anatomía, y toda ella es independiente del
+   avance del ave —el aleteo no sabe cuánto se ha desplazado, ni falta que le
+   hace—.
+   ------------------------------------------------------------------ */
 
-/* Preparación: el ave baja el cuerpo antes de impulsarse, y lo amortigua al
-   posarse. Son los dos únicos instantes en que el cuerpo se mueve respecto a
-   su propia trayectoria. */
-@keyframes sep-quetzal-impulso {
-  0%,
-  25% {
+/* Se agacha (30 %), empuja (48 %) y se estira. El cruce de pose —ala plegada a
+   ala extendida— cae justo en el empujón, que es donde no se nota. */
+@keyframes sep-q-flexion {
+  0% {
     transform: translateY(0);
   }
-  29% {
-    transform: translateY(3.2px);
+  30% {
+    transform: translateY(3.4px);
   }
-  31.5% {
+  48% {
     transform: translateY(-3.8px);
   }
-  34%,
-  84% {
-    transform: translateY(0);
-  }
-  86.5% {
-    transform: translateY(2.2px);
-  }
-  89%,
+  72%,
   100% {
     transform: translateY(0);
   }
 }
 
-@keyframes sep-quetzal-cabeza {
+/* Amortiguación del aterrizaje: el peso baja y se recompone. */
+@keyframes sep-q-amortigua {
+  0% {
+    transform: translateY(-2.6px);
+  }
+  38% {
+    transform: translateY(2.4px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Respiración. Un 2 % de escala es casi nada, y es justo lo que hace que el ave
+   posada no parezca una calcomanía. */
+@keyframes sep-q-respira {
   0%,
-  38%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.008, 1.022);
+  }
+}
+
+/* Ojeadas: dos giros de cabeza en distinto sentido y una pausa larga entre
+   ellos. El ritmo irregular es lo que lo hace leerse como atención, no como
+   metrónomo. */
+@keyframes sep-q-vistazo {
+  0%,
+  40%,
   100% {
     transform: rotate(0deg);
   }
-  16% {
-    transform: rotate(-5deg);
+  11% {
+    transform: rotate(-5.2deg);
   }
-  62% {
-    transform: rotate(4.5deg);
+  22% {
+    transform: rotate(-3.4deg);
+  }
+  58% {
+    transform: rotate(4.4deg);
+  }
+  70% {
+    transform: rotate(2.2deg);
   }
 }
 
+/* Reajuste de las patas sobre la rama: medio píxel, y sólo de vez en cuando. */
+@keyframes sep-q-patas {
+  0%,
+  56%,
+  100% {
+    transform: translate(0, 0);
+  }
+  62% {
+    transform: translate(-0.8px, -0.4px);
+  }
+  70% {
+    transform: translate(0.5px, 0);
+  }
+}
+
+/* Plumas caudales. Cada una arranca con su propio retardo, así que la cola
+   llega tarde al gesto del cuerpo en vez de girar en bloque. */
 @keyframes sep-cola-posada {
   from {
     transform: rotate(-2.6deg);
@@ -848,179 +1027,27 @@
   }
 }
 
-/* ------------------------------------------------------------------
-   Trayectoria y aleteo del quetzal — GENERADOS.
-
-   Salen de `quetzal.keyframes.js`, en esta misma carpeta. Se ejecuta con
-   `node quetzal.keyframes.js` y escribe estas tres reglas por stdout: se
-   muestrea una Catmull-Rom cerrada
-   reparametrizada por longitud de arco, con un perfil de velocidad que
-   acelera al despegar, se demora en el ápice y frena en la aproximación.
-
-   Tres invariantes que el generador comprueba y que hay que respetar si se
-   regenera:
-     · la rotación no sale nunca de [-10, 10] grados;
-     · `scaleX` es siempre positivo (mínimo 0.82): el escorzo insinúa el
-       viraje, pero el ave NUNCA se voltea ni queda invertida;
-     · el fotograma del 0 %, el del 86 % y el del 100 % son idénticos, así que
-       el bucle cierra sin salto.
-
-   El aleteo emite sólo los extremos del batido; la frecuencia cambia por tramo
-   colocando esos extremos más juntos o más separados en el tiempo.
-   ------------------------------------------------------------------ */
-
-@keyframes sep-quetzal-vuelo {
-  0% { transform: translate(952px, 372px) rotate(0deg) scaleX(1); }
-  32% { transform: translate(952px, 372px) rotate(0deg) scaleX(1); }
-  33% { transform: translate(945.8px, 371.8px) rotate(0.3deg) scaleX(1); }
-  34% { transform: translate(931.1px, 371.6px) rotate(1deg) scaleX(1); }
-  35% { transform: translate(913.7px, 370.4px) rotate(2deg) scaleX(1); }
-  36% { transform: translate(899.2px, 367.8px) rotate(2.9deg) scaleX(1); }
-  37% { transform: translate(893.2px, 366.2px) rotate(3.9deg) scaleX(1); }
-  38% { transform: translate(884.9px, 363.7px) rotate(4.7deg) scaleX(1); }
-  39% { transform: translate(863.6px, 356.2px) rotate(5.4deg) scaleX(1); }
-  40% { transform: translate(835.1px, 344.3px) rotate(6.1deg) scaleX(1); }
-  41% { transform: translate(804.8px, 329.7px) rotate(6.7deg) scaleX(1); }
-  42% { transform: translate(777.6px, 315.1px) rotate(7.2deg) scaleX(1); }
-  43% { transform: translate(758.1px, 303.7px) rotate(7.6deg) scaleX(1); }
-  44% { transform: translate(750.6px, 299.2px) rotate(7.9deg) scaleX(1); }
-  45% { transform: translate(744.2px, 295.1px) rotate(8.2deg) scaleX(1); }
-  46% { transform: translate(727.3px, 284px) rotate(8.4deg) scaleX(1); }
-  47% { transform: translate(704px, 267.7px) rotate(8.8deg) scaleX(1); }
-  48% { transform: translate(677.8px, 248.3px) rotate(9.2deg) scaleX(1); }
-  49% { transform: translate(652.3px, 227.9px) rotate(9.5deg) scaleX(1); }
-  50% { transform: translate(631px, 209px) rotate(9.8deg) scaleX(1); }
-  51% { transform: translate(616.6px, 194.9px) rotate(9.9deg) scaleX(1); }
-  52% { transform: translate(611.6px, 189.1px) rotate(9.4deg) scaleX(0.968); }
-  53% { transform: translate(609.3px, 183.3px) rotate(8.1deg) scaleX(0.933); }
-  54% { transform: translate(620px, 171.3px) rotate(6.6deg) scaleX(0.898); }
-  55% { transform: translate(642.3px, 163.4px) rotate(4.9deg) scaleX(0.862); }
-  56% { transform: translate(668.9px, 157.9px) rotate(3.1deg) scaleX(0.826); }
-  57% { transform: translate(695.9px, 154.2px) rotate(1.7deg) scaleX(0.822); }
-  58% { transform: translate(719.5px, 152.4px) rotate(1deg) scaleX(0.821); }
-  59% { transform: translate(736.3px, 151.9px) rotate(0.4deg) scaleX(0.82); }
-  60% { transform: translate(742.7px, 151.9px) rotate(0deg) scaleX(0.82); }
-  61% { transform: translate(748.2px, 151.9px) rotate(-0.3deg) scaleX(0.82); }
-  62% { transform: translate(762.7px, 152.3px) rotate(-0.7deg) scaleX(0.82); }
-  63% { transform: translate(783.3px, 153.4px) rotate(-1.1deg) scaleX(0.821); }
-  64% { transform: translate(806.8px, 155.3px) rotate(-1.5deg) scaleX(0.821); }
-  65% { transform: translate(830.2px, 158px) rotate(-2deg) scaleX(0.822); }
-  66% { transform: translate(850.5px, 161.1px) rotate(-2.4deg) scaleX(0.822); }
-  67% { transform: translate(864.8px, 163.7px) rotate(-2.7deg) scaleX(0.823); }
-  68% { transform: translate(870.2px, 164.7px) rotate(-3deg) scaleX(0.824); }
-  69% { transform: translate(876.1px, 165.9px) rotate(-3.4deg) scaleX(0.825); }
-  70% { transform: translate(891.3px, 169.5px) rotate(-4deg) scaleX(0.827); }
-  71% { transform: translate(912.6px, 175.5px) rotate(-4.8deg) scaleX(0.831); }
-  72% { transform: translate(936.4px, 184.3px) rotate(-5.9deg) scaleX(0.836); }
-  73% { transform: translate(959.5px, 194.9px) rotate(-7.2deg) scaleX(0.846); }
-  74% { transform: translate(978.4px, 206.4px) rotate(-8.3deg) scaleX(0.857); }
-  75% { transform: translate(990.5px, 216.4px) rotate(-9.1deg) scaleX(0.871); }
-  76% { transform: translate(994.5px, 220.7px) rotate(-9.7deg) scaleX(0.893); }
-  77% { transform: translate(1000px, 228.1px) rotate(-10deg) scaleX(0.922); }
-  78% { transform: translate(1009px, 248.2px) rotate(-10deg) scaleX(0.947); }
-  79% { transform: translate(1012.8px, 274.1px) rotate(-10deg) scaleX(0.971); }
-  80% { transform: translate(1010.1px, 296px) rotate(-10deg) scaleX(0.99); }
-  81% { transform: translate(1007.8px, 304.9px) rotate(-10deg) scaleX(1); }
-  82% { transform: translate(1004.9px, 313.7px) rotate(-10deg) scaleX(1); }
-  83% { transform: translate(993.9px, 332.7px) rotate(-9.8deg) scaleX(1); }
-  84% { transform: translate(976px, 352px) rotate(-6.5deg) scaleX(1); }
-  85% { transform: translate(959.4px, 366.4px) rotate(-3.2deg) scaleX(1); }
-  86% { transform: translate(952px, 372px) rotate(0deg) scaleX(1); }
-  100% { transform: translate(952px, 372px) rotate(0deg) scaleX(1); }
-}
-
+/* Batido. La amplitud llega por `--q-aleteo`, que cambia con la fase y se
+   interpola gracias a `@property`; el ala de atrás bate un poco menos y con
+   retardo propio. El `scaleY` es el escorzo del ala al cerrarse. */
 @keyframes sep-aleteo {
-  0% { transform: rotate(-34deg) scaleY(0.991); }
-  26% { transform: rotate(-34deg) scaleY(0.991); }
-  27% { transform: rotate(-46deg) scaleY(1.037); }
-  27.9% { transform: rotate(46deg) scaleY(1.037); }
-  28.8% { transform: rotate(-46deg) scaleY(1.037); }
-  29.8% { transform: rotate(46deg) scaleY(1.037); }
-  30.7% { transform: rotate(-46deg) scaleY(1.037); }
-  32% { transform: rotate(42deg) scaleY(1.022); }
-  33.1% { transform: rotate(-42deg) scaleY(1.022); }
-  34.3% { transform: rotate(42deg) scaleY(1.022); }
-  35.4% { transform: rotate(-42deg) scaleY(1.022); }
-  36.5% { transform: rotate(42deg) scaleY(1.022); }
-  37.7% { transform: rotate(-42deg) scaleY(1.022); }
-  38.8% { transform: rotate(42deg) scaleY(1.022); }
-  39.9% { transform: rotate(-42deg) scaleY(1.022); }
-  41% { transform: rotate(42deg) scaleY(1.022); }
-  42.2% { transform: rotate(-42deg) scaleY(1.022); }
-  43.3% { transform: rotate(42deg) scaleY(1.022); }
-  44.4% { transform: rotate(-42deg) scaleY(1.022); }
-  46% { transform: rotate(34deg) scaleY(0.991); }
-  47.5% { transform: rotate(-34deg) scaleY(0.991); }
-  48.9% { transform: rotate(34deg) scaleY(0.991); }
-  50.4% { transform: rotate(-34deg) scaleY(0.991); }
-  51.9% { transform: rotate(34deg) scaleY(0.991); }
-  53.4% { transform: rotate(-34deg) scaleY(0.991); }
-  54.8% { transform: rotate(34deg) scaleY(0.991); }
-  56.3% { transform: rotate(-34deg) scaleY(0.991); }
-  57.8% { transform: rotate(34deg) scaleY(0.991); }
-  59.2% { transform: rotate(-34deg) scaleY(0.991); }
-  60% { transform: rotate(13deg) scaleY(0.91); }
-  63.3% { transform: rotate(-13deg) scaleY(0.91); }
-  66.5% { transform: rotate(13deg) scaleY(0.91); }
-  69.8% { transform: rotate(-13deg) scaleY(0.91); }
-  74% { transform: rotate(38deg) scaleY(1.006); }
-  75.2% { transform: rotate(-38deg) scaleY(1.006); }
-  76.5% { transform: rotate(38deg) scaleY(1.006); }
-  77.7% { transform: rotate(-38deg) scaleY(1.006); }
-  78.9% { transform: rotate(38deg) scaleY(1.006); }
-  80.1% { transform: rotate(-38deg) scaleY(1.006); }
-  81.4% { transform: rotate(38deg) scaleY(1.006); }
-  83% { transform: rotate(-28deg) scaleY(0.968); }
-  85% { transform: rotate(28deg) scaleY(0.968); }
-  86.5% { transform: rotate(-34deg) scaleY(0.991); }
-  100% { transform: rotate(-34deg) scaleY(0.991); }
+  0%,
+  100% {
+    transform: rotate(calc(var(--q-aleteo) * -1deg)) scaleY(0.93);
+  }
+  50% {
+    transform: rotate(calc(var(--q-aleteo) * 1deg)) scaleY(1.04);
+  }
 }
 
 @keyframes sep-aleteo-lejos {
-  0% { transform: rotate(-28deg) scaleY(0.913); }
-  26% { transform: rotate(-28deg) scaleY(0.913); }
-  27% { transform: rotate(38.6deg) scaleY(0.949); }
-  27.9% { transform: rotate(-38.6deg) scaleY(0.949); }
-  28.8% { transform: rotate(38.6deg) scaleY(0.949); }
-  29.8% { transform: rotate(-38.6deg) scaleY(0.949); }
-  30.7% { transform: rotate(38.6deg) scaleY(0.949); }
-  32% { transform: rotate(-35.3deg) scaleY(0.938); }
-  33.1% { transform: rotate(35.3deg) scaleY(0.938); }
-  34.3% { transform: rotate(-35.3deg) scaleY(0.938); }
-  35.4% { transform: rotate(35.3deg) scaleY(0.938); }
-  36.5% { transform: rotate(-35.3deg) scaleY(0.938); }
-  37.7% { transform: rotate(35.3deg) scaleY(0.938); }
-  38.8% { transform: rotate(-35.3deg) scaleY(0.938); }
-  39.9% { transform: rotate(35.3deg) scaleY(0.938); }
-  41% { transform: rotate(-35.3deg) scaleY(0.938); }
-  42.2% { transform: rotate(35.3deg) scaleY(0.938); }
-  43.3% { transform: rotate(-35.3deg) scaleY(0.938); }
-  44.4% { transform: rotate(35.3deg) scaleY(0.938); }
-  46% { transform: rotate(-28.6deg) scaleY(0.915); }
-  47.5% { transform: rotate(28.6deg) scaleY(0.915); }
-  48.9% { transform: rotate(-28.6deg) scaleY(0.915); }
-  50.4% { transform: rotate(28.6deg) scaleY(0.915); }
-  51.9% { transform: rotate(-28.6deg) scaleY(0.915); }
-  53.4% { transform: rotate(28.6deg) scaleY(0.915); }
-  54.8% { transform: rotate(-28.6deg) scaleY(0.915); }
-  56.3% { transform: rotate(28.6deg) scaleY(0.915); }
-  57.8% { transform: rotate(-28.6deg) scaleY(0.915); }
-  59.2% { transform: rotate(28.6deg) scaleY(0.915); }
-  60% { transform: rotate(-10.9deg) scaleY(0.856); }
-  63.3% { transform: rotate(10.9deg) scaleY(0.856); }
-  66.5% { transform: rotate(-10.9deg) scaleY(0.856); }
-  69.8% { transform: rotate(10.9deg) scaleY(0.856); }
-  74% { transform: rotate(-31.9deg) scaleY(0.926); }
-  75.2% { transform: rotate(31.9deg) scaleY(0.926); }
-  76.5% { transform: rotate(-31.9deg) scaleY(0.926); }
-  77.7% { transform: rotate(31.9deg) scaleY(0.926); }
-  78.9% { transform: rotate(-31.9deg) scaleY(0.926); }
-  80.1% { transform: rotate(31.9deg) scaleY(0.926); }
-  81.4% { transform: rotate(-31.9deg) scaleY(0.926); }
-  83% { transform: rotate(23.5deg) scaleY(0.898); }
-  85% { transform: rotate(-23.5deg) scaleY(0.898); }
-  86.5% { transform: rotate(-28deg) scaleY(0.913); }
-  100% { transform: rotate(-28deg) scaleY(0.913); }
+  0%,
+  100% {
+    transform: rotate(calc(var(--q-aleteo) * -0.84deg)) scaleY(0.9);
+  }
+  50% {
+    transform: rotate(calc(var(--q-aleteo) * 0.84deg)) scaleY(1);
+  }
 }
 
 @keyframes sep-monja {
@@ -1042,41 +1069,35 @@
   }
 }
 
-@keyframes sep-onda-izq {
+/* Un solo par de fotogramas por cinta, con `alternate`: el recorrido es de
+   unas pocas unidades del lienzo y la curva de entrada y salida hace que
+   nunca se vea arrancar ni frenar. */
+@keyframes sep-tela {
   from {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translateX(-1600px);
-  }
-}
-
-@keyframes sep-onda-der {
-  from {
-    transform: translateX(-1600px);
-  }
-  to {
-    transform: translateX(0);
+    transform: translate3d(var(--tela-x), var(--tela-y), 0);
   }
 }
 
 @keyframes sep-bandera {
   0%,
   100% {
-    transform: translateX(-50%) translateY(0) rotate(-2.4deg);
+    transform: translateX(-50%) translateY(0) rotate(-1.8deg);
   }
   50% {
-    transform: translateX(-50%) translateY(-6px) rotate(-0.5deg);
+    transform: translateX(-50%) translateY(-3px) rotate(-0.7deg);
   }
 }
 
 @keyframes sep-bandera-brillo {
   0%,
-  52% {
+  58% {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(370px);
+    transform: translateX(400px);
   }
 }
 
@@ -1111,7 +1132,7 @@
    superior completo. No es el mismo diseño encogido, es otra composición. */
 @media (max-width: 900px) {
   .sepHero {
-    --sep-liston: clamp(88px, 20vw, 128px);
+    --sep-liston: clamp(64px, 14vw, 100px);
     aspect-ratio: auto;
     /* La composición vertical es a propósito más alta que la ventana: el texto
        ocupa el bloque superior y la escena vive debajo. Acotarla al pliegue
@@ -1237,19 +1258,33 @@
   .sepEsc__nube,
   .sepEsc__bandada path,
   .sepEsc__zacate,
-  .sepListon__capa,
+  .sepListon__cinta,
+  .sepListon__bandera,
   .sepListon__brillo,
   .sepQuetzal__ala,
   .sepQuetzal__cola,
-  .sepQuetzal__pluma {
+  .sepQuetzal__pluma,
+  .sepQuetzal__respiro,
+  .sepQuetzal__cabeza,
+  .sepQuetzal__patas,
+  .sepQuetzal__cuerpo,
+  .sepCeiba__ramaPercha {
     animation: none !important;
   }
 
-  /* El ave queda posada: alas plegadas, cola colgante, patas visibles. */
+  /* El motor de vuelo no arranca siquiera: deja al ave clavada en la rama con
+     `data-pose="posada"`, que es la pose que ya trae puesta desde el JSX. Estas
+     dos reglas son el cinturón por si el atributo no llegara a escribirse. */
   .sepQuetzal__ala--cerca,
   .sepQuetzal__ala--lejos,
   .sepQuetzal__cola--vuelo {
     opacity: 0;
+  }
+
+  .sepQuetzal__alaPlegada,
+  .sepQuetzal__cola--posada,
+  .sepQuetzal__patas {
+    opacity: 1;
   }
 
   /* Y sin parallax: el puntero deja de mover la escena por completo. */

@@ -1,11 +1,5 @@
 import { MONJAS } from './escenografia';
 
-/**
- * Monja blanca (Lycaste skinneri var. alba), flor nacional.
- * Tres flores en toda la escena: son un acento, no un motivo.
- * Estructura botánica real: tres sépalos exteriores, dos pétalos interiores y
- * un labelo frontal con la garganta amarilla y el rubor magenta.
- */
 
 const SEPALO = 'M0 0C-6.5 -4 -9 -11.5 -5.5 -16.5C-3 -20 3 -20 5.5 -16.5C9 -11.5 6.5 -4 0 0Z';
 const PETALO = 'M0 0C-4.5 -3 -6.5 -8.5 -4.5 -12.5C-2.5 -15 2.5 -15 4.5 -12.5C6.5 -8.5 4.5 -3 0 0Z';

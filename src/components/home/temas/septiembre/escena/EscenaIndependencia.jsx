@@ -1,10 +1,13 @@
+import { useRef } from 'react';
 import Cielo from './Cielo';
 import Paisaje from './Paisaje';
 import Ceiba from './Ceiba';
+import AstaBandera from './AstaBandera';
 import MonjasBlancas from './MonjasBlancas';
 import Quetzal from './Quetzal';
 import Particulas from './Particulas';
 import Palmada from './Palmada';
+import useVueloQuetzal from './useVueloQuetzal';
 import { VB } from './escenografia';
 
 /**
@@ -29,8 +32,17 @@ import { VB } from './escenografia';
  * un eje distinto.
  */
 export default function EscenaIndependencia({ uid }) {
+  // El vuelo del quetzal se mide contra el DOM, así que las tres referencias
+  // que necesita se reparten desde aquí: la escena da la matriz de pantalla, el
+  // ancla da la punta de la rama y el ave es lo único que se mueve.
+  const escena = useRef(null);
+  const ave = useRef(null);
+  const ancla = useRef(null);
+  useVueloQuetzal({ escena, ave, ancla });
+
   return (
     <svg
+      ref={escena}
       className="sepEsc"
       viewBox={`0 0 ${VB.w} ${VB.h}`}
       preserveAspectRatio="xMaxYMid slice"
@@ -50,7 +62,7 @@ export default function EscenaIndependencia({ uid }) {
       </g>
 
       <g className="sepEsc__capa sepEsc__capa--frente">
-        <Ceiba uid={uid} />
+        <Ceiba uid={uid} ancla={ancla} />
         <MonjasBlancas uid={uid} />
         <Particulas uid={uid} />
       </g>
@@ -58,7 +70,7 @@ export default function EscenaIndependencia({ uid }) {
       {/* El quetzal es el único que cruza planos, así que va en su propia capa
           y por delante de todo. */}
       <g className="sepEsc__capa sepEsc__capa--aire">
-        <Quetzal uid={uid} />
+        <Quetzal uid={uid} ave={ave} />
       </g>
     </svg>
   );

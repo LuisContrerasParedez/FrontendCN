@@ -8,7 +8,8 @@ import {
   TRONCO,
   GAMBAS,
   CORTEZA,
-  RAMAS
+  RAMAS,
+  PERCHA
 } from './escenografia';
 
 /**
@@ -35,7 +36,7 @@ const FASE = ['a', 'b', 'c'];
 
 const TONO_RAMILLETE = ['media', 'clara', 'brillo'];
 
-export default function Ceiba({ uid }) {
+export default function Ceiba({ uid, ancla }) {
   const deCapa = (capa) => RAMAS.filter((r) => r.capa === capa);
   const percha = RAMAS.filter((r) => r.percha);
   const libres = deCapa('principal').filter((r) => !r.percha);
@@ -160,6 +161,11 @@ export default function Ceiba({ uid }) {
               <use href={`#${uid}-palmada`} transform="translate(1036 418) rotate(-24) scale(0.78)" />
               <use href={`#${uid}-palmada`} transform="translate(1070 434) rotate(16) scale(0.66)" />
             </g>
+            {/* Ancla invisible en la punta del brazo. De aquí lee el vuelo del
+                quetzal su punto de aterrizaje, ya con el vaivén de la rama, el
+                parallax y el recorte de la escena aplicados: por eso el ave se
+                posa en el mismo sitio en cualquier resolución. */}
+            <g ref={ancla} className="sepCeiba__ancla" transform={`translate(${PERCHA.x} ${PERCHA.y})`} />
           </g>
         </g>
       </g>

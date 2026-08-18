@@ -1,12 +1,3 @@
-/**
- * Escenografía de la escena de septiembre.
- *
- * Todo el arte vive en un lienzo de 1600 × 900 (16:9). Las coordenadas de este
- * archivo son la única fuente de verdad: la trayectoria del quetzal en el CSS
- * (`sep-quetzal-vuelo`) está calculada sobre este mismo sistema, así que mover
- * la rama de descanso obliga a regenerar esos keyframes.
- */
-
 export const VB = { w: 1600, h: 900 };
 
 /** Línea de suelo: por debajo arranca el listón inferior. */
@@ -281,35 +272,62 @@ export const BANDADA = [
 /* Ceiba                                                               */
 /* ------------------------------------------------------------------ */
 
+/** Eje vertical de la copa. Todo lo de arriba se reparte a su izquierda y a su
+ *  derecha por igual. */
+const EJE_COPA = 1276;
+
+/**
+ * Dos masas gemelas a `dx` del eje: misma altura, mismos radios y el mismo piso.
+ *
+ * Las masas se declaran por pares y no una a una porque el desequilibrio se
+ * cuela solo: basta que un lado tenga una masa más ancha o 20 px más baja para
+ * que la copa se lea torcida, y a ojo eso no se corrige, se arrastra. Con el par
+ * como unidad, la silueta nace equilibrada y sólo puede desequilibrarla un
+ * cambio deliberado.
+ *
+ * Simétricas son las MASAS, no el dibujo: cada lóbulo lleva su propia semilla,
+ * así que los entrantes del contorno, los cúmulos de luz y los ramilletes salen
+ * distintos a un lado y a otro. Un espejo exacto se nota de inmediato y deja de
+ * parecer un árbol.
+ */
+const par = (dx, y, rx, ry, piso, semillaIzq, semillaDer) => [
+  { x: EJE_COPA - dx, y, rx, ry, semilla: semillaIzq, piso },
+  { x: EJE_COPA + dx, y, rx, ry, semilla: semillaDer, piso }
+];
+
 /**
  * Masas de follaje en tres pisos. Ancha y aplanada, que es la silueta que
  * distingue a una ceiba adulta de un árbol genérico.
  *
- * La copa va **centrada sobre el eje del fuste** (x = 1252): abarca de 1000 a
- * 1552, así que su centro cae en 1276 y sobresale 24 px hacia la derecha, lo
- * justo para que no se lea como un espejo. El reparto importa: una copa que
- * cuelga mucho más de un lado hace que el árbol parezca a punto de volcarse.
+ * La copa abarca de 1006 a 1552 en torno al eje 1276, a 24 px del eje del fuste
+ * (1252). El reparto importa: una copa que cuelga más de un lado hace que el
+ * árbol parezca a punto de volcarse.
  *
  * El borde izquierdo no puede bajar de x ≈ 1000 porque ahí empieza el corredor
  * del quetzal: la percha está en 952 y el cuerpo del ave ocupa unos 74 px a su
- * izquierda. Por eso la copa se centra recortando el lado derecho y no
- * estirando el izquierdo.
+ * izquierda. Ese límite es el que fija el `dx` máximo de los pares, y por eso la
+ * copa no crece más a lo ancho por ninguno de los dos lados.
  */
 export const COPA = [
-  // Piso alto
-  { x: 1122, y: 324, rx: 120, ry: 64, semilla: 11, piso: 1 },
-  { x: 1252, y: 292, rx: 134, ry: 72, semilla: 12, piso: 1 },
-  { x: 1380, y: 304, rx: 124, ry: 66, semilla: 13, piso: 1 },
-  { x: 1462, y: 344, rx: 84, ry: 54, semilla: 14, piso: 1 },
+  // Piso alto. El par interior no llega a juntarse en el eje: entre las dos
+  // cimas queda una vaguada de unos 14 px que es lo que impide que la copa se
+  // lea como una cúpula perfecta. Es poco profunda a propósito —más marcada
+  // partiría el árbol en dos— y, al caer justo en el eje, no rompe el
+  // equilibrio.
+  ...par(78, 296, 130, 70, 1, 11, 12),
+  ...par(186, 344, 84, 54, 1, 13, 14),
   // Piso medio
-  { x: 1100, y: 402, rx: 100, ry: 58, semilla: 21, piso: 2 },
-  { x: 1226, y: 380, rx: 136, ry: 70, semilla: 22, piso: 2 },
-  { x: 1352, y: 392, rx: 126, ry: 66, semilla: 23, piso: 2 },
-  { x: 1448, y: 420, rx: 86, ry: 54, semilla: 24, piso: 2 },
+  ...par(62, 384, 132, 68, 2, 21, 22),
+  ...par(174, 410, 92, 56, 2, 23, 24),
   // Faldón. Baja hasta y ≈ 515 a propósito: es lo que cubre el horquillado y
   // el arranque de todas las ramas, de modo que lo único que queda al aire es
   // el brazo de la percha. Una ceiba con el ramaje entero expuesto entre el
   // fuste y la copa se lee como un esqueleto con hojas encima.
+  //
+  // Éste sí va suelto y sin simetría: cada masa está puesta donde hace falta
+  // tapar algo, y la izquierda además tiene que dejar salir el brazo de la
+  // percha. Da igual, porque a esa altura el contorno ya lo mandan el tronco y
+  // las gambas, no el follaje.
   { x: 1112, y: 466, rx: 92, ry: 48, semilla: 31, piso: 3 },
   { x: 1234, y: 454, rx: 120, ry: 56, semilla: 32, piso: 3 },
   { x: 1352, y: 464, rx: 108, ry: 52, semilla: 33, piso: 3 },
@@ -392,8 +410,10 @@ export const COPA_SOMBRA = cumulos('sombra');
 export const COPA_CLARA = cumulos('clara');
 export const COPA_BRILLO = cumulos('brillo');
 
-/** Centro visual de la copa: define qué lado de cada masa mira hacia fuera. */
-const COPA_CENTRO = { x: 1276, y: 375 };
+/** Centro visual de la copa: define qué lado de cada masa mira hacia fuera. Va
+ *  sobre el eje de simetría, así que los ramilletes de un par salen abiertos
+ *  hacia fuera con el mismo ángulo a un lado y a otro. */
+const COPA_CENTRO = { x: EJE_COPA, y: 375 };
 
 /**
  * Ramilletes palmados en el contorno. Rompen la silueta para que las masas no
@@ -620,11 +640,11 @@ export const MONJAS = [
     escala: 1,
     retraso: -1.4,
     flores: [
-      { dx: 0, dy: -74, giro: -6, s: 1 },
-      { dx: 34, dy: -46, giro: 12, s: 0.78 }
+      { dx: 0, dy: -80, giro: -6, s: 1 },
+      { dx: 34, dy: -86, giro: 12, s: 0.78 }
     ]
   },
-  { id: 'm2', x: 1520, y: SUELO - 8, escala: 0.9, retraso: -3.1, flores: [{ dx: -6, dy: -62, giro: 8, s: 0.94 }] }
+  { id: 'm2', x: 1520, y: SUELO - 40, escala: 0.9, retraso: -3.1, flores: [{ dx: -6, dy: -70, giro: 8, s: 0.94 }] }
 ];
 
 /** Hojas que descienden desde la copa. */
@@ -646,26 +666,3 @@ export const MOTAS = [
   { x: 1186, y: 604, r: 2.2, duracion: 12.6, retraso: -2.9 },
   { x: 1498, y: 470, r: 2.8, duracion: 13.4, retraso: -9.8 }
 ];
-
-/* ------------------------------------------------------------------ */
-/* Listón inferior                                                     */
-/* ------------------------------------------------------------------ */
-
-/**
- * Ondas senoidales exactas. Cada trazo cubre tres anchos de escena con periodo
- * divisor de 1600, así que desplazarlo 1600 px reinicia la forma sin costura.
- */
-export const ONDA_CRESTA =
-  'M-1600 66C-1466.67 78.04 -1333.33 89 -1200 89C-1066.67 89 -933.33 78.04 -800 66C-666.67 53.96 -533.33 43 -400 43C-266.67 43 -133.33 53.96 0 66C133.33 78.04 266.67 89 400 89C533.33 89 666.67 78.04 800 66C933.33 53.96 1066.67 43 1200 43C1333.33 43 1466.67 53.96 1600 66C1733.33 78.04 1866.67 89 2000 89C2133.33 89 2266.67 78.04 2400 66C2533.33 53.96 2666.67 43 2800 43C2933.33 43 3066.67 53.96 3200 66L3200 210L-1600 210Z';
-
-export const ONDA_BLANCA =
-  'M-1600 91.73C-1466.67 101.95 -1333.33 107.57 -1200 103.53C-1066.67 99.48 -933.33 86.49 -800 76.27C-666.67 66.05 -533.33 60.43 -400 64.47C-266.67 68.52 -133.33 81.51 0 91.73C133.33 101.95 266.67 107.57 400 103.53C533.33 99.48 666.67 86.49 800 76.27C933.33 66.05 1066.67 60.43 1200 64.47C1333.33 68.52 1466.67 81.51 1600 91.73C1733.33 101.95 1866.67 107.57 2000 103.53C2133.33 99.48 2266.67 86.49 2400 76.27C2533.33 66.05 2666.67 60.43 2800 64.47C2933.33 68.52 3066.67 81.51 3200 91.73L3200 210L-1600 210Z';
-
-export const ONDA_ORO =
-  'M-1600 111.75C-1466.67 119.82 -1333.33 121.09 -1200 114.41C-1066.67 107.74 -933.33 94.32 -800 86.25C-666.67 78.18 -533.33 76.91 -400 83.59C-266.67 90.26 -133.33 103.68 0 111.75C133.33 119.82 266.67 121.09 400 114.41C533.33 107.74 666.67 94.32 800 86.25C933.33 78.18 1066.67 76.91 1200 83.59C1333.33 90.26 1466.67 103.68 1600 111.75C1733.33 119.82 1866.67 121.09 2000 114.41C2133.33 107.74 2266.67 94.32 2400 86.25C2533.33 78.18 2666.67 76.91 2800 83.59C2933.33 90.26 3066.67 103.68 3200 111.75L3200 210L-1600 210Z';
-
-export const ONDA_MEDIA =
-  'M-1600 121.64C-1466.67 127.98 -1333.33 126.78 -1200 119.11C-1066.67 111.45 -933.33 98.7 -800 92.36C-666.67 86.02 -533.33 87.22 -400 94.89C-266.67 102.55 -133.33 115.3 0 121.64C133.33 127.98 266.67 126.78 400 119.11C533.33 111.45 666.67 98.7 800 92.36C933.33 86.02 1066.67 87.22 1200 94.89C1333.33 102.55 1466.67 115.3 1600 121.64C1733.33 127.98 1866.67 126.78 2000 119.11C2133.33 111.45 2266.67 98.7 2400 92.36C2533.33 86.02 2666.67 87.22 2800 94.89C2933.33 102.55 3066.67 115.3 3200 121.64L3200 210L-1600 210Z';
-
-export const ONDA_FONDO =
-  'M-1600 154.26C-1533.33 148.3 -1466.67 139.89 -1400 136.61C-1333.33 133.33 -1266.67 135.77 -1200 141.74C-1133.33 147.7 -1066.67 156.11 -1000 159.39C-933.33 162.67 -866.67 160.23 -800 154.26C-733.33 148.3 -666.67 139.89 -600 136.61C-533.33 133.33 -466.67 135.77 -400 141.74C-333.33 147.7 -266.67 156.11 -200 159.39C-133.33 162.67 -66.67 160.23 0 154.26C66.67 148.3 133.33 139.89 200 136.61C266.67 133.33 333.33 135.77 400 141.74C466.67 147.7 533.33 156.11 600 159.39C666.67 162.67 733.33 160.23 800 154.26C866.67 148.3 933.33 139.89 1000 136.61C1066.67 133.33 1133.33 135.77 1200 141.74C1266.67 147.7 1333.33 156.11 1400 159.39C1466.67 162.67 1533.33 160.23 1600 154.26C1666.67 148.3 1733.33 139.89 1800 136.61C1866.67 133.33 1933.33 135.77 2000 141.74C2066.67 147.7 2133.33 156.11 2200 159.39C2266.67 162.67 2333.33 160.23 2400 154.26C2466.67 148.3 2533.33 139.89 2600 136.61C2666.67 133.33 2733.33 135.77 2800 141.74C2866.67 147.7 2933.33 156.11 3000 159.39C3066.67 162.67 3133.33 160.23 3200 154.26L3200 210L-1600 210Z';
