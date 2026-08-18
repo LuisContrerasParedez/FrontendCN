@@ -1,87 +1,186 @@
-import { useId, useMemo } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import EscenaIndependencia from './escena/EscenaIndependencia';
-import Tendido from './Tendido';
+import ListonBandera from './ListonBandera';
 import { IconoBus, IconoCalendario, IconoFlecha } from './iconos';
 import './HeroIndependencia.css';
 
-const TITULO_PREDETERMINADO = '¡Celebremos nuestra independencia!';
+const RESPALDO = {
+  etiqueta: 'Septiembre',
+  titulo: '¡Celebremos\nnuestra\nindependencia!',
+  descripcion:
+    'Un mes para honrar nuestras raíces, disfrutar en familia y celebrar con orgullo lo que nos une como guatemaltecos.',
+  accionPrimaria: { texto: 'Ver eventos', href: '/eventos' },
+  accionSecundaria: { texto: 'Horarios de buses', href: '/buses' }
+};
 
-function TituloEditorial({ titulo }) {
-  if (titulo !== TITULO_PREDETERMINADO) {
-    return <>{titulo}</>;
-  }
+// Un campo vacío en la BD cuenta como "no vino nada", no como texto válido.
+const oRespaldo = (valor, respaldo) => String(valor ?? '').trim() || respaldo;
 
-  return (
-    <>
-      <span>¡Celebremos</span>
-      <span>nuestra</span>
-      <span>independencia!</span>
-    </>
-  );
+const accion = (valor, respaldo) => ({
+  texto: oRespaldo(valor?.texto, respaldo.texto),
+  href: oRespaldo(valor?.href, respaldo.href)
+});
+
+/**
+ * El título se compone por líneas para poder escalonar su entrada. Los saltos
+ * son parte de la dirección de arte —la escalera "¡Celebremos / nuestra /
+ * independencia!" es la que abre el hueco donde entra la copa de la ceiba—, así
+ * que se respetan los `\n` que vengan del CMS en vez de reflujar el texto.
+ */
+function lineas(titulo) {
+  return String(titulo)
+    .split('\n')
+    .map((linea) => linea.trim())
+    .filter(Boolean);
+}
+
+/**
+ * Parallax de puntero.
+ *
+ * Escribe dos custom properties normalizadas a [-1, 1] en la sección y deja que
+ * el CSS decida cuánto se desplaza cada plano. No hay estado de React de por
+ * medio: un `setState` por evento de ratón volvería a renderizar el árbol
+ * entero sesenta veces por segundo para mover la escena cuatro píxeles.
+ *
+ * La lectura del rectángulo vive dentro del rAF, así que ocurre como mucho una
+ * vez por fotograma y siempre antes de escribir: mover el ratón no provoca
+ * reflows en cadena.
+ */
+function useParallaxPuntero(referencia) {
+  useEffect(() => {
+    const nodo = referencia.current;
+    if (!nodo || typeof window.matchMedia !== 'function') return undefined;
+
+    const fino = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const quieto = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (!fino.matches) return undefined;
+
+    let cuadro = 0;
+    let clienteX = 0;
+    let clienteY = 0;
+    let centrar = false;
+
+    const pintar = () => {
+      cuadro = 0;
+
+      if (centrar || quieto.matches) {
+        nodo.style.setProperty('--sep-px', '0');
+        nodo.style.setProperty('--sep-py', '0');
+        return;
+      }
+
+      const caja = nodo.getBoundingClientRect();
+      if (!caja.width || !caja.height) return;
+
+      const px = ((clienteX - caja.left) / caja.width) * 2 - 1;
+      const py = ((clienteY - caja.top) / caja.height) * 2 - 1;
+      nodo.style.setProperty('--sep-px', Math.max(-1, Math.min(1, px)).toFixed(3));
+      nodo.style.setProperty('--sep-py', Math.max(-1, Math.min(1, py)).toFixed(3));
+    };
+
+    const encolar = () => {
+      if (!cuadro) cuadro = window.requestAnimationFrame(pintar);
+    };
+
+    const mover = (evento) => {
+      clienteX = evento.clientX;
+      clienteY = evento.clientY;
+      centrar = false;
+      encolar();
+    };
+
+    const salir = () => {
+      centrar = true;
+      encolar();
+    };
+
+    nodo.addEventListener('pointermove', mover, { passive: true });
+    nodo.addEventListener('pointerleave', salir, { passive: true });
+
+    return () => {
+      nodo.removeEventListener('pointermove', mover);
+      nodo.removeEventListener('pointerleave', salir);
+      if (cuadro) window.cancelAnimationFrame(cuadro);
+      nodo.style.removeProperty('--sep-px');
+      nodo.style.removeProperty('--sep-py');
+    };
+  }, [referencia]);
 }
 
 export default function HeroIndependencia({
-  eventHref = '/eventos',
-  busHref = '/rutas',
+  etiqueta,
+  titulo,
+  descripcion,
+  accionPrimaria,
+  accionSecundaria,
   escudoSrc = '/tematicas/escudo-guatemala.svg',
-  titulo = TITULO_PREDETERMINADO,
-  descripcion = 'Un mes para honrar nuestras raíces, disfrutar en familia y celebrar con orgullo lo que nos une como guatemaltecos.',
-  eyebrow = 'Septiembre',
-  onEventClick,
-  onBusClick
+  nivelTitulo = 'h1',
+  id = 'septiembre-independencia',
+  className = '',
+  // Permite inyectar el enlace del router (SmartLink, Link…) sin que la carpeta
+  // dependa de él. Por defecto es un ancla nativa.
+  Enlace = 'a'
 }) {
-  const reactId = useId();
-  const uid = useMemo(
-    () => `sep${reactId.replace(/[^a-zA-Z0-9_-]/g, '')}`,
-    [reactId]
-  );
+  // Identificador único por instancia: dos heros en la misma página no pueden
+  // compartir gradientes ni clipPaths.
+  const uid = `sep${useId().replace(/[^a-zA-Z0-9]/g, '')}`;
+  const seccion = useRef(null);
+  useParallaxPuntero(seccion);
+
+  const Titulo = nivelTitulo === 'h2' ? 'h2' : 'h1';
+
+  const textoEtiqueta = oRespaldo(etiqueta, RESPALDO.etiqueta);
+  const lineasTitulo = lineas(oRespaldo(titulo, RESPALDO.titulo));
+  const textoDescripcion = oRespaldo(descripcion, RESPALDO.descripcion);
+  const primaria = accion(accionPrimaria, RESPALDO.accionPrimaria);
+  const secundaria = accion(accionSecundaria, RESPALDO.accionSecundaria);
 
   return (
-    <section className="sepHero" aria-labelledby={`${uid}-titulo`}>
-      <div className="sepHero__scene" aria-hidden="true">
+    <section ref={seccion} className={`sepHero ${className}`.trim()} aria-labelledby={`${id}-titulo`}>
+      <div className="sepHero__escena">
         <EscenaIndependencia uid={uid} />
       </div>
 
-      <div className="sepHero__shell">
-        <div className="sepHero__content">
-          <div className="sepHero__eyebrow" aria-label={eyebrow}>
-            <span className="sepHero__eyebrowLine" />
-            <span>{eyebrow}</span>
-            <span className="sepHero__eyebrowLeaf" aria-hidden="true">◆</span>
-            <span className="sepHero__eyebrowLine sepHero__eyebrowLine--short" />
-          </div>
+      <div className="sepHero__velo" aria-hidden="true" />
 
-          <h1 id={`${uid}-titulo`} className="sepHero__title">
-            <TituloEditorial titulo={titulo} />
-          </h1>
+      <div className="sepHero__marco">
+        <div className="sepHero__contenido">
+          <p className="sepHero__etiqueta">
+            <span className="sepHero__etiquetaFilete" aria-hidden="true" />
+            {textoEtiqueta}
+          </p>
 
-          <p className="sepHero__description">{descripcion}</p>
+          <Titulo className="sepHero__titulo" id={`${id}-titulo`} data-page-title tabIndex="-1">
+            {lineasTitulo.map((linea, i) => (
+              // El índice forma parte de la clave porque un título del CMS puede
+              // repetir una línea, y dos claves iguales romperían el escalonado.
+              <span key={`${i}-${linea}`} className="sepHero__linea" style={{ '--linea': i }}>
+                {linea}
+              </span>
+            ))}
+          </Titulo>
 
-          <div className="sepHero__actions" aria-label="Acciones principales">
-            <a
-              className="sepHero__button sepHero__button--primary"
-              href={eventHref}
-              onClick={onEventClick}
-            >
-              <span className="sepHero__buttonIcon"><IconoCalendario /></span>
-              <span>Ver eventos</span>
-              <span className="sepHero__buttonArrow" aria-hidden="true"><IconoFlecha /></span>
-            </a>
+          {textoDescripcion ? <p className="sepHero__descripcion">{textoDescripcion}</p> : null}
 
-            <a
-              className="sepHero__button sepHero__button--secondary"
-              href={busHref}
-              onClick={onBusClick}
-            >
-              <span className="sepHero__buttonIcon"><IconoBus /></span>
-              <span>Horarios de buses</span>
-              <span className="sepHero__buttonArrow" aria-hidden="true"><IconoFlecha /></span>
-            </a>
+          <div className="sepHero__acciones">
+            <Enlace className="sepHero__boton sepHero__boton--primario" href={primaria.href}>
+              <span className="sepHero__botonBrillo" aria-hidden="true" />
+              <IconoCalendario />
+              <span className="sepHero__botonTexto">{primaria.texto}</span>
+              <IconoFlecha />
+            </Enlace>
+
+            <Enlace className="sepHero__boton sepHero__boton--secundario" href={secundaria.href}>
+              <span className="sepHero__botonBrillo" aria-hidden="true" />
+              <IconoBus />
+              <span className="sepHero__botonTexto">{secundaria.texto}</span>
+              <IconoFlecha />
+            </Enlace>
           </div>
         </div>
       </div>
 
-      <Tendido escudoSrc={escudoSrc} />
+      <ListonBandera escudoSrc={escudoSrc} />
     </section>
   );
 }

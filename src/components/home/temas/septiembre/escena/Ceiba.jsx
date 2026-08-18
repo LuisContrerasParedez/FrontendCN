@@ -1,84 +1,228 @@
-import { CANOPY_LEAVES, TRUNK_TEXTURES } from './escenografia';
+import {
+  COPA_SILUETA,
+  COPA_MEDIA,
+  COPA_SOMBRA,
+  COPA_CLARA,
+  COPA_BRILLO,
+  RAMILLETES,
+  TRONCO,
+  GAMBAS,
+  CORTEZA,
+  RAMAS
+} from './escenografia';
 
-function Hoja({ leaf }) {
-  const fills = ['#2c723f', '#3f8850', '#5a9b5d', '#79aa61', '#9bbc67'];
-  return (
-    <g transform={`translate(${leaf.x} ${leaf.y}) rotate(${leaf.r}) scale(${leaf.s})`}>
-      <g className="sepTree__leaf" style={{ '--leaf-delay': `${leaf.delay}s` }}>
-        <path d="M0 -10 C9 -7 13 1 5 9 C1 13 -6 12 -9 6 C-13 -3 -8 -9 0 -10Z" fill={fills[leaf.tone]} />
-        <path d="M-5 7 5-6" stroke="#d6d985" strokeWidth="1" opacity=".34" strokeLinecap="round" />
-      </g>
-    </g>
-  );
-}
+/**
+ * La ceiba. Se construye por volumen, no por contorno.
+ *
+ * El orden de pintado es lo que da la profundidad, y está pensado para que las
+ * ramas se entiendan como parte del árbol y no como piezas apoyadas encima:
+ *
+ *   1. Ramas de fondo      se meten en la copa; sólo asoma su tramo bajo.
+ *   2. Follaje de fondo    silueta profunda de la copa: tapa esas puntas.
+ *   3. Ramas principales   por delante de la masa oscura, por detrás de las
+ *                          hojas iluminadas, así que entran y salen del follaje.
+ *   4. Tronco y raíces     se pintan DESPUÉS que las ramas y cubren todos sus
+ *                          arranques: es lo que hace que nazcan de la madera.
+ *   5. Follaje frontal     racimos iluminados, que vuelven a comerse las puntas.
+ *
+ * Las pasadas tonales de la copa no son copias reducidas de la silueta —eso
+ * produce islas concéntricas que se leen como camuflaje— sino conjuntos propios
+ * de lóbulos sesgados hacia la luz clave.
+ */
+
+/** Grupos de balanceo del ramillete: tres fases sin animar hoja por hoja. */
+const FASE = ['a', 'b', 'c'];
+
+const TONO_RAMILLETE = ['media', 'clara', 'brillo'];
 
 export default function Ceiba({ uid }) {
+  const deCapa = (capa) => RAMAS.filter((r) => r.capa === capa);
+  const percha = RAMAS.filter((r) => r.percha);
+  const libres = deCapa('principal').filter((r) => !r.percha);
+
+  /** Cuerpo de la rama más su cinta de luz, cuando la lleva. */
+  const trazoRama = (r, relleno) => (
+    <g key={r.clave}>
+      <path d={r.d} fill={relleno} />
+      {r.luz ? <path d={r.luz} fill={`url(#${uid}-ramaLuz)`} opacity="0.34" /> : null}
+    </g>
+  );
+
   return (
-    <g className="sepTree" transform="translate(102 0)">
+    <g className="sepCeiba">
       <defs>
-        <linearGradient id={`${uid}-trunk`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#5f3b27" />
-          <stop offset=".28" stopColor="#8c5c36" />
-          <stop offset=".52" stopColor="#a67546" />
-          <stop offset=".72" stopColor="#765032" />
-          <stop offset="1" stopColor="#4f3426" />
+        <linearGradient id={`${uid}-tronco`} gradientUnits="userSpaceOnUse" x1="1140" y1="600" x2="1366" y2="650">
+          <stop offset="0" stopColor="#d3bb99" />
+          <stop offset="0.2" stopColor="#b39a76" />
+          <stop offset="0.5" stopColor="#836c53" />
+          <stop offset="0.8" stopColor="#54462f" />
+          <stop offset="1" stopColor="#6b6050" />
         </linearGradient>
-        <linearGradient id={`${uid}-branch`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#967048" />
-          <stop offset="1" stopColor="#5c3a27" />
+        <linearGradient id={`${uid}-gamba`} gradientUnits="userSpaceOnUse" x1="1040" y1="690" x2="1462" y2="750">
+          <stop offset="0" stopColor="#c8b08e" />
+          <stop offset="0.38" stopColor="#9a8462" />
+          <stop offset="0.74" stopColor="#6d5b41" />
+          <stop offset="1" stopColor="#4a3d2c" />
         </linearGradient>
-        <radialGradient id={`${uid}-canopy`} cx="46%" cy="34%" r="72%">
-          <stop offset="0" stopColor="#85b865" />
-          <stop offset=".42" stopColor="#4a8a4f" />
-          <stop offset="1" stopColor="#1e5736" />
+
+        {/* Tres tonos de rama, del fondo a la luz. La luz entra por arriba y a
+            la izquierda, así que el degradado principal aclara hacia ese lado y
+            las ramas que se van al interior de la copa arrancan más apagadas. */}
+        <linearGradient id={`${uid}-ramaFondo`} gradientUnits="userSpaceOnUse" x1="1160" y1="380" x2="1360" y2="520">
+          <stop offset="0" stopColor="#5c4c39" />
+          <stop offset="1" stopColor="#3b3024" />
+        </linearGradient>
+        <linearGradient id={`${uid}-rama`} gradientUnits="userSpaceOnUse" x1="960" y1="360" x2="1420" y2="540">
+          <stop offset="0" stopColor="#a68f70" />
+          <stop offset="0.42" stopColor="#826c4f" />
+          <stop offset="1" stopColor="#544433" />
+        </linearGradient>
+        <linearGradient id={`${uid}-ramaLuz`} gradientUnits="userSpaceOnUse" x1="960" y1="360" x2="1420" y2="540">
+          <stop offset="0" stopColor="#e2cfae" />
+          <stop offset="1" stopColor="#b49877" />
+        </linearGradient>
+
+        {/* Las cuatro pasadas comparten eje de degradado: la copa entera se
+            aclara hacia el ángulo por donde entra la luz. */}
+        <linearGradient id={`${uid}-copa-rim`} gradientUnits="userSpaceOnUse" x1="1000" y1="220" x2="1570" y2="530">
+          <stop offset="0" stopColor="#c8e492" />
+          <stop offset="1" stopColor="#8fb865" />
+        </linearGradient>
+        <linearGradient id={`${uid}-copa-profunda`} gradientUnits="userSpaceOnUse" x1="1000" y1="220" x2="1570" y2="530">
+          <stop offset="0" stopColor="#17472c" />
+          <stop offset="0.55" stopColor="#113522" />
+          <stop offset="1" stopColor="#0d2718" />
+        </linearGradient>
+        <linearGradient id={`${uid}-copa-media`} gradientUnits="userSpaceOnUse" x1="1000" y1="220" x2="1570" y2="530">
+          <stop offset="0" stopColor="#2c6b3e" />
+          <stop offset="1" stopColor="#1a4529" />
+        </linearGradient>
+        <linearGradient id={`${uid}-copa-clara`} gradientUnits="userSpaceOnUse" x1="1000" y1="220" x2="1570" y2="530">
+          <stop offset="0" stopColor="#437f47" />
+          <stop offset="1" stopColor="#2b6038" />
+        </linearGradient>
+        <linearGradient id={`${uid}-copa-brillo`} gradientUnits="userSpaceOnUse" x1="1000" y1="220" x2="1570" y2="530">
+          <stop offset="0" stopColor="#649c52" />
+          <stop offset="1" stopColor="#4a8244" />
+        </linearGradient>
+
+        {/* La luz rasante del fuste se desvanece por arriba y por abajo. Con un
+            relleno plano el canto izquierdo se recortaba como una cinta pegada
+            al tronco. */}
+        <linearGradient id={`${uid}-luzFuste`} gradientUnits="userSpaceOnUse" x1="1150" y1="452" x2="1150" y2="756">
+          <stop offset="0" stopColor="#e6d3b2" stopOpacity="0" />
+          <stop offset="0.32" stopColor="#e6d3b2" stopOpacity="0.52" />
+          <stop offset="0.78" stopColor="#e6d3b2" stopOpacity="0.3" />
+          <stop offset="1" stopColor="#e6d3b2" stopOpacity="0.06" />
+        </linearGradient>
+        <radialGradient id={`${uid}-copaLuz`} cx="0.42" cy="0.38" r="0.62">
+          <stop offset="0" stopColor="#e8f6b4" stopOpacity="0.3" />
+          <stop offset="0.55" stopColor="#cdea92" stopOpacity="0.13" />
+          <stop offset="1" stopColor="#cdea92" stopOpacity="0" />
         </radialGradient>
-        <radialGradient id={`${uid}-canopy-highlight`} cx="50%" cy="50%" r="50%">
-          <stop offset="0" stopColor="#cfdf77" stopOpacity=".66" />
-          <stop offset="1" stopColor="#a9ca66" stopOpacity="0" />
+        <radialGradient id={`${uid}-copaOclusion`} cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#0e2c1b" stopOpacity="0.52" />
+          <stop offset="1" stopColor="#0e2c1b" stopOpacity="0" />
         </radialGradient>
-        <filter id={`${uid}-tree-shadow`} x="-30%" y="-30%" width="170%" height="190%">
-          <feDropShadow dx="0" dy="18" stdDeviation="18" floodColor="#17392d" floodOpacity=".2" />
-        </filter>
+        <radialGradient id={`${uid}-sombraTronco`} cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#2a2015" stopOpacity="0.46" />
+          <stop offset="1" stopColor="#2a2015" stopOpacity="0" />
+        </radialGradient>
       </defs>
 
-      <ellipse cx="1160" cy="744" rx="250" ry="34" fill="#315e4c" opacity=".12" />
+      {/* ---- 1. Ramas de fondo ---- */}
+      <g className="sepCeiba__ramas sepCeiba__ramas--fondo">
+        {deCapa('fondo').map((r) => trazoRama(r, `url(#${uid}-ramaFondo)`))}
+      </g>
 
-      <g className="sepTree__trunk" filter={`url(#${uid}-tree-shadow)`}>
-        <path d="M1032 726 C1039 664 1050 607 1054 552 C1059 492 1066 431 1086 371 C1094 344 1103 320 1114 294 C1130 320 1147 346 1155 375 C1170 427 1166 482 1181 531 C1194 578 1214 625 1234 673 C1242 691 1252 709 1267 726 C1228 721 1191 715 1158 713 C1118 711 1079 716 1032 726Z" fill={`url(#${uid}-trunk)`} />
+      {/* ---- 2. Follaje de fondo ---- */}
+      <g className="sepCeiba__follaje sepCeiba__follajeFondo">
+        {/* Contraluz: la misma silueta desplazada hacia la luz y pintada detrás.
+            Sólo asoma por el canto superior izquierdo, que es donde toca. */}
+        <g className="sepCeiba__masa sepCeiba__masa--profunda">
+          <path d={COPA_SILUETA} fill={`url(#${uid}-copa-rim)`} opacity="0.5" transform="translate(-7 -9)" />
+          <path d={COPA_SILUETA} fill={`url(#${uid}-copa-profunda)`} />
+        </g>
+      </g>
 
-        <path d="M1112 332 C1062 324 1014 305 973 273 C947 253 921 241 886 235" fill="none" stroke={`url(#${uid}-branch)`} strokeWidth="34" strokeLinecap="round" />
-        <path d="M1119 342 C1177 313 1236 279 1289 238 C1328 209 1373 193 1416 186" fill="none" stroke={`url(#${uid}-branch)`} strokeWidth="38" strokeLinecap="round" />
-        <path d="M1124 360 C1165 359 1208 352 1254 330 C1290 313 1326 304 1361 302" fill="none" stroke={`url(#${uid}-branch)`} strokeWidth="24" strokeLinecap="round" />
-        <path d="M1092 365 C1059 368 1021 364 987 348 C951 330 918 322 882 322" fill="none" stroke={`url(#${uid}-branch)`} strokeWidth="22" strokeLinecap="round" />
-        <path d="M1115 336 C1122 292 1134 253 1153 220" fill="none" stroke={`url(#${uid}-branch)`} strokeWidth="26" strokeLinecap="round" />
+      {/* ---- 3. Ramas principales ---- */}
+      <g className="sepCeiba__ramas sepCeiba__ramas--principal">
+        {libres.map((r) => trazoRama(r, `url(#${uid}-rama)`))}
 
-        <path d="M1055 573 C1018 629 995 675 956 720 C1001 715 1042 708 1081 703Z" fill="#69432b" />
-        <path d="M1168 570 C1200 624 1242 683 1291 725 C1248 719 1204 712 1160 711Z" fill="#68412b" />
-        <path d="M1100 600 C1090 651 1073 690 1054 723 L1121 712Z" fill="#9e7045" />
-        <path d="M1144 602 C1156 650 1172 690 1198 718 L1138 712Z" fill="#765033" />
+        {/* Dos grupos: el exterior acusa el despegue y el aterrizaje del
+            quetzal, el interior mantiene el vaivén continuo de la rama. */}
+        <g className="sepCeiba__ramaPercha">
+          <g className="sepCeiba__ramaPercha-vaiven">
+            {percha.map((r) => trazoRama(r, `url(#${uid}-rama)`))}
+            {/* Ramillete en la punta, tierra adentro del punto donde se posa el
+                ave: el posadero tiene que quedar despejado. */}
+            <g fill={`url(#${uid}-copa-media)`}>
+              <use href={`#${uid}-palmada`} transform="translate(1036 418) rotate(-24) scale(0.78)" />
+              <use href={`#${uid}-palmada`} transform="translate(1070 434) rotate(16) scale(0.66)" />
+            </g>
+          </g>
+        </g>
+      </g>
 
-        {TRUNK_TEXTURES.map((d, index) => (
-          <path key={index} d={d} fill="none" stroke={index % 2 ? '#4b3024' : '#c49763'} strokeWidth={index % 2 ? 4 : 3} opacity={index % 2 ? .28 : .26} strokeLinecap="round" />
+      {/* ---- 4. Tronco y raíces: cubren el arranque de todas las ramas ---- */}
+      <g className="sepCeiba__tronco">
+        {GAMBAS.map((g, i) => (
+          <path key={i} d={g.d} fill={`url(#${uid}-gamba)`} opacity={g.tono === 1 ? 0.94 : 1} />
         ))}
+        <path d={TRONCO} fill={`url(#${uid}-tronco)`} />
+        <g stroke="#4b3d2d" strokeWidth="2.4" strokeLinecap="round" fill="none" opacity="0.28">
+          {CORTEZA.map((d, i) => (
+            <path key={i} d={d} />
+          ))}
+        </g>
+        {/* Luz rasante en el canto izquierdo del fuste */}
+        <path
+          d="M1150 744C1156 694 1170 640 1189 570C1198 538 1205 498 1203 460L1218 459C1219 498 1212 540 1201 576C1182 644 1168 696 1163 744Z"
+          fill={`url(#${uid}-luzFuste)`}
+        />
+        {/* Sombra que la copa proyecta sobre el fuste */}
+        <ellipse cx="1252" cy="556" rx="96" ry="56" fill={`url(#${uid}-sombraTronco)`} />
       </g>
 
-      <g transform="translate(1130 240)">
-        <g className="sepTree__canopy">
-        <path d="M-286 74 C-317 13 -279 -45 -220 -58 C-211 -122 -142 -149 -88 -119 C-48 -169 39 -171 76 -123 C137 -153 204 -120 214 -63 C270 -51 308 4 286 56 C315 111 267 161 211 160 C188 214 110 228 66 190 C14 227 -60 215 -91 172 C-155 204 -227 169 -228 113 C-260 108 -281 95 -286 74Z" fill={`url(#${uid}-canopy)`} />
-        <path d="M-246 17 C-199 -59 -117 -103 -22 -100 C86 -96 171 -47 220 34 C112 -10 13 -5 -75 24 C-136 44 -193 43 -246 17Z" fill="#73aa5b" opacity=".34" />
-        <ellipse cx="-42" cy="-72" rx="190" ry="96" fill={`url(#${uid}-canopy-highlight)`} opacity=".58" />
-
-        {CANOPY_LEAVES.map((leaf) => <Hoja key={leaf.id} leaf={leaf} />)}
+      {/* ---- 5. Follaje frontal ---- */}
+      <g className="sepCeiba__follaje sepCeiba__follajeFrontal">
+        <g className="sepCeiba__masa sepCeiba__masa--media">
+          <path d={COPA_MEDIA} fill={`url(#${uid}-copa-media)`} />
+          {/* Bolsas de sombra entre racimos, sesgadas en contra de la luz */}
+          <path d={COPA_SOMBRA} fill={`url(#${uid}-copa-profunda)`} opacity="0.4" />
         </g>
-      </g>
-
-      <g className="sepTree__perchBranch">
-        <path d="M979 316 C941 304 907 299 870 303 C848 305 830 313 813 324" fill="none" stroke="#64422d" strokeWidth="16" strokeLinecap="round" />
-        <path d="M883 307 C860 290 842 276 826 257" fill="none" stroke="#76543b" strokeWidth="8" strokeLinecap="round" />
-        <g transform="translate(812 253)">
-          <path d="M0 12 C10 -8 29 -9 37 5 C26 12 14 15 0 12Z" fill="#6b9a4e" />
-          <path d="M10 1 C16 14 17 28 13 39" fill="none" stroke="#48713e" strokeWidth="2" />
+        {/* Los dos tonos claros van translúcidos a propósito: a plena opacidad
+            cada racimo se recorta contra el de debajo y la copa se lee como un
+            estampado de camuflaje en vez de como follaje. */}
+        <g className="sepCeiba__masa sepCeiba__masa--clara">
+          <path d={COPA_CLARA} fill={`url(#${uid}-copa-clara)`} opacity="0.82" />
         </g>
+        <g className="sepCeiba__masa sepCeiba__masa--brillo">
+          <path d={COPA_BRILLO} fill={`url(#${uid}-copa-brillo)`} opacity="0.6" />
+        </g>
+
+        {/* Velo cálido sobre el cuadrante por donde entra la luz. Une los
+            racimos en una sola masa iluminada: sin él, cada cúmulo se sigue
+            leyendo como una pieza suelta por muy bien colocada que esté. */}
+        <ellipse cx="1185" cy="312" rx="315" ry="180" fill={`url(#${uid}-copaLuz)`} />
+
+        {/* Oclusión bajo la masa: asienta la copa sobre el fuste y remata la
+            entrada de las ramas en el follaje. */}
+        <ellipse cx="1262" cy="498" rx="230" ry="60" fill={`url(#${uid}-copaOclusion)`} />
+
+        {/* ---- Ramilletes en la silueta ---- */}
+        {FASE.map((f, indice) => (
+          <g key={f} className={`sepCeiba__ramillete sepCeiba__ramillete--${f}`}>
+            {RAMILLETES.filter((r) => r.tono === indice).map((r) => (
+              <use
+                key={r.id}
+                href={`#${uid}-palmada`}
+                fill={`url(#${uid}-copa-${TONO_RAMILLETE[r.tono]})`}
+                transform={`translate(${r.x} ${r.y}) rotate(${r.giro}) scale(${r.escala})`}
+              />
+            ))}
+          </g>
+        ))}
       </g>
     </g>
   );
