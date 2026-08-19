@@ -1,57 +1,5 @@
 import { useEffect, useLayoutEffect } from 'react';
 
-/**
- * Vuelo del quetzal: máquina de estados sobre `requestAnimationFrame`.
- *
- * El circuito ya no es un óvalo que vuelve a la rama, sino una travesía:
- *
- *   entrada ▸ aproximacion ▸ posado ▸ despegue ▸ salida ▸ espera ▸ entrada…
- *
- * El ave entra por la derecha FUERA de cuadro, se posa en la rama, se queda
- * unos segundos, despega y se va por la izquierda hasta salir del todo. Sólo
- * entonces —completamente invisible— salta otra vez al lado derecho. El salto
- * ocurre entre la fase `salida` y la fase `espera`, así que nunca hay una
- * transición que cruce la pantalla al revés.
- *
- * ## Por qué en JS y no en un `@keyframes`
- *
- * Los dos extremos del recorrido son los bordes de la ventana, y dónde caen
- * esos bordes dentro del lienzo de 1600 × 900 depende del recorte que haga
- * `preserveAspectRatio="… slice"` en cada resolución. Un keyframe con valores
- * fijos sólo puede acertar en una. Aquí los bordes se leen del DOM
- * (`getScreenCTM`) y el punto de posado sale del ancla que vive en la punta de
- * la propia rama, así que la trayectoria se recalcula sola.
- *
- * ## Reparto de responsabilidades
- *
- * Este módulo mueve UN nodo —el grupo raíz del ave— y publica dos atributos:
- *
- *   · `data-fase`  qué está haciendo el ave;
- *   · `data-pose`  si tiene el ala plegada o extendida.
- *
- * Todo lo demás —aleteo, cola, cabeza, patas, respiración, flexión de las
- * patas al impulsarse— vive en el CSS colgando de esos dos atributos. El
- * desplazamiento y la anatomía quedan desacoplados: el ave no es una estampa
- * que se arrastra por la pantalla, y el aleteo no depende de cuánto avance.
- *
- * ## Velocidades, no duraciones
- *
- * Lo que se declara es la velocidad de cada tramo en unidades de escena por
- * segundo; la duración sale de la distancia real medida. Es lo que hace que el
- * ave cruce a la misma velocidad aparente en un monitor de 1920 y en un móvil,
- * donde el tramo visible es mucho más corto. Los tiempos resultantes en un
- * 1920 × 1080 rondan: entrada 3.1 s, aproximación 1.6 s, posado 3.2–4.8 s,
- * despegue 0.85 s, salida 4.9 s, espera 1.1 s.
- */
-
-/* ------------------------------------------------------------------ */
-/* Ajustes                                                             */
-/* ------------------------------------------------------------------ */
-
-/**
- * Velocidades del circuito. `crucero` va en unidades de escena por segundo (a
- * ancho completo en un 1920, 1 unidad ≈ 1.2 px); el resto son múltiplos suyos.
- */
 const V = {
   crucero: 185,
   entrada: 1.25,
@@ -121,27 +69,15 @@ const suave = (t) => t * t * (3 - 2 * t);
 const rad = Math.PI / 180;
 const grados = 180 / Math.PI;
 
-/**
- * Hermite cúbica con velocidad de entrada y de salida, donde 1 es la velocidad
- * media del tramo. Es la pieza que evita el tirón entre fases: basta con que la
- * velocidad con la que termina una sea la que arranca la siguiente.
- */
+
 function hermite(p, v0, v1) {
   const a = v0 + v1 - 2;
   const b = 3 - 2 * v0 - v1;
   return ((a * p + b) * p + v0) * p;
 }
 
-/**
- * Velocidades normalizadas de un tramo a partir de las reales. Si la duración
- * se calcula como `2·distancia / (vIni + vFin)`, la media del tramo es 1 por
- * construcción y estas dos son las que hay que darle a `hermite`.
- */
 const normalizar = (vIni, vFin) => [(2 * vIni) / (vIni + vFin), (2 * vFin) / (vIni + vFin)];
-
-/** Aplica una matriz SVG a un punto sin depender de `DOMPoint`. */
 const aplicar = (m, x, y) => ({ x: m.a * x + m.c * y + m.e, y: m.b * x + m.d * y + m.f });
-
 const entre = ([min, max]) => min + Math.random() * (max - min);
 
 /* ------------------------------------------------------------------ */
@@ -162,15 +98,7 @@ function medirAve(nodo) {
   }
 }
 
-/**
- * Traduce a coordenadas de escena todo lo que el circuito necesita del DOM:
- * la punta de la rama y los dos bordes de la ventana.
- *
- * `caja` es la extensión del ave respecto a su propio origen, así que "fuera de
- * cuadro" significa que ni el pico ni la punta de la cola siguen dentro. La
- * inversa de `getScreenCTM()` lleva dentro el recorte de `slice`, la escala y
- * el desplazamiento del hero: no hay que reproducir ninguno a mano.
- */
+
 function medirCircuito(svg, ancla, caja) {
   const ctm = svg.getScreenCTM();
   const ctmAncla = ancla.getScreenCTM();
@@ -182,25 +110,16 @@ function medirCircuito(svg, ancla, caja) {
   const puntaPantalla = aplicar(ctmAncla, 0, 0);
   const percha = aEscena(puntaPantalla.x, puntaPantalla.y);
 
-  // Bordes de la VENTANA, no del SVG: si el hero no llega a los extremos, manda
-  // el que quede más afuera, que es el que de verdad tapa al ave.
+
   const cajaSvg = svg.getBoundingClientRect();
   if (!cajaSvg.width || !cajaSvg.height) return null;
   const derecha = aEscena(Math.max(window.innerWidth, cajaSvg.right), cajaSvg.top).x;
   const izquierda = aEscena(Math.min(0, cajaSvg.left), cajaSvg.top).x;
   const alto = aEscena(cajaSvg.left, cajaSvg.top).y;
 
-  // Fuera por la derecha = ni el pico entra; fuera por la izquierda = la cola,
-  // que es lo último que queda dentro, ya ha cruzado el borde.
   const xEntrada = derecha + GEOM.margen - caja.x;
   const xSalida = izquierda - GEOM.margen - caja.x - caja.ancho;
-
-  // El crucero se acota al borde alto visible: en una ventana baja el recorte
-  // vertical se comería el tramo de entrada.
   const yCrucero = Math.max(alto + GEOM.techo, percha.y - GEOM.crucero);
-
-  // El impulso recorre justo lo necesario para terminar el despegue con la
-  // velocidad con la que arranca la salida.
   const dImpulso =
     (V.despegue * V.crucero * (FIJAS.despegue / 1000) * (1 - GEOM.flexion)) / 2;
 
@@ -479,8 +398,6 @@ export default function useVueloQuetzal({ escena, ave, ancla }) {
         return;
       }
       if (!remedir()) return;
-      // Primera colocación antes de pintar: el ave arranca fuera de cuadro, no
-      // en la rama, así que no se ve ningún fotograma de más.
       entrarEn('entrada');
       const inicio = posicion('entrada', 0, circuito, 0);
       colocar(inicio.x, inicio.y, 0);

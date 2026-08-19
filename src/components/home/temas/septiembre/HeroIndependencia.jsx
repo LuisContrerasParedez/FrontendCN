@@ -1,6 +1,5 @@
 import { useEffect, useId, useRef } from 'react';
 import EscenaIndependencia from './escena/EscenaIndependencia';
-import ListonBandera from './ListonBandera';
 import { IconoBus, IconoCalendario, IconoFlecha } from './iconos';
 import './HeroIndependencia.css';
 
@@ -113,7 +112,6 @@ export default function HeroIndependencia({
   descripcion,
   accionPrimaria,
   accionSecundaria,
-  escudoSrc = '/tematicas/escudo-guatemala.svg',
   nivelTitulo = 'h1',
   id = 'septiembre-independencia',
   className = '',
@@ -179,8 +177,6 @@ export default function HeroIndependencia({
           </div>
         </div>
       </div>
-
-      <ListonBandera escudoSrc={escudoSrc} />
     </section>
   );
 }

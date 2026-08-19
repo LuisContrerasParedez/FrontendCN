@@ -7,9 +7,6 @@ dependencia fuera de React.
 septiembre/
 ├─ HeroIndependencia.jsx      componente principal + parallax de puntero
 ├─ HeroIndependencia.css      tokens, layout, animaciones
-├─ ListonBandera.jsx          listón ceremonial inferior + bandera
-├─ cintas.js                  geometría generada de las cuatro cintas
-├─ Escudo.jsx                 escudo dibujado (respaldo si falla la imagen)
 ├─ iconos.jsx                 calendario, bus, flecha
 ├─ index.js
 └─ escena/
@@ -60,7 +57,6 @@ import SmartLink from '../ui/SmartLink';
 | `descripcion` | texto institucional | Párrafo de apoyo |
 | `accionPrimaria` | `{ texto: 'Ver eventos', href: '/eventos' }` | Botón dorado |
 | `accionSecundaria` | `{ texto: 'Horarios de buses', href: '/buses' }` | Botón claro |
-| `escudoSrc` | `/tematicas/escudo-guatemala.svg` | Imagen del escudo en la bandera; si falla, se dibuja el respaldo |
 | `nivelTitulo` | `h1` | `h1` o `h2`, según si el hero es el encabezado de la página |
 | `id` | `septiembre-independencia` | Prefijo de los `id` accesibles |
 | `className` | `''` | Clases extra en la sección |
@@ -105,56 +101,14 @@ en blanco en la BD no deje el hero mudo.
   de cola, posado y en vuelo, que se cruzan por opacidad: un ave posada pliega
   el ala y deja caer la cola, así que son formas distintas, no la misma girada.
 - **Tres monjas blancas.** Acento, no motivo.
-- **El listón es UNA cinta, no cuatro franjas.** Las cuatro hebras salen de
-  la misma **curva maestra**: un solo barrido en S con menos de un ciclo
-  completo a lo ancho. Cada hebra es esa curva desplazada, con una variación
-  propia pequeña —la que produce algún giro suelto— y un factor que atenúa la
-  maestra hacia abajo, porque la parte baja del fajín está más escorzada y la
-  recorta el marco. Van casi paralelas a propósito: cuatro ondas
-  independientes cruzándose todo el rato vuelven a leerse como un apilado de
-  bandas, y ninguna pareja pasa del 18 % del recorrido cruzada.
-- **Cada hebra es una banda cerrada,** con dos bordes propios que no van en
-  paralelo: tiene grosor y se estrecha donde la tela gira. Los solapes son
-  generosos —lo que se ve de cada una es la distancia hasta la siguiente, y
-  el resto queda debajo— para que la masa no se abra nunca. El relieve son
-  filos, sombras de contacto y pliegues (geometría), nunca un `filter`: el
-  listón se mueve, y un filtro en el ancestro obligaría a rasterizar la
-  franja entera en cada fotograma.
-- **Reparto del peso:** unas 52 u de azul, 48 de blanca, 19 de celeste y el
-  resto de azul hondo, sobre un lienzo de 220. Blanca y azul mandan por
-  igual; la celeste es un hilo.
-- **El oro son hilos, no una quinta hebra.** 3 u sobre 220, uno por cada
-  canto de la blanca. En cuanto engorda deja de ser ceremonial y se convierte
-  en una franja mostaza.
-- **Los pliegues no llegan a los cantos.** Se quedan en el tercio central de
-  lo que se ve de cada hebra. En cuanto tocan los dos bordes dejan de ser un
-  quiebre de la tela y pasan a ser una costura que la corta de lado a lado.
-- **La sombra sobre el suelo va antes que la cinta.** Tres contornos anidados
-  siguiendo el filo superior del listón, de menos a más cerca del contacto.
-  Son los que borran el corte entre pradera y decoración.
-- **Sin bandera flotante.** La única bandera vive integrada en el listón:
-  proporción 1.9 : 1, no el 1.6 : 1 del pabellón, porque se ve escorzada
-  dentro del fajín —con la proporción exacta se levanta por encima de la
-  cinta y vuelve a parecer una imagen pegada—. Un doblez blanco con vivos de
-  oro le cruza por delante de la esquina superior izquierda y se pierde a los
-  lados dentro del listón; la hebra frontal le pasa por delante de los
-  últimos 26 u del canto inferior.
 - **Paisaje sin poblar.** Dos volcanes de falda cóncava, tres planos de
   cordillera, bandas de neblina y ni un solo arbolito de relleno.
 
 ## Animación
 
 Un solo reloj de 17 s gobierna el quetzal, el rebote de su rama y el cruce
-entre alas plegadas y extendidas. El resto —copa, nubes, hojas, listón— corre
+entre alas plegadas y extendidas. El resto —copa, nubes y hojas— corre
 en ciclos primos entre sí para que el conjunto nunca caiga en un pulso común.
-
-El listón **no se desplaza en bucle**. Cada cinta va y vuelve entre dos
-posiciones separadas por una decena de unidades del lienzo, con periodos de
-31, 37, 43 y 53 s: los planos se rozan entre ellos en vez de moverse en
-bloque, y el recorrido es del orden de un milímetro por segundo, que se
-percibe como tela y no como animación. La bandera lleva su propio ciclo de
-12.4 s, independiente. El trazado se dibuja 160 u más allá de cada borde del
-lienzo, así que el vaivén no descubre nunca los cantos laterales.
 
 ### Trayectoria y aleteo: generados
 
@@ -205,20 +159,6 @@ estado de React de por medio. Se desactiva en punteros gruesos y con
   debe ser más alta que la ventana.
 - **Móvil (≤560 px):** botones apilados a ancho completo con la flecha alineada
   al borde.
-- **Listón:** `--sep-liston` es el peso visual (76–126 px en escritorio) y
-  `--sep-liston-alto` le suma un 35 % de zona de transición para la sombra y
-  el tramo de barrido que se mete en la pradera. El filo superior barre entre
-  unos 90 y unos 170 px sobre el canto del hero.
-  Las capas de cinta se estiran con `preserveAspectRatio="none"` —es lo que
-  las hace sangrar de canto a canto—, y `--sep-liston-ancho` corrige el
-  estirón: sirve el lienzo más ancho que la caja y centrado, que es un
-  recorte horizontal hecho a mano, para que la escala horizontal siga a la
-  vertical. Sin esa corrección las ondas salen comprimidas en una ventana
-  estrecha y la cinta pasa a parecer una sierra. La bandera no puede
-  estirarse, así que vive en su propio SVG proporcional, dimensionado contra
-  el **alto** del listón: así la relación entre paño y cinta es la misma en
-  1920 y en un móvil.
-
 `preserveAspectRatio="xMaxYMid slice"` sirve a las dos composiciones porque cada
 una recorta por un eje distinto: en escritorio el recorte sólo puede ser
 vertical y va centrado (anclarlo abajo se comería la copa en cuanto la ventana
@@ -238,8 +178,7 @@ mantiene a la vista el lado derecho, que es donde vive la ceiba.
 
 Con `prefers-reduced-motion: reduce` el quetzal se queda posado en su rama con
 las alas plegadas, las partículas y las nubes se congelan en su posición
-dibujada, las cintas y la bandera se quedan en su posición de reposo y el
-parallax se apaga. Ojo con un detalle que ya falló una vez:
+dibujada y el parallax se apaga. Ojo con un detalle que ya falló una vez:
 `.sepQuetzal__vuelo` necesita un `transform` base igual al fotograma del 0 %,
 porque al desactivar la animación el elemento vuelve a su transform declarado y
 sin él el ave aparece clavada en la esquina superior izquierda de la escena.
