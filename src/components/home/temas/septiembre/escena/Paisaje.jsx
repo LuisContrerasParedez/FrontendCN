@@ -1,4 +1,4 @@
-import { SUELO, VB } from './escenografia';
+import { SUELO } from './escenografia';
 
 
 export default function Paisaje({ uid }) {

@@ -389,5 +389,5 @@
 
   .content-card:hover .content-card__image { transform: scale(1.025); }
   .quick-links a:hover .quick-links__arrow { transform: translateX(4px); }
-  .quick-links a:hover { color: var(--fair-yellow); }
+  .quick-links a:hover { color: var(--brand-accent-on-dark); }
 }

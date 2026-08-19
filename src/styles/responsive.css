@@ -238,7 +238,7 @@
 @media (min-width: 1180px) {
   .desktop-navigation { display: flex; }
   .menu-toggle { display: none; }
-  .header-visit-link { color: #fff; background: var(--fair-blue); border-color: var(--fair-blue); }
+  .header-visit-link { color: #fff; background: var(--brand-primary); border-color: var(--brand-primary); }
   .mosaic { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .bus-route-list--mosaic { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
@@ -385,8 +385,6 @@
 }
 
 @media (max-width: 1600px), (max-height: 900px) {
-  .page-hero--compact .page-hero__awning { height: 6px; }
-
   .page-hero--compact .page-hero__inner {
     padding-block: .8rem;
   }
@@ -432,11 +430,6 @@
   /* Los directorios deben empezar en el primer viewport del teléfono. El
      encabezado conserva el título de la ruta, pero deja la introducción larga
      para pantallas donde no desplaza las tarjetas fuera de vista. */
-  .locales-page .page-hero__awning,
-  .events-page .page-hero__awning,
-  .promotions-page .page-hero__awning,
-  .buses-page .page-hero__awning { height: 4px; }
-
   .locales-page .page-hero__inner,
   .events-page .page-hero__inner,
   .promotions-page .page-hero__inner,

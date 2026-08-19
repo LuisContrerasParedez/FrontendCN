@@ -1,6 +1,24 @@
 :root {
   color-scheme: light;
 
+  /* Identidad permanente de Centra Norte. Estos tokens gobiernan la interfaz
+     completa; las campanas mensuales conservan sus colores en --theme-* y en
+     sus componentes, sin recolorear navegacion, tarjetas ni formularios. */
+  --brand-primary: #071a4f;
+  --brand-primary-deep: #030b2d;
+  --brand-primary-mid: #244d86;
+  --brand-accent: #c92f3d;
+  --brand-accent-deep: #a92330;
+  --brand-accent-soft: #f9e7e9;
+  --brand-accent-on-dark: #ff9da5;
+  --brand-ink: #111a35;
+  --brand-muted: #5b6375;
+  --brand-canvas: #f5f7fb;
+  --brand-surface: #ffffff;
+  --brand-surface-soft: #edf2f8;
+  --brand-border: #d8e0ec;
+  --brand-control-border: #6f788b;
+
   /* Paleta estable del programa de feria */
   --fair-blue: #071a4f;
   --fair-blue-deep: #030b2d;
@@ -23,6 +41,14 @@
   --fair-control-border: #747b8d;
   --fair-danger: #b42318;
 
+  /* Alias de interfaz para mantener los componentes desacoplados de la marca. */
+  --ui-canvas: var(--brand-canvas);
+  --ui-surface: var(--brand-surface);
+  --ui-surface-soft: var(--brand-surface-soft);
+  --ui-divider: var(--brand-border);
+  --ui-accent: var(--brand-accent);
+  --ui-accent-soft: var(--brand-accent-soft);
+
   /* La BD puede sustituir únicamente estos cinco tokens de temporada */
   --theme-primary: var(--fair-blue);
   --theme-secondary: var(--fair-green);
@@ -36,18 +62,18 @@
   --on-accent: var(--fair-ink);
 
   /* Tokens semánticos */
-  --color-primary: var(--theme-primary);
-  --color-secondary: var(--theme-secondary);
-  --color-accent: var(--theme-accent);
-  --color-background: #ffffff;
-  --color-text: var(--theme-text);
-  --color-surface: var(--fair-surface);
-  --color-soft: var(--fair-soft);
-  --color-muted: var(--fair-muted);
-  --color-border: var(--fair-border);
-  --color-control-border: var(--fair-control-border);
-  --color-dark: var(--fair-blue);
-  --color-footer: var(--fair-blue-deep);
+  --color-primary: var(--brand-primary);
+  --color-secondary: var(--brand-accent);
+  --color-accent: var(--brand-accent);
+  --color-background: var(--brand-surface);
+  --color-text: var(--brand-ink);
+  --color-surface: var(--ui-surface);
+  --color-soft: var(--ui-surface-soft);
+  --color-muted: var(--brand-muted);
+  --color-border: var(--brand-border);
+  --color-control-border: var(--brand-control-border);
+  --color-dark: var(--brand-primary);
+  --color-footer: var(--brand-primary-deep);
   --color-danger: var(--fair-danger);
 
   --font-display: "Montserrat Variable", "Montserrat", system-ui, sans-serif;

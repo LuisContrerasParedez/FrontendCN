@@ -1,7 +1,6 @@
 export default function PageHero({ eyebrow, title, description, children }) {
   return (
     <header className="page-hero page-hero--compact">
-      <div className="page-hero__awning" aria-hidden="true"><i /><i /><i /><i /><i /><i /><i /><i /></div>
       <div className={`container page-hero__inner${children ? ' page-hero__inner--with-utility' : ''}`}>
         <div className="page-hero__copy">
           {eyebrow ? <p className="section-kicker">{eyebrow}</p> : null}

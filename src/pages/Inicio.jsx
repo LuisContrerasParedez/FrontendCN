@@ -60,7 +60,6 @@ export default function Inicio() {
         image={theme?.ImagenHeroDesktopUrl || activeBanner?.ImagenDesktopUrl}
         config={config}
       />
-      <div className="footer-awning" aria-hidden="true">{Array.from({ length: 10 }, (_, index) => <i key={index} />)}</div>
       {showFairHero ? (
         <>
           {/* Todo el contenido sale de la BD; el respaldo vive dentro del tema. */}
@@ -74,9 +73,7 @@ export default function Inicio() {
       ) : (
         <MonthlyHero theme={theme} banner={activeBanner} loading={themeState.loading} events={wheelEvents} />
       )}
-      <div className="footer-awning" aria-hidden="true">{Array.from({ length: 10 }, (_, index) => <i key={index} />)}</div>
       <HomeEventsAgenda events={events.data || []} loading={events.loading} />
-      <div className="footer-awning" aria-hidden="true">{Array.from({ length: 10 }, (_, index) => <i key={index} />)}</div>
 
       <section className="section reveal home-content-section home-content-section--local-marquee">
         <div className="container">
@@ -98,7 +95,6 @@ export default function Inicio() {
         ) : null}
       </section>
 
-      <div className="footer-awning" aria-hidden="true">{Array.from({ length: 10 }, (_, index) => <i key={index} />)}</div>
       <HomeTransport routes={routes.data || []} loading={routes.loading} />
 
     </div>
