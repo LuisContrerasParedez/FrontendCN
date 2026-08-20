@@ -124,7 +124,6 @@ export default function SiteHeader({ config = {} }) {
     <>
       <a className="skip-link" href="#contenido-principal">Ir al contenido principal</a>
       <header className={'site-header' + (scrolled ? ' is-scrolled' : '')}>
-        <div className="site-header__fair-line" aria-hidden="true"><i /><i /><i /><i /></div>
         <div className="container header-main">
           <Link className="brand" to="/" aria-label="Centra Norte, ir al inicio">
             {canLoadLogo ? (

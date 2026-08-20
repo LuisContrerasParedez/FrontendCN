@@ -49,7 +49,7 @@
   overflow: hidden;
   background: #cfe6f9;
   color: var(--sep-marina-950);
-  font-family: var(--sep-fuente, var(--font-display, "Montserrat Variable", "Montserrat", system-ui, sans-serif));
+  font-family: var(--sep-fuente, var(--font-display, "Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, sans-serif));
   -webkit-font-smoothing: antialiased;
 }
 

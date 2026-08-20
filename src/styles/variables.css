@@ -15,7 +15,10 @@
   --brand-muted: #5b6375;
   --brand-canvas: #f5f7fb;
   --brand-surface: #ffffff;
-  --brand-surface-soft: #edf2f8;
+  --brand-surface-soft: #ffffff;
+  --brand-surface-blue: #ffffff;
+  --brand-surface-blue-strong: #ffffff;
+  --brand-surface-blue-ink: #17345f;
   --brand-border: #d8e0ec;
   --brand-control-border: #6f788b;
 
@@ -76,8 +79,8 @@
   --color-footer: var(--brand-primary-deep);
   --color-danger: var(--fair-danger);
 
-  --font-display: "Montserrat Variable", "Montserrat", system-ui, sans-serif;
-  --font-body: "Montserrat Variable", "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --container: 2400px;
   --reading: 70ch;
   --gutter: clamp(12px, 3vw, 56px);
@@ -85,11 +88,6 @@
   --radius-small: 10px;
   --radius-medium: 14px;
   --radius-large: 16px;
-  /* Elevación: una sola luz cenital, sin el lóbulo blanco del neumorfismo.
-     Ese segundo halo (`-10px -10px 24px #fff`) recortaba en blanco la esquina
-     superior izquierda de la sombra gris y se leía como un resplandor sucio
-     alrededor de cada tarjeta. Cada nivel es contacto + difusión, ambos con el
-     azul de marca para que la sombra no se vea gris muerta. */
   --shadow-header: 0 12px 36px rgba(13, 43, 107, .10);
   --shadow-lift:
     0 2px 5px rgba(13, 43, 107, .09),

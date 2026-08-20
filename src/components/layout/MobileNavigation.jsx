@@ -2,7 +2,7 @@ import { NavLink } from 'react-router';
 import Icon from '../ui/Icon';
 import ResponsiveImage from '../ui/ResponsiveImage';
 import SmartLink from '../ui/SmartLink';
-import { FACTURAS_LABEL, FACTURAS_URL, NETWORKS } from './siteLinks';
+import { FACTURAS_URL, NETWORKS } from './siteLinks';
 
 export default function MobileNavigation({
   open,
@@ -37,10 +37,6 @@ export default function MobileNavigation({
         aria-modal="true"
         aria-label="Menú principal"
       >
-        <div className="mobile-navigation__awning" aria-hidden="true">
-          {Array.from({ length: 12 }, (_, index) => <i key={index} />)}
-        </div>
-
         <div className="mobile-navigation__head">
           <span className="mobile-navigation__brand">
             {showLogo ? (
@@ -87,11 +83,6 @@ export default function MobileNavigation({
         </nav>
 
         <div className="mobile-navigation__foot">
-          <SmartLink className="mobile-navigation__cta" href={FACTURAS_URL} onClick={onNavigate}>
-            <Icon name="upload" size={17} />
-            {FACTURAS_LABEL}
-          </SmartLink>
-
           <div className="mobile-navigation__social">
             <p className="mobile-navigation__kicker">Síguenos</p>
             <div className="social-links" aria-label="Redes sociales de Centra Norte">
@@ -107,6 +98,17 @@ export default function MobileNavigation({
                 </a>
               ))}
             </div>
+          </div>
+
+          <div className="mobile-navigation__actions">
+            <SmartLink className="mobile-navigation__invoice" href={FACTURAS_URL} onClick={onNavigate}>
+              <Icon name="upload" size={17} />
+              Facturas
+            </SmartLink>
+            <NavLink className="mobile-navigation__cta" to="/contacto" onClick={onNavigate}>
+              <Icon name="mapPin" size={18} />
+              Visítanos
+            </NavLink>
           </div>
         </div>
       </div>
