@@ -18,7 +18,7 @@ export default function QuienesSomos() {
   return (
     <div className="page about-page">
       <Seo title={content?.MetaTitulo || 'Quiénes somos'} description={content?.MetaDescripcion || content?.Resumen} image={content?.ImagenPortadaUrl} config={config} />
-      <PageHero eyebrow="Centra Norte" title={content?.Titulo || 'Quiénes somos'} description={content?.Resumen || 'Un punto de encuentro para compras, servicios y transporte.'} />
+      <PageHero title={content?.Titulo || 'Quiénes somos'} description={content?.Resumen || 'Un punto de encuentro para compras, servicios y transporte.'} />
 
       <section className="section about-section" aria-labelledby="about-title">
         <div className="container">

@@ -162,14 +162,12 @@ export default function HeroIndependencia({
 
           <div className="sepHero__acciones">
             <Enlace className="sepHero__boton sepHero__boton--primario" href={primaria.href}>
-              <span className="sepHero__botonBrillo" aria-hidden="true" />
               <IconoCalendario />
               <span className="sepHero__botonTexto">{primaria.texto}</span>
               <IconoFlecha />
             </Enlace>
 
             <Enlace className="sepHero__boton sepHero__boton--secundario" href={secundaria.href}>
-              <span className="sepHero__botonBrillo" aria-hidden="true" />
               <IconoBus />
               <span className="sepHero__botonTexto">{secundaria.texto}</span>
               <IconoFlecha />

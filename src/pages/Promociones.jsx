@@ -17,7 +17,7 @@ export default function Promociones() {
   return (
     <div className="page motion-page promotions-page">
       <Seo title={content?.MetaTitulo || 'Promociones'} description={content?.MetaDescripcion || content?.Resumen} config={config} />
-      <PageHero eyebrow="Beneficios vigentes" title={content?.Titulo || 'Promociones'} description={content?.Resumen || 'Descubre las promociones disponibles en Centra Norte.'} />
+      <PageHero title={content?.Titulo || 'Promociones'} description={content?.Resumen || 'Descubre las promociones disponibles en Centra Norte.'} />
       <section className="section container promotions-section">
         {state.loading ? <LoadingState label="Cargando promociones" /> : null}
         {state.error ? <ErrorState message="No pudimos consultar las promociones en este momento." onRetry={state.refetch} /> : null}

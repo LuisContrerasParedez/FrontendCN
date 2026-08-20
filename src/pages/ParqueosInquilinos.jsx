@@ -40,7 +40,6 @@ export default function ParqueosInquilinos() {
         noIndex
       />
       <PageHero
-        eyebrow="Gestiones"
         title={content?.Titulo || 'Parqueos para inquilinos'}
         description={content?.Resumen || 'Realiza el pago mensual o solicita tu tarjeta TAS desde el formulario correspondiente.'}
       />

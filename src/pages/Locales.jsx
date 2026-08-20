@@ -75,9 +75,9 @@ export default function Locales() {
   return (
     <div className="page locales-page">
       <Seo title={pageContent?.MetaTitulo || 'Locales'} description={pageContent?.MetaDescripcion || pageContent?.Resumen} config={config} />
-      <PageHero eyebrow="Directorio comercial" title={pageContent?.Titulo || 'Locales'} description={pageContent?.Resumen || 'Encuentra restaurantes, tiendas y servicios.'}>
+      <PageHero title={pageContent?.Titulo || 'Locales'} description={pageContent?.Resumen || 'Encuentra restaurantes, tiendas y servicios.'}>
         <div className="directory-hero-overview" aria-live="polite" aria-atomic="true">
-          <span className="directory-hero-overview__icon" aria-hidden="true"><Icon name="shop" size={30} /></span>
+          <span className="directory-hero-overview__icon" aria-hidden="true"><Icon name="shop" size={18} /></span>
           {state.loading ? (
             <p>Preparando el directorio…</p>
           ) : (
@@ -87,14 +87,15 @@ export default function Locales() {
           )}
         </div>
       </PageHero>
-      <section className="section container directory-section">
-        <div className="directory-toolbar reveal" ref={toolbarRef}>
-          <div className="directory-tools">
-            <SearchField value={query} onChange={(value) => update('buscar', value)} label="Buscar local" placeholder="Buscar local o categoría" />
-            {!state.loading ? <p className="result-count" role="status" aria-live="polite" aria-atomic="true">{total} {total === 1 ? 'resultado' : 'resultados'}</p> : null}
-          </div>
+      {/* La barra de filtros cierra el encabezado en lugar de flotar dentro de
+          la cuadrícula: título, búsqueda y categorías se leen como un solo bloque. */}
+      <div className="directory-toolbar reveal" ref={toolbarRef}>
+        <div className="container directory-toolbar__inner">
+          <SearchField value={query} onChange={(value) => update('buscar', value)} label="Buscar local" placeholder="Buscar local o categoría" />
           <CategoryFilter categories={categories} value={category} onChange={(value) => update('categoria', value)} />
         </div>
+      </div>
+      <section className="section container directory-section">
         {state.loading ? <LoadingState label="Cargando directorio" /> : null}
         {state.error ? <ErrorState message="No pudimos cargar el directorio en este momento." onRetry={state.refetch} /> : null}
         {!state.loading && !state.error && !locals.length ? (

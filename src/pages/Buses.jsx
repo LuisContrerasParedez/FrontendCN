@@ -34,12 +34,12 @@ export default function Buses() {
   return (
     <div className="page motion-page buses-page">
       <Seo title={content?.MetaTitulo || 'Buses'} description={content?.MetaDescripcion || content?.Resumen} config={config} />
-      <PageHero eyebrow="Punto de transporte" title={content?.Titulo || 'Buses'} description={content?.Resumen || 'Encuentra el bus que te lleva a tu destino.'} />
+      {/* El buscador es el control principal de la página, así que acompaña al
+          título en la franja en lugar de repetirlo en un panel propio. */}
+      <PageHero title={content?.Titulo || 'Buses'} description={content?.Resumen || 'Encuentra el bus que te lleva a tu destino.'}>
+        <SearchField value={query} onChange={setQuery} label="Buscar ruta, destino o empresa" placeholder="Ej. Guastatoya" />
+      </PageHero>
       <section className="section container bus-directory">
-        <div className="bus-search motion-panel reveal">
-          <div><h2>Busca tu destino</h2><p>Escribe una ruta, destino o empresa de transporte.</p></div>
-          <SearchField value={query} onChange={setQuery} label="Buscar ruta, destino o empresa" placeholder="Ej. Guastatoya" />
-        </div>
         {!state.loading ? <p className="result-count" role="status" aria-live="polite" aria-atomic="true">{visible.length} {visible.length === 1 ? 'ruta' : 'rutas'}</p> : null}
         {state.loading ? <LoadingState label="Cargando rutas" /> : null}
         {state.error ? <ErrorState message="No pudimos consultar las rutas en este momento." onRetry={state.refetch} /> : null}

@@ -48,18 +48,33 @@ Assert-Condition ($apacheRules.Contains('https://*.google-analytics.com')) 'La C
 
 $sourceIndex = [IO.File]::ReadAllText((Join-Path $projectRoot 'index.html'))
 $gtmContainerId = 'GTM-N7HCM3QF'
+$gaMeasurementId = 'G-F4QC3V325B'
 $inlineScriptPattern = '(?is)<script(?![^>]*\bsrc=)[^>]*>(.*?)</script>'
-$sourceInlineScripts = [regex]::Matches($sourceIndex, $inlineScriptPattern)
-Assert-Condition ($sourceInlineScripts.Count -eq 1) 'index.html debe contener unicamente el cargador inline autorizado de GTM.'
-$sourceGtmCode = $sourceInlineScripts[0].Groups[1].Value
-Assert-Condition ($sourceGtmCode.Contains($gtmContainerId)) 'El cargador inline no corresponde al contenedor GTM autorizado.'
-$sha256 = [Security.Cryptography.SHA256]::Create()
-try {
-    $sourceGtmHash = 'sha256-' + [Convert]::ToBase64String($sha256.ComputeHash([Text.Encoding]::UTF8.GetBytes($sourceGtmCode)))
-} finally {
-    $sha256.Dispose()
+
+function Get-InlineScriptHash {
+    param([string] $Code)
+
+    $sha256 = [Security.Cryptography.SHA256]::Create()
+    try {
+        return 'sha256-' + [Convert]::ToBase64String($sha256.ComputeHash([Text.Encoding]::UTF8.GetBytes($Code)))
+    } finally {
+        $sha256.Dispose()
+    }
 }
-Assert-Condition ($apacheRules.Contains("'$sourceGtmHash'")) 'La CSP no contiene el hash vigente del cargador GTM.'
+
+# La CSP no lleva 'unsafe-inline': cada script en linea entra por su propio
+# hash. La revision es entonces que ninguno quede fuera de la lista, no que
+# haya uno solo. El conteo sigue siendo estricto para que sumar un tercero sea
+# una decision explicita y no un descuido.
+$sourceInlineScripts = [regex]::Matches($sourceIndex, $inlineScriptPattern)
+Assert-Condition ($sourceInlineScripts.Count -eq 2) 'index.html debe contener unicamente los dos cargadores inline autorizados: GTM y gtag.'
+foreach ($inlineScript in $sourceInlineScripts) {
+    $hash = Get-InlineScriptHash $inlineScript.Groups[1].Value
+    Assert-Condition ($apacheRules.Contains("'$hash'")) "La CSP no contiene el hash vigente de un script inline de index.html: $hash"
+}
+Assert-Condition (@($sourceInlineScripts | Where-Object { $_.Groups[1].Value.Contains($gtmContainerId) }).Count -eq 1) 'El cargador inline no corresponde al contenedor GTM autorizado.'
+Assert-Condition (@($sourceInlineScripts | Where-Object { $_.Groups[1].Value.Contains($gaMeasurementId) }).Count -eq 1) 'La etiqueta inline de gtag no corresponde a la medicion autorizada.'
+Assert-Condition ($sourceIndex.Contains("gtag/js?id=$gaMeasurementId")) 'Falta el cargador de gtag.js de la medicion autorizada.'
 Assert-Condition ($sourceIndex -match '(?is)<body[^>]*>\s*<!-- Google Tag Manager \(noscript\) -->\s*<noscript>') 'El fallback noscript de GTM debe aparecer inmediatamente despues de body.'
 Assert-Condition ($sourceIndex.Contains("ns.html?id=$gtmContainerId")) 'El fallback noscript no corresponde al contenedor GTM autorizado.'
 
@@ -79,17 +94,16 @@ $distPath = Join-Path $projectRoot 'dist'
 Assert-Condition (Test-Path -LiteralPath (Join-Path $distPath 'index.html') -PathType Leaf) 'dist/index.html no existe.'
 Assert-Condition (Test-Path -LiteralPath (Join-Path $distPath 'assets') -PathType Container) 'dist/assets no existe.'
 $distIndex = [IO.File]::ReadAllText((Join-Path $distPath 'index.html'))
+# Lo que sirve Apache es dist, no la fuente: si el build reformateara un script
+# en linea, su hash dejaria de coincidir y la CSP lo bloquearia en produccion.
 $distInlineScripts = [regex]::Matches($distIndex, $inlineScriptPattern)
-Assert-Condition ($distInlineScripts.Count -eq 1) 'dist/index.html debe contener unicamente el cargador inline autorizado de GTM.'
-$distGtmCode = $distInlineScripts[0].Groups[1].Value
-$sha256 = [Security.Cryptography.SHA256]::Create()
-try {
-    $distGtmHash = 'sha256-' + [Convert]::ToBase64String($sha256.ComputeHash([Text.Encoding]::UTF8.GetBytes($distGtmCode)))
-} finally {
-    $sha256.Dispose()
+Assert-Condition ($distInlineScripts.Count -eq 2) 'dist/index.html debe contener unicamente los dos cargadores inline autorizados: GTM y gtag.'
+foreach ($inlineScript in $distInlineScripts) {
+    $hash = Get-InlineScriptHash $inlineScript.Groups[1].Value
+    Assert-Condition ($apacheRules.Contains("'$hash'")) "La CSP no autoriza un script inline generado en dist: $hash"
 }
-Assert-Condition ($distGtmCode.Contains($gtmContainerId)) 'El build no contiene el cargador GTM autorizado.'
-Assert-Condition ($apacheRules.Contains("'$distGtmHash'")) 'La CSP no autoriza el cargador GTM generado en dist.'
+Assert-Condition (@($distInlineScripts | Where-Object { $_.Groups[1].Value.Contains($gtmContainerId) }).Count -eq 1) 'El build no contiene el cargador GTM autorizado.'
+Assert-Condition ($distIndex.Contains("gtag/js?id=$gaMeasurementId")) 'El build no contiene el cargador de gtag.js autorizado.'
 $serverFiles = @(Get-ChildItem -LiteralPath $distPath -Recurse -Force -File | Where-Object { $_.Extension -in @('.php', '.sql') })
 Assert-Condition ($serverFiles.Count -eq 0) 'dist contiene archivos de servidor.'
 

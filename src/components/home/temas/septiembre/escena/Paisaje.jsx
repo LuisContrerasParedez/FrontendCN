@@ -1,4 +1,4 @@
-import { SUELO } from './escenografia';
+import { SUELO, VB } from './escenografia';
 
 
 export default function Paisaje({ uid }) {
@@ -118,12 +118,18 @@ export default function Paisaje({ uid }) {
             PRADERA
             ============================================================ */}
 
+        {/* Los dos degradados del campo van anclados al espacio de usuario.
+            El suelo se prolonga por debajo del viewBox —ver PRADERA MEDIA y
+            PRIMER PLANO— y con `objectBoundingBox` ese alargue estiraría la
+            rampa de color; fijados aquí, la franja de más se rellena con el
+            último tono y el campo queda igual que antes. */}
         <linearGradient
           id={`${uid}-pradera`}
+          gradientUnits="userSpaceOnUse"
           x1="0"
-          y1="0"
+          y1="677.14"
           x2="0"
-          y2="1"
+          y2="802"
         >
           <stop offset="0" stopColor="#8fb76a" />
           <stop offset="0.38" stopColor="#7daa5a" />
@@ -133,10 +139,11 @@ export default function Paisaje({ uid }) {
 
         <linearGradient
           id={`${uid}-praderaCerca`}
-          x1="0"
-          y1="0"
-          x2="0.2"
-          y2="1"
+          gradientUnits="userSpaceOnUse"
+          x1="-50"
+          y1="732.74"
+          x2="290"
+          y2="802"
         >
           <stop offset="0" stopColor="#638d4a" />
           <stop offset="0.5" stopColor="#557e42" />
@@ -669,8 +676,8 @@ export default function Paisaje({ uid }) {
            1444 684
            1650 700
 
-          L1650 ${SUELO + 50}
-          L-50 ${SUELO + 50}
+          L1650 ${VB.h + 10}
+          L-50 ${VB.h + 10}
           Z
         `}
       />
@@ -702,6 +709,12 @@ export default function Paisaje({ uid }) {
 
       {/* ==============================================================
           PRIMER PLANO
+
+          El campo cierra por debajo del viewBox, no en la línea de suelo. El
+          hero es 16:9 y el viewBox también, así que en cuanto la caja cae en
+          esa proporción exacta `slice` no recorta nada: todo lo que quedara
+          sin pintar entre el suelo y VB.h dejaría ver el cielo como una franja
+          gris bajo el pasto.
           ============================================================== */}
 
       <path
@@ -725,8 +738,8 @@ export default function Paisaje({ uid }) {
            1393 750
            1650 738
 
-          L1650 ${SUELO + 50}
-          L-50 ${SUELO + 50}
+          L1650 ${VB.h + 10}
+          L-50 ${VB.h + 10}
           Z
         `}
       />

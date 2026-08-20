@@ -125,7 +125,7 @@
   z-index: 2;
   display: flex;
   align-items: center;
-  width: min(1520px, 100% - clamp(2rem, 5vw, 6rem));
+  width: min(1800px, 100% - clamp(2rem, 5vw, 6rem));
   height: 100%;
   margin: 0 auto;
 }
@@ -213,23 +213,21 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.65rem;
-  min-height: 3.5rem;
-  padding: 0 1.5rem;
-  overflow: hidden;
+  gap: 0.6rem;
+  min-height: 48px;
+  padding: 0 1.15rem;
   border: 1px solid transparent;
-  border-radius: 999px;
-  color: var(--sep-marina-950);
+  border-radius: var(--radius-small, 10px);
   font-family: inherit;
-  font-size: clamp(0.95rem, 1vw, 1.05rem);
-  font-weight: 700;
-  letter-spacing: -0.012em;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.2;
   text-decoration: none;
   transition:
-    transform 0.26s var(--sep-salida),
-    box-shadow 0.26s var(--sep-suave),
-    background-color 0.24s var(--sep-suave),
-    border-color 0.24s var(--sep-suave);
+    transform 0.2s var(--sep-suave),
+    box-shadow 0.2s var(--sep-suave),
+    background-color 0.2s var(--sep-suave),
+    border-color 0.2s var(--sep-suave);
 }
 
 .sepHero__botonTexto {
@@ -237,64 +235,42 @@
   z-index: 1;
 }
 
-.sepHero__botonBrillo {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(105deg, transparent 32%, rgba(255, 255, 255, 0.58) 50%, transparent 68%);
-  transform: translateX(-130%);
-  transition: transform 0.85s var(--sep-salida);
-}
-
-/* Sombras coloreadas, nunca negras: una sombra neutra sobre un fondo cálido
-   ensucia el dorado en vez de asentarlo. */
+/* Las acciones del hero usan el mismo lenguaje que el boton del resto del
+   sitio: rectangulo de radio corto, azul marino de marca solido para la accion
+   principal y contorno para la secundaria. El oro de la tematica se queda en la
+   escena y en el rotulo del mes, que es donde cuenta la historia; llevado al
+   boton competia con la marca y desentonaba con las demas paginas. */
 .sepHero__boton--primario {
-  background: linear-gradient(172deg, var(--sep-oro-300) 0%, var(--sep-oro-400) 44%, var(--sep-oro-500) 100%);
-  border-color: rgba(150, 108, 12, 0.34);
-  box-shadow:
-    0 1px 2px rgba(90, 62, 4, 0.18),
-    0 12px 26px rgba(120, 84, 8, 0.24);
+  color: #ffffff;
+  background: var(--brand-primary, #071a4f);
+  border-color: var(--brand-primary, #071a4f);
 }
 
+/* La secundaria va rellena de blanco y no transparente: el hero termina en una
+   ilustracion y un boton sin fondo se apoyaria sobre el paisaje. */
 .sepHero__boton--secundario {
-  background: rgba(255, 255, 255, 0.86);
-  backdrop-filter: blur(6px);
-  border-color: rgba(20, 73, 127, 0.24);
-  color: var(--sep-marina-900);
-  box-shadow:
-    0 1px 2px rgba(6, 32, 63, 0.08),
-    0 10px 24px rgba(6, 32, 63, 0.13);
+  color: var(--brand-primary, #071a4f);
+  background: #ffffff;
+  border-color: var(--brand-primary, #071a4f);
 }
 
-.sepHero__boton:hover {
-  transform: translateY(-3px);
-}
+@media (hover: hover) and (pointer: fine) {
+  .sepHero__boton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(7, 26, 79, 0.1), 0 12px 24px rgba(7, 26, 79, 0.16);
+  }
 
-.sepHero__boton--primario:hover {
-  box-shadow:
-    0 2px 4px rgba(90, 62, 4, 0.2),
-    0 18px 34px rgba(120, 84, 8, 0.3);
-}
-
-.sepHero__boton--secundario:hover {
-  background: rgba(255, 255, 255, 0.96);
-  border-color: rgba(20, 73, 127, 0.46);
-  box-shadow:
-    0 2px 4px rgba(6, 32, 63, 0.1),
-    0 16px 32px rgba(6, 32, 63, 0.18);
-}
-
-.sepHero__boton:hover .sepHero__botonBrillo {
-  transform: translateX(130%);
+  .sepHero__boton--primario:hover { background: var(--brand-primary-deep, #030b2d); }
+  .sepHero__boton--secundario:hover { background: var(--fair-soft, #f4f6f9); }
 }
 
 .sepHero__boton:hover .sepHero__icono--flecha {
-  transform: translateX(4px);
+  transform: translateX(3px);
   opacity: 1;
 }
 
 .sepHero__boton:active {
-  transform: translateY(-1px) scale(0.98);
+  transform: translateY(0);
   transition-duration: 0.09s;
 }
 

@@ -1,4 +1,7 @@
 @media (min-width: 520px) {
+  /* Dos o tres fichas segun quepan: la fila nunca deja un hueco al costado. */
+  .detail-facts--grid { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+
   .header-visit-link { padding-inline: .85rem; }
   .header-visit-link span { display: inline; }
 
@@ -76,9 +79,7 @@
     padding: 1.6rem 1.8rem;
   }
 
-  .directory-toolbar { padding: 1.1rem 1.25rem; }
-  .directory-tools { align-items: center; flex-direction: row; }
-  .directory-tools .search-field { max-width: 420px; }
+  .directory-toolbar__inner { flex-wrap: nowrap; }
 
   .detail-page__grid {
     grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr);
@@ -89,22 +90,18 @@
 
   .detail-page__media { aspect-ratio: auto; }
 
-  .page-hero__inner--with-utility {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    gap: clamp(2rem, 4vw, 4rem);
+  .detail-hero__inner { grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); }
+
+  /* La portada deja de mandar su proporcion y se estira con la tarjeta; el
+     minimo evita que una ficha de dos datos la deje como una franja fina. */
+  .detail-hero__media {
+    aspect-ratio: auto;
+    min-height: clamp(300px, 26vw, 400px);
   }
 
-  .locales-page .directory-hero-overview {
-    width: max-content;
-    max-width: 100%;
-    margin-left: auto;
-  }
-
-  .bus-search {
-    grid-template-columns: minmax(220px, .8fr) minmax(320px, 1.2fr);
-    align-items: center;
-  }
+  /* La barra queda al ras del hero: solo su línea inferior separa el
+     encabezado de la cuadrícula. */
+  .locales-page .directory-section { padding-top: clamp(1.5rem, 2.2vw, 2.5rem); }
 
   .bus-route-list--mosaic { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
@@ -195,6 +192,7 @@
   .monthly-hero__content h1 { font-size: clamp(3rem, 4.6vw, 4.65rem); }
   .monthly-hero__content--long h1 { max-width: 13ch; font-size: clamp(2.75rem, 3.8vw, 4rem); }
   .mosaic { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .events-archive__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
   .transport-section__grid {
     grid-template-columns: minmax(0, 1.35fr) minmax(330px, .65fr);
@@ -237,6 +235,9 @@
 
 @media (min-width: 1180px) {
   .mosaic { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* El archivo se publica de cinco en cinco: una sola fila lo deja leerse de
+     un vistazo y lo separa de la cuadricula de cuatro de la agenda vigente. */
+  .events-archive__grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .bus-route-list--mosaic { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
   .monthly-hero {
@@ -404,128 +405,57 @@
 
 }
 
-@media (max-width: 1600px), (max-height: 900px) {
-  .page-hero--compact .page-hero__inner {
-    padding-block: clamp(1.6rem, 2.7vw, 2.5rem);
-  }
-
-  .page-hero--compact .page-hero__inner--with-utility {
-    gap: clamp(1rem, 3vw, 2.5rem);
-  }
-
-  .page-hero--compact .section-kicker {
-    margin-bottom: .5rem;
-    padding: 0;
-    font-size: .74rem;
-  }
-
-  .page-hero--compact h1 {
-    margin-bottom: .45rem;
-    font-size: clamp(2.35rem, 3.5vw, 3.35rem);
-    line-height: .98;
-  }
-
-  .page-hero--compact .page-hero__copy > p:last-child {
-    font-size: 1rem;
-    line-height: 1.4;
-  }
-
-  .page-hero--compact .directory-hero-overview {
-    grid-template-columns: 48px minmax(0, 1fr);
-    gap: .75rem;
-    padding-block: .25rem;
-  }
-
-  .page-hero--compact .directory-hero-overview__icon {
-    width: 48px;
-    height: 48px;
-  }
-
-  .page-hero--compact .directory-hero-overview strong {
-    font-size: clamp(1.65rem, 2.5vw, 2rem);
-  }
-}
-
 @media (max-width: 719px) {
-  /* Los directorios deben empezar en el primer viewport del teléfono. El
-     encabezado conserva el título de la ruta, pero deja la introducción larga
-     para pantallas donde no desplaza las tarjetas fuera de vista. */
-  .locales-page .page-hero__inner,
-  .events-page .page-hero__inner,
-  .promotions-page .page-hero__inner,
-  .buses-page .page-hero__inner {
-    min-height: 76px;
-    align-items: center;
-    padding-block: .9rem;
-  }
+  /* Los directorios deben empezar en el primer viewport del teléfono. La
+     franja conserva el título de la ruta, pero deja la introducción larga para
+     pantallas donde no desplaza las tarjetas fuera de vista. */
+  .locales-page .page-hero__copy > p,
+  .events-page .page-hero__copy > p,
+  .promotions-page .page-hero__copy > p,
+  .buses-page .page-hero__copy > p { display: none; }
 
-  .locales-page .page-hero .section-kicker,
-  .events-page .page-hero .section-kicker,
-  .promotions-page .page-hero .section-kicker,
-  .buses-page .page-hero .section-kicker,
-  .locales-page .page-hero__copy > p:last-child,
-  .events-page .page-hero__copy > p:last-child,
-  .promotions-page .page-hero__copy > p:last-child,
-  .buses-page .page-hero__copy > p:last-child { display: none; }
+  .page-hero__inner { padding-block: .83rem; }
 
-  .locales-page .page-hero h1,
-  .events-page .page-hero h1,
-  .promotions-page .page-hero h1,
-  .buses-page .page-hero h1 {
-    margin: 0;
-    font-size: clamp(1.85rem, 8vw, 2.25rem);
-    line-height: 1;
-  }
+  .page-hero h1 { font-size: clamp(1.45rem, 6vw, 1.75rem); }
 
-  .locales-page .page-hero__inner--with-utility {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: .75rem;
-  }
+  .page-hero__copy > p { font-size: .97rem; }
 
+  /* En el ancho del teléfono la píldora competiría con el título: el contador
+     se reduce a una anotación al margen. */
   .locales-page .directory-hero-overview {
-    display: flex;
-    gap: .4rem;
-    padding: 0 0 0 .75rem;
+    gap: .35rem;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   .locales-page .directory-hero-overview__icon { display: none; }
 
-  .locales-page .page-hero--compact .directory-hero-overview strong {
-    font-family: var(--font-body);
-    font-size: .78rem;
-    line-height: 1.2;
-    white-space: nowrap;
-  }
+  .locales-page .directory-hero-overview p { font-size: .86rem; }
+
+  .locales-page .directory-hero-overview strong { font-size: .86rem; }
 
   .directory-section,
   .events-section,
   .promotions-section,
   .bus-directory { padding-top: .85rem; }
 
-  .directory-toolbar {
-    gap: .8rem;
-    margin-bottom: 1.35rem;
-    padding: 1rem;
-    border-radius: 18px;
+  .directory-toolbar__inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: .7rem;
+    padding-block: .85rem;
   }
 
-  .directory-tools { gap: .65rem; }
-
-  .directory-tools .search-field {
-    min-height: 48px;
-    max-width: none;
+  .directory-toolbar__inner .search-field {
+    min-height: 46px;
+    flex: 0 0 auto;
     padding-inline: .9rem;
   }
 
-  .directory-tools .search-field input {
-    height: 44px;
+  .directory-toolbar__inner .search-field input {
+    height: 42px;
     font-size: 16px;
-  }
-
-  .directory-tools .result-count {
-    align-self: flex-start;
-    padding-left: .2rem;
-    font-size: .8rem;
   }
 
   .category-filter { display: none; }
@@ -577,14 +507,16 @@
 
   .directory-section .mosaic { gap: 1.1rem; }
 
-  .buses-page .bus-search {
-    gap: 0;
-    margin-bottom: .85rem;
-    padding: .75rem;
-    border-radius: 18px;
+  /* En el teléfono el buscador aprovecha todo el ancho de la franja. */
+  .buses-page .page-hero__utility .search-field {
+    width: 100%;
+    min-height: 46px;
   }
 
-  .buses-page .bus-search > div:first-child { display: none; }
+  .buses-page .page-hero__utility .search-field input {
+    height: 42px;
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 519px) {
@@ -598,6 +530,12 @@
   .hero-actions .button,
   .contact-actions .button,
   .transport-actions .button { width: 100%; }
+
+  .detail-cta__actions { width: 100%; }
+  .detail-cta__actions .button { flex: 1 1 100%; }
+  .detail-hero__media,
+  .detail-hero__body,
+  .detail-cta { border-radius: var(--radius-medium); }
 
   .detail-page__breadcrumbs { padding-top: .75rem; }
   .detail-page__breadcrumbs .breadcrumbs {

@@ -55,8 +55,8 @@ import SmartLink from '../ui/SmartLink';
 | `etiqueta` | `Septiembre` | Texto superior en versalitas |
 | `titulo` | `¡Celebremos\nnuestra\nindependencia!` | Los `\n` son saltos de línea deliberados |
 | `descripcion` | texto institucional | Párrafo de apoyo |
-| `accionPrimaria` | `{ texto: 'Ver eventos', href: '/eventos' }` | Botón dorado |
-| `accionSecundaria` | `{ texto: 'Horarios de buses', href: '/buses' }` | Botón claro |
+| `accionPrimaria` | `{ texto: 'Ver eventos', href: '/eventos' }` | Botón azul marino sólido |
+| `accionSecundaria` | `{ texto: 'Horarios de buses', href: '/buses' }` | Botón blanco con contorno |
 | `nivelTitulo` | `h1` | `h1` o `h2`, según si el hero es el encabezado de la página |
 | `id` | `septiembre-independencia` | Prefijo de los `id` accesibles |
 | `className` | `''` | Clases extra en la sección |

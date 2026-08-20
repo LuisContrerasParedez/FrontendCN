@@ -1,10 +1,11 @@
-import { useOutletContext, useParams } from 'react-router';
+import { Link, useOutletContext, useParams } from 'react-router';
 import useApi from '../hooks/useApi';
 import { obtenerLocal } from '../services/localesService';
 import DetailNavigation from '../components/ui/DetailNavigation';
 import { EmptyState, ErrorState, LoadingState } from '../components/ui/ContentStates';
 import Seo from '../components/ui/Seo';
 import ResponsiveImage from '../components/ui/ResponsiveImage';
+import Icon from '../components/ui/Icon';
 import { sanitizeHtml } from '../utils/sanitizeHtml';
 import { safeUrl } from '../utils/safeUrl';
 
@@ -43,29 +44,67 @@ export default function LocalDetalle() {
   }
 
   const image = safeUrl(local.ImagenUrl);
+  const descripcion = local.Descripcion ? sanitizeHtml(local.Descripcion, '') : '';
 
   return (
-    <article className="detail-page">
+    <article className="detail-page detail-page--local">
       <Seo title={local.Nombre} description={local.Descripcion ? undefined : `${local.Nombre} en Centra Norte.`} image={local.ImagenUrl} config={config} />
       <DetailNavigation backTo="/locales" backLabel="Volver a locales" items={navigationItems(local.Nombre)} />
-      <div className="container detail-page__grid">
-        {image ? (
-          <div className="detail-page__media">
-            <ResponsiveImage src={image} alt={`Vista de ${local.Nombre}`} className="detail-page__image" sizes="(max-width: 719px) 100vw, 45vw" fallbackIcon="shop" />
+
+      <div className="detail-hero">
+        <div className="container detail-hero__inner">
+          <div className="detail-hero__media">
+            <ResponsiveImage
+              src={image}
+              alt={`Vista de ${local.Nombre}`}
+              className="detail-hero__image"
+              sizes="(max-width: 719px) 100vw, (max-width: 1179px) 50vw, 42vw"
+              fallbackIcon="shop"
+              fallbackLabel="Local sin imagen"
+              eager
+            />
+            {local.Destacado ? (
+              <span className="detail-hero__badge detail-hero__badge--featured">
+                <Icon name="star" size={14} />Destacado
+              </span>
+            ) : null}
           </div>
-        ) : null}
-        <div className="detail-card">
-          {local.Categoria ? <p className="eyebrow">{local.Categoria}</p> : null}
-          <h1>{local.Nombre}</h1>
-          {local.Descripcion ? (
-            <div className="rich-content" dangerouslySetInnerHTML={{ __html: sanitizeHtml(local.Descripcion, '') }} />
-          ) : null}
-          {local.Ubicacion || local.Horario ? (
-            <dl className="detail-facts">
-              {local.Ubicacion ? <div><dt>Ubicación</dt><dd>{local.Ubicacion}</dd></div> : null}
-              {local.Horario ? <div><dt>Horario</dt><dd>{local.Horario}</dd></div> : null}
-            </dl>
-          ) : null}
+
+          <div className="detail-hero__body">
+            {local.Categoria ? <p className="eyebrow detail-hero__eyebrow"><Icon name="shop" size={15} />{local.Categoria}</p> : null}
+            <h1>{local.Nombre}</h1>
+
+            {descripcion ? <div className="rich-content" dangerouslySetInnerHTML={{ __html: descripcion }} /> : null}
+
+            {local.Ubicacion || local.Horario ? (
+              <dl className="detail-facts detail-facts--grid">
+                {local.Ubicacion ? (
+                  <div className="detail-fact">
+                    <dt><span className="detail-fact__icon" aria-hidden="true"><Icon name="mapPin" size={17} /></span>Ubicación</dt>
+                    <dd>{local.Ubicacion}</dd>
+                  </div>
+                ) : null}
+                {local.Horario ? (
+                  <div className="detail-fact">
+                    <dt><span className="detail-fact__icon" aria-hidden="true"><Icon name="clock" size={17} /></span>Horario</dt>
+                    <dd>{local.Horario}</dd>
+                  </div>
+                ) : null}
+              </dl>
+            ) : null}
+          </div>
+        </div>
+      </div>
+
+      <div className="container detail-cta">
+        <div className="detail-cta__copy">
+          <p className="eyebrow">Sigue explorando</p>
+          <h2>Descubre más en Centra Norte</h2>
+          <p>Recorre el directorio completo de comercios y revisa las promociones vigentes.</p>
+        </div>
+        <div className="detail-cta__actions">
+          <Link className="button button--primary" to="/locales">Ver todos los locales</Link>
+          <Link className="button button--outline" to="/promociones">Ver promociones</Link>
         </div>
       </div>
     </article>

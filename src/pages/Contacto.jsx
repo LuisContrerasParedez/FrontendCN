@@ -29,7 +29,7 @@ export default function Contacto() {
   return (
     <div className="page motion-page contact-page">
       <Seo title={content?.MetaTitulo || 'Contacto'} description={content?.MetaDescripcion || content?.Resumen} config={config} />
-      <PageHero eyebrow="Visítanos" title={content?.Titulo || 'Contacto'} description={content?.Resumen || 'Encuentra nuestra ubicación y canales de contacto.'} />
+      <PageHero title={content?.Titulo || 'Contacto'} description={content?.Resumen || 'Encuentra nuestra ubicación y canales de contacto.'} />
       <section className="section container contact-layout">
         <div className="contact-copy motion-panel reveal">
           <p className="eyebrow">Información de visita</p>
