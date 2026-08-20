@@ -1,5 +1,6 @@
 import HeroFeria from './feria';
 import HeroIndependencia from './septiembre';
+import HeroInstitucional from './institucional';
 
 /*
  * Registro de temáticas de portada.
@@ -28,6 +29,11 @@ import HeroIndependencia from './septiembre';
 
 // Nombres que no llevan mes y deben resolver igual.
 const TEMAS = {
+  institucional: HeroInstitucional,
+  'centra-norte': HeroInstitucional,
+  'centra-norte-todo-el-ano': HeroInstitucional,
+  'todo-el-ano': HeroInstitucional,
+  permanente: HeroInstitucional,
   feria: HeroFeria,
   independencia: HeroIndependencia,
   'fiestas-patrias': HeroIndependencia,
@@ -40,7 +46,15 @@ const MESES = {
   septiembre: HeroIndependencia
 };
 
-export const TEMA_POR_DEFECTO = 'feria';
+/*
+ * El respaldo es la temática institucional, no una campaña.
+ *
+ * Antes lo era la feria de agosto, y eso significaba que una portada sin
+ * temática —o con una cuyo nombre no resuelve— montaba en noviembre la escena
+ * de una feria que terminó en agosto. La institucional no caduca: no menciona
+ * ningún mes y cambia con la hora del visitante, no con el calendario.
+ */
+export const TEMA_POR_DEFECTO = 'institucional';
 
 // Mismo criterio que `themeKey` en tematicaService: sin acentos, en minúsculas
 // y con guiones, para que case aunque la BD mande "Agosto - Feria".
@@ -71,7 +85,8 @@ export function resolverHeroTematico(clave) {
 
   // El respaldo silencioso ya escondió un fallo en producción durante un día
   // entero: la portada se veía bien, sólo que con la temática del mes pasado.
-  // En desarrollo tiene que oírse.
+  // En desarrollo tiene que oírse. Sin clave no se avisa: eso no es un fallo,
+  // es el caso normal de una portada sin temática programada.
   if (import.meta.env.DEV && normalizada) {
     console.warn(
       `[temas] "${clave}" no resuelve a ninguna temática (clave: "${normalizada}"). ` +

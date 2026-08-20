@@ -1,0 +1,847 @@
+/* ==========================================================================
+   HERO INSTITUCIONAL — CENTRA NORTE TODO EL AÑO
+
+   Es la temática de respaldo: la que sostiene la portada el día que nadie ha
+   programado una campaña. Todo va prefijado con `inst` y no se declara nada a
+   nivel global (:root, body, elementos sueltos), para que no filtre estilos.
+
+   ORDEN DEL ARCHIVO
+   1. Paleta por franja horaria
+   2. Base del hero y velo
+   3. Contenido: etiqueta, título, descripción, acciones, pilares
+   4. Escena: paradas de degradado y piezas
+   5. Animaciones
+   6. Responsive
+   7. Movimiento reducido
+   ========================================================================== */
+
+/* ==========================================================================
+   1. PALETA POR FRANJA HORARIA
+
+   La geometría de la escena está en `escenografia.js` y no sabe nada de color:
+   cada pieza sale con una clase y se resuelve aquí. Cambiar de franja es
+   redefinir tokens, no volver a dibujar.
+
+   Regla que no se rompe: la columna de texto va SIEMPRE sobre el velo azul
+   marino y SIEMPRE en blanco. Si el texto cambiara de color con la hora habría
+   que medir el contraste tres veces y una de las tres acabaría fallando; así
+   solo hay un caso, y es el de máximo contraste.
+   ========================================================================== */
+
+.instHero {
+  /* --- Constantes de marca (no cambian con la hora) --- */
+  --inst-rojo: #c92f3d;
+  --inst-rojo-hover: #a92330;
+  --inst-rojo-claro: #ff9da5;
+  --inst-marca-azul: #163a86;
+  --inst-marca-roja: #c92f3d;
+  --inst-tinta: #ffffff;
+  --inst-tinta-suave: #c3d2f0;
+  --inst-tinta-tenue: #9fb6e8;
+
+  /* --- Noche: es también la base; las otras dos franjas solo sobrescriben --- */
+  --inst-cielo-1: #050f2e;
+  --inst-cielo-2: #061741;
+  --inst-cielo-3: #0b2a63;
+  --inst-cielo-4: #163f7d;
+
+  --inst-halo: #cfe0ff;
+  --inst-halo-op: .26;
+  --inst-disco: #e9eefc;
+  --inst-mares-op: .16;
+
+  --inst-resplandor: #2a5da8;
+  --inst-resplandor-op: .34;
+
+  --inst-monte-lejos: #17396f;
+  --inst-monte-medio: #0f2653;
+  --inst-monte-cerca: #081832;
+  --inst-bruma: #7fa8dd;
+  --inst-bruma-op: .18;
+
+  --inst-estrellas-op: 1;
+  --inst-luces-valle-op: .9;
+  --inst-luz-lejana: #ffd79a;
+
+  --inst-suelo-1: #12294f;
+  --inst-suelo-2: #0c1c3c;
+  --inst-suelo-3: #070f26;
+  --inst-calzada: #101f3c;
+  --inst-acera: #17294c;
+  --inst-bordillo: #27467f;
+  --inst-raya: #6d7d9b;
+
+  --inst-obra: #17356e;
+  --inst-obra-oscura: #0e2350;
+  --inst-panel: #e6edfb;
+  --inst-filo: #4d6fae;
+  --inst-vidrio: #14336a;
+  --inst-vidrio-on: #ffd28a;
+  --inst-zocalo: #f0c37c;
+  --inst-atrio-1: #e6bb85;
+  --inst-atrio-2: #8a5f31;
+  --inst-atrio-op: .58;
+  --inst-portal: #ffd79b;
+
+  --inst-luz: #ffb85c;
+  --inst-luz-op: .3;
+  --inst-brillo-op: .5;
+  --inst-haz-op: .16;
+
+  --inst-carroceria: #dde5f4;
+  --inst-llanta: #0a1730;
+  --inst-rin: #52658c;
+  --inst-puerta: #12305f;
+
+  --inst-gente: #05102b;
+  --inst-gente-op: .92;
+  --inst-tronco: #142744;
+  --inst-follaje: #16455a;
+  --inst-sombra: #01060f;
+  --inst-sombra-op: .5;
+}
+
+/* --- Día: cielo alto, montaña azulada y arquitectura clara. La luz cálida de
+       ventanas y farolas se apaga casi del todo; encendida a mediodía es lo que
+       delata que una ilustración está pintada "de noche con filtro de día". --- */
+.instHero--dia {
+  --inst-cielo-1: #12459b;
+  --inst-cielo-2: #2f7fd6;
+  --inst-cielo-3: #7cbbea;
+  --inst-cielo-4: #c2e2f5;
+
+  --inst-halo: #fff6d2;
+  --inst-halo-op: .5;
+  --inst-disco: #fff6cd;
+  --inst-mares-op: 0;
+
+  --inst-resplandor: #ffffff;
+  --inst-resplandor-op: .3;
+
+  --inst-monte-lejos: #7c9fc4;
+  --inst-monte-medio: #5a81ae;
+  --inst-monte-cerca: #3d6b9c;
+  --inst-bruma: #ffffff;
+  --inst-bruma-op: .46;
+
+  --inst-estrellas-op: 0;
+  --inst-luces-valle-op: 0;
+
+  --inst-suelo-1: #9db4c8;
+  --inst-suelo-2: #b6c6d4;
+  --inst-suelo-3: #ccd7e1;
+  --inst-calzada: #7f909f;
+  --inst-acera: #b9c6d2;
+  --inst-bordillo: #8496a6;
+  --inst-raya: #eef3f7;
+
+  --inst-obra: #dde7f3;
+  --inst-obra-oscura: #bccee1;
+  --inst-panel: #ffffff;
+  --inst-filo: #ffffff;
+  --inst-vidrio: #8ab2d8;
+  --inst-vidrio-on: #d3e6f7;
+  --inst-zocalo: #cfe3f5;
+  --inst-atrio-1: #b7d3ec;
+  --inst-atrio-2: #7fa6cc;
+  --inst-atrio-op: .95;
+  --inst-portal: #eaf4fd;
+
+  --inst-luz: #ffd591;
+  --inst-luz-op: .08;
+  --inst-brillo-op: .1;
+  --inst-haz-op: 0;
+
+  --inst-carroceria: #ffffff;
+  --inst-llanta: #3b4a5c;
+  --inst-rin: #9fb0c2;
+  --inst-puerta: #7fa8cf;
+
+  --inst-gente: #2a4362;
+  --inst-gente-op: .82;
+  --inst-tronco: #6f5942;
+  --inst-follaje: #2f7f52;
+  --inst-sombra: #4a5f75;
+  --inst-sombra-op: .28;
+}
+
+/* --- Tarde: la hora de oro. El sol se cuela a ras y todo lo que mira al
+       oeste se tiñe; por eso el resplandor del horizonte es aquí el token que
+       más peso tiene de las tres franjas. --- */
+.instHero--tarde {
+  --inst-cielo-1: #1b1a56;
+  --inst-cielo-2: #5a2e78;
+  --inst-cielo-3: #c15b6a;
+  --inst-cielo-4: #f2a25c;
+
+  --inst-halo: #ffd79a;
+  --inst-halo-op: .45;
+  --inst-disco: #ffe1a8;
+  --inst-mares-op: 0;
+
+  --inst-resplandor: #ff9a4d;
+  --inst-resplandor-op: .42;
+
+  --inst-monte-lejos: #7c4a72;
+  --inst-monte-medio: #4c2f5c;
+  --inst-monte-cerca: #3a2450;
+  --inst-bruma: #ffc79a;
+  --inst-bruma-op: .3;
+
+  --inst-estrellas-op: .35;
+  --inst-luces-valle-op: .55;
+
+  --inst-suelo-1: #4e3658;
+  --inst-suelo-2: #382a4a;
+  --inst-suelo-3: #241c3a;
+  --inst-calzada: #3b2c4c;
+  --inst-acera: #493557;
+  --inst-bordillo: #6d5078;
+  --inst-raya: #a68aa0;
+
+  --inst-obra: #4a3560;
+  --inst-obra-oscura: #33244a;
+  --inst-panel: #f6e6d8;
+  --inst-filo: #ffb98a;
+  --inst-vidrio: #4b3765;
+  --inst-vidrio-on: #ffd08a;
+  --inst-zocalo: #ffcf8e;
+  --inst-atrio-1: #edc292;
+  --inst-atrio-2: #966044;
+  --inst-atrio-op: .6;
+  --inst-portal: #ffdba6;
+
+  --inst-luz: #ffab54;
+  --inst-luz-op: .22;
+  --inst-brillo-op: .38;
+  --inst-haz-op: .1;
+
+  --inst-carroceria: #f3e2d6;
+  --inst-llanta: #241a33;
+  --inst-rin: #7a6288;
+  --inst-puerta: #4b3765;
+
+  --inst-gente: #1d1330;
+  --inst-gente-op: .9;
+  --inst-tronco: #3a2a45;
+  --inst-follaje: #43485f;
+  --inst-sombra: #150d22;
+  --inst-sombra-op: .42;
+}
+
+/* ==========================================================================
+   2. BASE DEL HERO
+   ========================================================================== */
+
+.instHero,
+.instHero *,
+.instHero *::before,
+.instHero *::after {
+  box-sizing: border-box;
+}
+
+.instHero {
+  /* Alto de la cabecera del sitio. El hero se descuenta esa franja para caber
+     entero por encima del pliegue; si la cabecera cambia de alto, basta con
+     redefinir el token desde fuera. */
+  --inst-cabecera: 104px;
+  /* Puntero normalizado a [-1, 1]. Lo escribe el hero desde rAF; mientras nadie
+     mueva el ratón el valor es 0 y la escena queda en su sitio. */
+  --inst-px: 0;
+  --inst-py: 0;
+
+  --inst-salida: cubic-bezier(.16, 1, .3, 1);
+  --inst-suave: cubic-bezier(.4, 0, .2, 1);
+
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  /* 16:9 es la proporción de referencia, pero manda caber en pantalla: a ancho
+     completo un 16:9 mide 864 px en un monitor de 1536 y eso deja el titular y
+     los botones bajo el pliegue. Cuando la ventana no da, la caja se recorta
+     —la escena va con `slice`, así que cubre sin deformarse— en lugar de
+     obligar a hacer scroll para leer el hero. */
+  aspect-ratio: 16 / 9;
+  max-height: calc(100svh - var(--inst-cabecera));
+  min-height: 30rem;
+  overflow: hidden;
+  background: var(--inst-cielo-2);
+  color: var(--inst-tinta);
+  font-family: var(--font-display, "Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, sans-serif);
+  -webkit-font-smoothing: antialiased;
+}
+
+.instHero__escena {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  animation: inst-escena-entra 1.6s var(--inst-salida) both;
+}
+
+.instEsc {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/*
+ * Velo. Abre el hueco de legibilidad a la izquierda y es el mismo en las tres
+ * franjas: es lo que permite que el texto sea blanco siempre, sin medir el
+ * contraste contra un cielo que cambia de color tres veces al día.
+ *
+ * Dos capas, no una: un solo degradado plano recorta la ilustración con un
+ * filo visible. El lavado direccional abre la columna y la vertical asienta la
+ * cabecera arriba y cierra el hero abajo.
+ *
+ * El lavado se mantiene denso hasta el 36 % y no se apaga hasta el 66 %: la
+ * columna de texto llega al 52 % del ancho y un titular largo la ocupa entera,
+ * así que si el velo cayera antes el final de la línea acabaría sobre cielo
+ * claro y por debajo de 4.5:1. Al 51 % el blanco todavía mide 7.4:1.
+ */
+.instHero__velo {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(97deg,
+      rgba(2, 8, 31, .93) 0%,
+      rgba(2, 9, 34, .90) 22%,
+      rgba(3, 12, 44, .84) 36%,
+      rgba(4, 16, 54, .62) 46%,
+      rgba(5, 20, 64, .26) 55%,
+      rgba(6, 23, 72, 0) 66%),
+    linear-gradient(180deg,
+      rgba(2, 8, 31, .3) 0%,
+      rgba(2, 8, 31, .04) 17%,
+      transparent 62%,
+      rgba(2, 8, 31, .3) 100%);
+}
+
+.instHero__marco {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  width: min(1800px, 100% - clamp(2rem, 5vw, 6rem));
+  height: 100%;
+  margin: 0 auto;
+}
+
+/* La escena pesa por la derecha, así que la columna de texto se queda en la
+   mitad izquierda holgada: el salto de línea del título es deliberado y no
+   debe reflujar nunca. */
+.instHero__contenido {
+  width: min(43rem, 51%);
+}
+
+/* ==========================================================================
+   3. CONTENIDO
+   ========================================================================== */
+
+.instHero__etiqueta {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+  margin: 0 0 clamp(.7rem, 2.1svh, 1.3rem);
+  color: var(--inst-tinta-tenue);
+  font-size: clamp(.66rem, .76vw, .78rem);
+  font-weight: 700;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  animation: inst-entra .85s .06s var(--inst-salida) both;
+}
+
+.instHero__etiquetaFilete {
+  flex: none;
+  width: clamp(2.25rem, 3.4vw, 3.5rem);
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--inst-rojo), var(--inst-rojo-claro));
+}
+
+/* El cuerpo se dimensiona por dos vías a la vez: por ancho, para que la línea
+   más larga entre con margen en la columna; y por alto (`svh`), para que en una
+   ventana baja el titular ceda tamaño en vez de empujar los botones fuera de
+   cuadro. */
+.instHero__titulo {
+  display: grid;
+  margin: 0;
+  color: var(--inst-tinta);
+  font-size: clamp(2rem, min(4.2vw, 8svh), 4.6rem);
+  font-weight: 800;
+  line-height: .98;
+  letter-spacing: -.034em;
+  text-wrap: balance;
+  text-shadow: 0 6px 30px rgba(2, 8, 31, .55);
+}
+
+.instHero__titulo:focus-visible {
+  outline: 3px solid var(--inst-rojo-claro);
+  outline-offset: 8px;
+  border-radius: 4px;
+}
+
+.instHero__linea {
+  display: block;
+  animation: inst-entra .95s var(--inst-salida) both;
+  animation-delay: calc(.16s + var(--linea) * .085s);
+}
+
+.instHero__acento {
+  color: var(--inst-rojo-claro);
+}
+
+.instHero__descripcion {
+  max-width: 44ch;
+  margin: clamp(.9rem, 2.6svh, 1.6rem) 0 0;
+  color: var(--inst-tinta-suave);
+  font-size: clamp(.98rem, min(1.12vw, 2.3svh), 1.16rem);
+  font-weight: 500;
+  line-height: 1.62;
+  letter-spacing: -.005em;
+  text-shadow: 0 2px 18px rgba(2, 8, 31, .5);
+  animation: inst-entra .9s .42s var(--inst-salida) both;
+}
+
+/* ---------- Acciones ---------- */
+
+.instHero__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .8rem;
+  margin-top: clamp(1.1rem, 3.2svh, 2rem);
+  animation: inst-entra .9s .52s var(--inst-salida) both;
+}
+
+.instHero__boton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  min-height: 50px;
+  padding: 0 1.3rem;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-small, 10px);
+  font-family: inherit;
+  font-size: clamp(.95rem, 1vw, 1.04rem);
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    transform .24s var(--inst-salida),
+    background-color .2s var(--inst-suave),
+    border-color .2s var(--inst-suave),
+    box-shadow .24s var(--inst-suave);
+}
+
+.instHero__boton--primario {
+  background: var(--inst-rojo);
+  border-color: var(--inst-rojo);
+  color: #ffffff;
+  box-shadow: 0 10px 28px rgba(120, 18, 30, .45);
+}
+
+/* Contorno claro sobre el velo marino: mismo peso tipográfico que el primario
+   pero sin masa de color, que es lo que mantiene la jerarquía entre los dos. */
+.instHero__boton--secundario {
+  background: rgba(255, 255, 255, .08);
+  border-color: rgba(255, 255, 255, .55);
+  color: #ffffff;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+/* Solo con puntero fino: en táctil el `:hover` se queda pegado tras el tap y el
+   botón permanece desplazado y con la sombra encima del botón contiguo. */
+@media (hover: hover) and (pointer: fine) {
+  .instHero__boton:hover { transform: translateY(-2px); }
+
+  /* El hover oscurece en vez de aclarar: aclarar el rojo dejaría el texto
+     blanco por debajo de 4.5:1. Así el cambio se nota y el contraste sube. */
+  .instHero__boton--primario:hover {
+    background: var(--inst-rojo-hover);
+    border-color: var(--inst-rojo-hover);
+  }
+
+  .instHero__boton--secundario:hover {
+    background: rgba(255, 255, 255, .18);
+    border-color: rgba(255, 255, 255, .9);
+  }
+}
+
+.instHero__boton:active { transform: translateY(0); }
+
+.instHero__boton:focus-visible {
+  outline: 3px solid var(--inst-rojo-claro);
+  outline-offset: 3px;
+}
+
+.instHero__icono { flex: none; }
+
+/* ---------- Pilares ---------- */
+
+.instHero__pilares {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem clamp(1rem, 2vw, 1.75rem);
+  margin: clamp(1.1rem, 3svh, 1.9rem) 0 0;
+  padding: clamp(.9rem, 2.2svh, 1.25rem) 0 0;
+  border-top: 1px solid rgba(255, 255, 255, .16);
+  list-style: none;
+  animation: inst-entra .9s .62s var(--inst-salida) both;
+}
+
+.instHero__pilar {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  color: var(--inst-tinta-suave);
+  font-size: clamp(.82rem, .92vw, .95rem);
+  font-weight: 600;
+  letter-spacing: -.005em;
+}
+
+.instHero__pilar .instHero__icono { color: var(--inst-rojo-claro); }
+
+/* ==========================================================================
+   4. ESCENA
+
+   Las paradas de los degradados llevan clase en vez de atributo: así la paleta
+   entera —las tres franjas— vive en este archivo y el SVG se queda con la pura
+   geometría.
+   ========================================================================== */
+
+.instG__cielo1 { stop-color: var(--inst-cielo-1); }
+.instG__cielo2 { stop-color: var(--inst-cielo-2); }
+.instG__cielo3 { stop-color: var(--inst-cielo-3); }
+.instG__cielo4 { stop-color: var(--inst-cielo-4); }
+
+.instG__halo0 { stop-color: var(--inst-halo); stop-opacity: var(--inst-halo-op); }
+.instG__halo1 { stop-color: var(--inst-halo); stop-opacity: calc(var(--inst-halo-op) * .35); }
+.instG__halo2 { stop-color: var(--inst-halo); stop-opacity: 0; }
+
+.instG__resplandor0 { stop-color: var(--inst-resplandor); stop-opacity: 0; }
+.instG__resplandor1 { stop-color: var(--inst-resplandor); stop-opacity: var(--inst-resplandor-op); }
+
+.instG__bruma0 { stop-color: var(--inst-bruma); stop-opacity: 0; }
+.instG__bruma1 { stop-color: var(--inst-bruma); stop-opacity: var(--inst-bruma-op); }
+
+.instG__suelo0 { stop-color: var(--inst-suelo-1); }
+.instG__suelo1 { stop-color: var(--inst-suelo-2); }
+.instG__suelo2 { stop-color: var(--inst-suelo-3); }
+
+.instG__atrio0 { stop-color: var(--inst-atrio-1); }
+.instG__atrio1 { stop-color: var(--inst-atrio-2); }
+
+/* ---------- Planos de parallax ----------
+   Cada plano se desplaza en proporción a su cercanía: el cielo casi no se mueve
+   y el primer plano es el que más acusa el gesto. El recorrido total son 9 px,
+   lo justo para que la escena respire sin que el hero se vuelva inestable. */
+
+.instEsc__capa {
+  transition: transform .5s var(--inst-suave);
+  will-change: transform;
+}
+
+.instEsc__capa--fondo { transform: translate3d(calc(var(--inst-px) * 2px), calc(var(--inst-py) * 1px), 0); }
+.instEsc__capa--medio { transform: translate3d(calc(var(--inst-px) * 5px), calc(var(--inst-py) * 3px), 0); }
+.instEsc__capa--frente { transform: translate3d(calc(var(--inst-px) * 9px), calc(var(--inst-py) * 5px), 0); }
+
+/* ---------- Cielo ---------- */
+
+.instEsc__estrellas { opacity: var(--inst-estrellas-op); transition: opacity .6s linear; }
+.instEsc__estrella { fill: #ffffff; }
+
+.instEsc__disco { fill: var(--inst-disco); }
+.instEsc__mares { fill: #b9c6e8; opacity: var(--inst-mares-op); }
+
+.instEsc__nube { fill: var(--inst-bruma); }
+
+/* ---------- Valle ---------- */
+
+.instEsc__monte--lejos { fill: var(--inst-monte-lejos); }
+.instEsc__monte--medio { fill: var(--inst-monte-medio); }
+.instEsc__monte--cerca { fill: var(--inst-monte-cerca); }
+
+.instEsc__lucesValle { opacity: var(--inst-luces-valle-op); transition: opacity .6s linear; }
+.instEsc__luzLejana { fill: var(--inst-luz-lejana); }
+
+/* ---------- Suelo ---------- */
+
+.instEsc__calzada { fill: var(--inst-calzada); }
+.instEsc__acera { fill: var(--inst-acera); }
+.instEsc__bordillo { fill: var(--inst-bordillo); }
+.instEsc__rayas { fill: var(--inst-raya); opacity: .55; }
+
+/* ---------- Obra ---------- */
+
+.instEsc__obra { fill: var(--inst-obra); }
+.instEsc__obra--oscura { fill: var(--inst-obra-oscura); }
+.instEsc__panel { fill: var(--inst-panel); }
+.instEsc__alero { fill: var(--inst-panel); }
+.instEsc__cubierta { fill: var(--inst-panel); }
+.instEsc__columna { fill: var(--inst-obra-oscura); }
+.instEsc__anden { fill: var(--inst-obra-oscura); }
+.instEsc__zocalo { fill: var(--inst-zocalo); }
+.instEsc__portal { fill: var(--inst-portal); }
+.instEsc__atrio { fill: var(--inst-vidrio); }
+.instEsc__atrioLuz { opacity: var(--inst-atrio-op); }
+.instEsc__montante { fill: var(--inst-obra-oscura); opacity: .8; }
+.instEsc__filo { fill: var(--inst-filo); opacity: .55; }
+
+.instEsc__vidrio { fill: var(--inst-vidrio); }
+.instEsc__vidrio.is-encendida { fill: var(--inst-vidrio-on); }
+
+.instEsc__rojo { fill: var(--inst-rojo); }
+.instEsc__marcaAzul { fill: var(--inst-marca-azul); }
+.instEsc__marcaRoja { fill: var(--inst-marca-roja); }
+
+/* ---------- Luz ---------- */
+
+.instEsc__charco { fill: var(--inst-luz); opacity: var(--inst-luz-op); }
+.instEsc__brillo { fill: var(--inst-luz); opacity: var(--inst-brillo-op); }
+.instEsc__lampara { fill: var(--inst-zocalo); }
+.instEsc__poste { fill: var(--inst-obra-oscura); }
+.instEsc__haz { fill: var(--inst-luz); opacity: var(--inst-haz-op); }
+.instEsc__faro { fill: #fff2cf; }
+.instEsc__faro--rojo { fill: var(--inst-rojo); }
+
+/* ---------- Bus ---------- */
+
+.instEsc__carroceria { fill: var(--inst-carroceria); }
+.instEsc__puerta { fill: var(--inst-puerta); }
+.instEsc__llanta { fill: var(--inst-llanta); }
+.instEsc__rin { fill: var(--inst-rin); }
+
+/* ---------- Vegetación y gente ---------- */
+
+.instEsc__tronco { fill: var(--inst-tronco); }
+.instEsc__follaje { fill: var(--inst-follaje); }
+.instEsc__fronda { fill: var(--inst-follaje); }
+.instEsc__coco { fill: var(--inst-tronco); }
+.instEsc__sombra { fill: var(--inst-sombra); opacity: var(--inst-sombra-op); }
+.instEsc__gente { fill: var(--inst-gente); opacity: var(--inst-gente-op); }
+
+/* ==========================================================================
+   5. ANIMACIONES
+
+   Cada ciclo dura un número distinto y sin múltiplos comunes con los demás,
+   para que el conjunto nunca caiga en un pulso único.
+   ========================================================================== */
+
+@keyframes inst-entra {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes inst-escena-entra {
+  from { opacity: 0; transform: scale(1.04); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Nubes */
+.instEsc__nube { animation: inst-derivar 58s ease-in-out infinite alternate; }
+.instEsc__nube--b { animation-duration: 74s; animation-delay: -16s; }
+.instEsc__nube--c { animation-duration: 91s; animation-delay: -34s; }
+
+@keyframes inst-derivar {
+  from { transform: translateX(-18px); }
+  to { transform: translateX(30px); }
+}
+
+/* Estrellas y luces del valle: en tres grupos, no una por una, para no cargar
+   el hilo principal con decenas de animaciones independientes. */
+.instEsc__estrella { animation: inst-titilar 5.3s ease-in-out infinite; }
+.instEsc__estrella--1 { animation-delay: -1.8s; }
+.instEsc__estrella--2 { animation-delay: -3.6s; }
+
+.instEsc__luzLejana { animation: inst-titilar 7.1s ease-in-out infinite; }
+.instEsc__luzLejana--1 { animation-delay: -2.4s; }
+.instEsc__luzLejana--2 { animation-delay: -4.7s; }
+
+@keyframes inst-titilar {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .28; }
+}
+
+/* Ventanas encendidas: un latido muy largo y muy corto de recorrido. Una
+   ventana que parpadea se lee como un fallo; lo que se busca es que el edificio
+   no parezca congelado. */
+.instEsc__vidrio.is-encendida { animation: inst-ventana 13s ease-in-out infinite; }
+.instEsc__vidrio--g1 { animation-delay: -4.3s; }
+.instEsc__vidrio--g2 { animation-delay: -8.7s; }
+
+@keyframes inst-ventana {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .74; }
+}
+
+/* Luminarias del andén */
+.instEsc__luminaria { animation: inst-latir 9.4s ease-in-out infinite; }
+.instEsc__luminaria--1 { animation-delay: -3.1s; }
+.instEsc__luminaria--2 { animation-delay: -6.2s; }
+
+@keyframes inst-latir {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .82; }
+}
+
+/*
+ * El bus que cruza.
+ *
+ * `translateX` base de 980 px además de la animación: al desactivar el
+ * movimiento el elemento vuelve a su transform declarado, y sin esta línea el
+ * bus aparecería clavado en el origen del SVG, fuera de cuadro por la
+ * izquierda. Con ella queda estacionado frente al centro comercial.
+ */
+.instBus--cercano {
+  transform: translateX(980px);
+  transform-box: view-box;
+  animation: inst-bus-cruza 38s linear infinite;
+}
+
+@keyframes inst-bus-cruza {
+  from { transform: translateX(-460px); }
+  to { transform: translateX(1740px); }
+}
+
+/* Balanceo de suspensión: un píxel arriba y abajo. Sin él la carrocería se
+   desliza como una calcomanía sobre el asfalto. */
+.instBus__vaiven { animation: inst-suspension 2.7s ease-in-out infinite; }
+
+@keyframes inst-suspension {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.4px); }
+}
+
+/* Palmeras: la corona cabecea desde el arranque del tronco, no desde su centro,
+   que es donde de verdad flexa. */
+.instPalmera__corona {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: inst-mecer 8.3s ease-in-out infinite;
+}
+
+.instPalmera--r1 .instPalmera__corona { animation-duration: 10.7s; animation-delay: -2.9s; }
+
+@keyframes inst-mecer {
+  0%, 100% { transform: rotate(-1.6deg); }
+  50% { transform: rotate(1.8deg); }
+}
+
+.instArbol__copa {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: inst-respirar 11.6s ease-in-out infinite;
+}
+
+.instArbol--r1 .instArbol__copa { animation-duration: 14.2s; animation-delay: -5.1s; }
+
+@keyframes inst-respirar {
+  0%, 100% { transform: scale(1) skewX(0deg); }
+  50% { transform: scale(1.015) skewX(-1.1deg); }
+}
+
+/* Gente que camina. El paso se anima en las piernas y el desplazamiento en el
+   grupo entero, para que la zancada y el avance no compartan curva. */
+.instFig__pierna {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+}
+
+.instFig__camina .instFig__pierna--a { animation: inst-zancada 1.05s ease-in-out infinite; }
+.instFig__camina .instFig__pierna--b { animation: inst-zancada 1.05s ease-in-out infinite reverse; }
+
+@keyframes inst-zancada {
+  0%, 100% { transform: rotate(15deg); }
+  50% { transform: rotate(-15deg); }
+}
+
+.instFig__camina--ida { animation: inst-pasear-ida 29s linear infinite; }
+.instFig__camina--vuelta { animation: inst-pasear-vuelta 34s linear infinite; }
+
+@keyframes inst-pasear-ida {
+  from { transform: translateX(-160px); }
+  to { transform: translateX(340px); }
+}
+
+@keyframes inst-pasear-vuelta {
+  from { transform: translateX(300px); }
+  to { transform: translateX(-260px); }
+}
+
+/* ==========================================================================
+   6. RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 1180px) {
+  .instHero__contenido { width: min(36rem, 58%); }
+  .instHero__pilares { gap: .45rem 1rem; }
+}
+
+/*
+ * Vertical: otra composición, no la misma encogida. El texto pasa a un bloque
+ * macizo arriba y la escena baja a una banda propia, porque en esta proporción
+ * el `slice` se comería justo el complejo, que es lo único que hay que ver.
+ */
+@media (max-width: 900px) {
+  .instHero {
+    display: flex;
+    flex-direction: column-reverse;
+    aspect-ratio: auto;
+    max-height: none;
+    min-height: 0;
+    /* Fondo fijo, sin franja horaria: el bloque de texto tiene que dar el mismo
+       contraste a las tres horas y aquí ya no hay velo que lo garantice. */
+    background: linear-gradient(180deg, #03102f 0%, #071a4f 100%);
+  }
+
+  .instHero__escena {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+  }
+
+  /* El texto ya va sobre fondo sólido: el velo sobra y además taparía la banda. */
+  .instHero__velo { display: none; }
+
+  .instHero__marco {
+    width: 100%;
+    height: auto;
+    padding: clamp(2rem, 7vw, 3rem) clamp(1.25rem, 6vw, 2.5rem) clamp(1.5rem, 5vw, 2.25rem);
+  }
+
+  .instHero__contenido { width: 100%; max-width: 38rem; }
+  .instHero__titulo { font-size: clamp(2rem, 7.4vw, 3.1rem); }
+  .instHero__descripcion { max-width: none; }
+}
+
+@media (max-width: 560px) {
+  .instHero__acciones { flex-direction: column; align-items: stretch; }
+  .instHero__boton { justify-content: center; }
+  .instHero__boton--primario { justify-content: space-between; }
+  .instHero__pilares { flex-direction: column; gap: .55rem; }
+}
+
+/* ==========================================================================
+   7. MOVIMIENTO REDUCIDO
+
+   Todo queda quieto en su posición dibujada. Los `transform` base declarados
+   arriba (el del bus) son los que sostienen la composición cuando la animación
+   deja de existir.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .instHero *,
+  .instHero *::before,
+  .instHero *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .instHero__boton:hover { transform: none; }
+}
