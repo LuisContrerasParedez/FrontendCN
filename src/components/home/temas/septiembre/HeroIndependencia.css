@@ -1061,64 +1061,129 @@
 
 /* Vertical: la escena baja a una banda inferior y el texto ocupa el bloque
    superior completo. No es el mismo diseño encogido, es otra composición. */
+/*
+ * Vertical: la escena sube a una banda propia arriba y el texto baja completo
+ * debajo, igual que la temática de feria.
+ *
+ * Antes la ilustración quedaba detrás del texto, recortada a un 58 % de alto y
+ * con el velo blanco encima para poder leer: en una pantalla estrecha eso
+ * dejaba media ceiba tapada y el titular sobre un lavado sucio. Separados, la
+ * escena se ve entera —el viewBox es 16:9, así que la banda no recorta nada— y
+ * el texto va sobre papel limpio, sin velo que lo sostenga.
+ */
 @media (max-width: 900px) {
   .sepHero {
+    /* Profundidad del disuelto entre el bloque de texto y la escena. El texto
+       se solapa sobre la ilustración justo esta cantidad y su papel se apaga a
+       lo largo de ella, así que no hay ningún punto donde termine un bloque y
+       empiece el otro. */
+    --sep-costura: clamp(88px, 23vw, 150px);
+
+    display: flex;
+    /* La escena va primera en el DOM, así que `column-reverse` la manda abajo y
+       deja el texto arriba. Cambiar a `column` invierte el orden. */
+    flex-direction: column-reverse;
     aspect-ratio: auto;
     max-height: none;
-    min-height: 47rem;
+    min-height: 0;
+    /* Suelo de seguridad por si el redondeo deja un pelo sin pintar. */
+    background: #8fc3e8;
   }
 
+  /*
+   * El papel del texto no termina: se apaga sobre la escena.
+   *
+   * Igualar el color de los dos bloques en la costura no funciona, porque el
+   * borde superior de la ilustración no es un color: el halo del sol lo aclara
+   * casi a blanco por la izquierda y el `cieloProfundidad` lo azulea por la
+   * derecha, así que cualquier degradado plano acierta en un punto y falla en
+   * todo el resto del ancho. De ahí el filo.
+   *
+   * La solución no pinta un color: quita el papel. El bloque de texto se solapa
+   * `--sep-costura` píxeles sobre la escena y su fondo baja a alpha 0 justo en
+   * esa franja, así que lo que se ve debajo son los píxeles reales de la
+   * ilustración, sean los que sean. No hay dos superficies que casar: hay una
+   * sola, revelándose. Como el degradado nunca cambia de color —sólo de
+   * opacidad— tampoco aparece la orla grisácea del desvanecido a blanco.
+   *
+   * Las dos capas se reparten el alto: la de arriba ocupa todo menos la
+   * costura y aterriza opaca en #e9f4fd; la de abajo mide exactamente la
+   * costura y arranca en ese mismo #e9f4fd para irse a nada. El píxel de solape
+   * entre ambas evita que el redondeo del navegador deje una línea sin pintar.
+   */
+  .sepHero__marco {
+    background-color: transparent;
+    background-image:
+      linear-gradient(180deg, #e9f4fd 0%, rgba(233, 244, 253, 0.55) 46%, rgba(233, 244, 253, 0) 100%),
+      linear-gradient(180deg, #f8fbfe 0%, #f3f9fe 52%, #e9f4fd 100%);
+    background-repeat: no-repeat;
+    background-position: bottom center, top center;
+    background-size:
+      100% var(--sep-costura),
+      100% calc(100% - var(--sep-costura) + 1px);
+  }
+
+  /*
+   * 4:3, no 16:9. El viewBox es 16:9, así que una banda de esa misma proporción
+   * muestra la escena entera... y a 390 px de ancho eso deja la ceiba del tamaño
+   * de una uña, con el cuadro lleno de cielo y de pradera vacía. Al estrechar la
+   * banda el `slice` escala para cubrir y recorta por los lados, que es
+   * exactamente el acercamiento que hace falta: el árbol y el quetzal pasan a
+   * medir el doble y los volcanes siguen en cuadro.
+   */
   .sepHero__escena {
-    inset: auto 0 0 0;
-    height: 58%;
+    position: relative;
+    inset: auto;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    /* El margen negativo mete la escena bajo el bloque de texto —que va por
+       delante, z-index 2— para que el desvanecido tenga ilustración viva sobre
+       la que apagarse. La sección no crece: lo que aquí se resta es el mismo
+       relleno inferior que se le suma al marco. */
+    margin-top: calc(var(--sep-costura) * -1);
   }
 
-  .sepHero__velo {
-    background:
-      linear-gradient(180deg,
-        rgba(255, 255, 255, 0.97) 0%,
-        rgba(255, 255, 255, 0.93) 32%,
-        rgba(255, 255, 255, 0.62) 45%,
-        rgba(255, 255, 255, 0.12) 56%,
-        rgba(255, 255, 255, 0) 66%),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.4), transparent 62%);
-  }
+  /* El texto ya va sobre fondo propio: el velo sobra y taparía la banda. */
+  .sepHero__velo { display: none; }
 
   .sepHero__marco {
     align-items: flex-start;
-    width: min(42rem, 100% - 2.5rem);
-    padding-top: clamp(2.5rem, 7vw, 4rem);
-    padding-bottom: 0;
+    width: 100%;
+    height: auto;
+    /* El relleno inferior reserva la franja del disuelto: por debajo de los
+       botones no puede quedar texto, porque ahí el papel ya está cediendo el
+       paso a la escena. */
+    padding:
+      clamp(1.9rem, 6.5vw, 3rem)
+      clamp(1.25rem, 6vw, 2.5rem)
+      calc(clamp(1.6rem, 5vw, 2.25rem) + var(--sep-costura));
   }
 
+  /* Centrado, como en la feria: sin la escena al lado, el texto alineado a la
+     izquierda deja la columna descolgada del bloque de imagen. */
   .sepHero__contenido {
     width: 100%;
+    max-width: 38rem;
+    margin-inline: auto;
+    text-align: center;
   }
 
+  .sepHero__etiqueta { justify-content: center; }
+
   .sepHero__titulo {
-    font-size: clamp(2.6rem, 8vw, 4rem);
+    font-size: clamp(2.4rem, 7.8vw, 3.6rem);
   }
 
   .sepHero__descripcion {
-    max-width: 42ch;
+    max-width: none;
+    margin-inline: auto;
     font-size: 1.02rem;
   }
+
+  .sepHero__acciones { justify-content: center; }
 }
 
 @media (max-width: 560px) {
-  .sepHero {
-    min-height: 45rem;
-  }
-
-  .sepHero__escena {
-    height: 52%;
-  }
-
-  .sepHero__marco {
-    width: calc(100% - 2rem);
-    padding-top: 2.25rem;
-  }
-
   .sepHero__etiqueta {
     gap: 0.65rem;
     margin-bottom: 1.05rem;
@@ -1137,19 +1202,98 @@
     line-height: 1.56;
   }
 
+  /*
+   * Los dos botones en una sola fila, pequeños y de la misma caja.
+   *
+   * Apilados a todo el ancho sumaban dos barras de 44 px que ocupaban el tercio
+   * bajo del bloque de texto y, siendo la principal un rectángulo de azul
+   * marino macizo, se llevaban la mirada antes que la ilustración. En una fila
+   * corta la escena vuelve a ser lo primero que se ve y ellos quedan como lo
+   * que son: la salida del hero, no su asunto.
+   *
+   * "Ver eventos" y "Horarios de buses" se llevan seis caracteres de
+   * diferencia, así que a ancho natural salían dos cajas visiblemente
+   * desiguales; bajo un titular centrado el par se leía descuadrado. Con `1fr`
+   * y `1fr` comparten caja y la fila queda simétrica respecto al mismo eje que
+   * el resto del bloque.
+   *
+   * `auto-fit` sobre un mínimo real —10.25rem son los ~148 px que necesita
+   * "Horarios de buses" con su ícono y su relleno— es la red de seguridad:
+   * mientras las dos columnas quepan la fila se mantiene, y por debajo de unos
+   * 320 px de pantalla se apilan solas en vez de recortar el rótulo.
+   */
   .sepHero__acciones {
     display: grid;
-    width: min(100%, 21rem);
-    gap: 0.65rem;
-    margin-top: 1.6rem;
+    grid-template-columns: repeat(auto-fit, minmax(10.25rem, 1fr));
+    align-items: center;
+    width: 100%;
+    gap: 0.5rem;
+    margin-top: 1.35rem;
   }
 
+  /*
+   * 40 px de alto: por debajo del objetivo táctil de 44 px que pedía el botón
+   * ancho, pero el área pulsable se recupera más abajo con un pseudo-elemento
+   * y la caja se lee mucho más ligera.
+   *
+   * La sombra es lo que le faltaba al par para contrastar con la sección. El
+   * marco arranca en #f8fbfe y el papel sigue clareando hasta los botones: ahí
+   * un blanco sobre blanco no tiene de qué agarrarse y sólo se leía el relleno
+   * marino de la principal, con la secundaria disuelta al lado. Corta y azulada
+   * —la misma que ya usaba el hover del hero, no un gris nuevo— apoya las dos
+   * cajas sobre el papel y las presenta como lo que son: una pareja de
+   * controles, no una pieza sólida junto a un hueco.
+   */
   .sepHero__boton {
-    min-height: 3.25rem;
+    width: auto;
+    min-width: 0;
+    min-height: 40px;
+    gap: 0.4rem;
+    padding: 0 0.7rem;
+    /* El sitio escala la raíz al 90 %, así que 0.86rem son 12.4 px reales: el
+       suelo por debajo del cual un rótulo en negrita empieza a costar de leer.
+       Bajar más adelgazaría el botón a costa del texto, que no es el trato. */
+    font-size: 0.86rem;
+    font-weight: 700;
+    white-space: nowrap;
+    justify-content: center;
+    box-shadow:
+      0 1px 2px rgba(7, 26, 79, 0.08),
+      0 4px 12px rgba(7, 26, 79, 0.1);
   }
 
-  .sepHero__icono--flecha {
-    margin-left: auto;
+  /* Recupera los 44 px de objetivo táctil sin engordar la caja visible. */
+  .sepHero__boton::after {
+    content: '';
+    position: absolute;
+    inset: -3px 0;
+  }
+
+  .sepHero__icono {
+    width: 1.15em;
+    height: 1.15em;
+  }
+
+  /*
+   * Fuera la flecha. Es un remate de lectura para el botón grande; en esta caja
+   * sólo roba los milímetros que necesita el rótulo para que los dos quepan en
+   * la misma línea, y con las columnas igualadas el que manda es el largo:
+   * "Horarios de buses" fija el ancho de los dos.
+   */
+  .sepHero__icono--flecha { display: none; }
+
+  /*
+   * Blanco macizo y filete con cuerpo.
+   *
+   * El velado del que venía la dejaba traslúcida sobre un papel casi blanco:
+   * el borde apenas existía y la caja no llegaba a leerse como botón. Un 30 %
+   * de marino en el filete le devuelve el perfil sin volver al contorno de
+   * marino pleno, que era lo que competía de tú a tú con el relleno de la
+   * principal.
+   */
+  .sepHero__boton--secundario {
+    background: #ffffff;
+    border-color: rgba(7, 26, 79, 0.3);
   }
 }
 

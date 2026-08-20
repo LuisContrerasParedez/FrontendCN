@@ -17,6 +17,12 @@
  *
  *   /preview.html?franja=dia|tarde|noche
  *
+ * Y en vertical (≤900 px) se puede invertir el orden de los dos bloques para
+ * comparar las dos composiciones sin tocar el CSS:
+ *
+ *   /preview.html?orden=abajo    -> escena abajo, texto arriba (el que está puesto)
+ *   /preview.html?orden=arriba   -> escena arriba, texto abajo
+ *
  * No entra en el build de producción: Vite solo empaqueta `index.html`.
  */
 import React from 'react';
@@ -32,6 +38,20 @@ import './styles/motion.css';
 const parametros = new URLSearchParams(window.location.search);
 const tema = parametros.get('tema') || 'institucional';
 const franja = parametros.get('franja');
+const orden = parametros.get('orden');
+
+/* Invierte el orden de escena y texto en vertical. Es una utilidad para
+   comparar las dos composiciones de un vistazo; el orden que vale es el que
+   declara cada hoja del tema. */
+if (orden === 'arriba' || orden === 'abajo') {
+  const direccion = orden === 'arriba' ? 'column' : 'column-reverse';
+  const estilo = document.createElement('style');
+  estilo.textContent = `@media (max-width: 900px) {
+    .sepHero, .instHero, .hfa { flex-direction: ${direccion} !important; }
+    .hfa { display: flex !important; }
+  }`;
+  document.head.append(estilo);
+}
 
 // Las mismas cinco que trae la feria por defecto; cámbialas aquí para probar
 // otras, o pasa `fechas={[]}` para ver el tendido sin ningún dato colgado.

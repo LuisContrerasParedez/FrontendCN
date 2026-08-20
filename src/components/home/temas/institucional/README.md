@@ -168,12 +168,42 @@ hay estado de React de por medio. Se desactiva en punteros gruesos y con
 - La tipografía escala por ancho **y por alto** (`svh`): en una ventana baja el
   titular cede tamaño en lugar de empujar los botones fuera de cuadro.
 - **Tablet (≤1180 px):** misma composición, columna de texto más estrecha.
-- **Vertical (≤900 px):** otra composición —el texto pasa a un bloque macizo
-  arriba y la escena baja a una banda propia—, porque en esa proporción el
+- **Vertical (≤900 px):** otra composición —el texto va completo y centrado
+  arriba y la escena baja a una banda propia—, porque a pantalla completa el
   `slice` se comería justo el complejo, que es lo único que hay que ver. El
   fondo del bloque de texto es fijo y no cambia con la franja: ahí ya no hay
   velo que garantice el contraste.
-- **Móvil (≤560 px):** botones apilados a ancho completo y pilares en columna.
+- **El bloque de texto se funde con la escena.** Su degradado aterriza
+  exactamente en `--inst-cielo-1`, el color con el que arranca el cielo, sea
+  cual sea la franja horaria: en la costura no hay cambio de color, así que el
+  filo desaparece y los dos bloques se leen como una sola superficie. Sólo la
+  parada final es variable; las dos primeras son azul marino fijo para que el
+  texto blanco mida igual a las tres horas —la más clara de las tres, el cielo
+  de día `#12459b`, da 7.7:1 en blanco—. El degradado va en el bloque de texto y
+  **no** en la sección: en la sección se reparte por todo el alto, incluida la
+  parte que tapa la escena, y en la costura sólo ha recorrido la mitad.
+- **La banda es 4:3, no 16:9.** Con la proporción del viewBox se ve la escena
+  entera, y a 390 px de ancho eso deja los buses y la marquesina del tamaño de
+  una uña. Al estrechar la banda el `slice` escala para cubrir y recorta por los
+  lados, que es el acercamiento que hace falta. El orden de los dos bloques es
+  una sola propiedad (`flex-direction` en `.instHero`), y se puede comparar en
+  vivo con `?orden=arriba|abajo` en la página de previsualización.
+- **Móvil (≤560 px):** botones apilados a ancho completo y pilares en columna,
+  con el bloque de pilares centrado pero sus ítems alineados a la izquierda para
+  que los tres iconos caigan en la misma vertical.
+
+En móvil los botones van **apilados a todo el ancho y con el contenido
+centrado**, en la misma proporción que la temática de feria. Lo que decide si se
+ven bien es la proporción, no el ancho: a 48 px de alto con la etiqueta a
+`.9rem` —el sitio escala la raíz al 90 %, así que son 13 px— el texto flotaba
+dentro de la caja y el botón parecía enorme. Con **44 px y la etiqueta a
+`1rem`** la caja va llena.
+
+44 px es además el objetivo táctil mínimo; por debajo no se baja. Verificado sin
+desbordes a 320 px, que es el `min-width` del `body`.
+
+La forma sigue siendo `--radius-small`, la del `.button` del sitio y la de la
+temática de septiembre; la feria es la única que usa píldora.
 
 ## Accesibilidad
 
@@ -206,3 +236,5 @@ npm run dev
 - `…/preview.html?franja=dia` · `?franja=tarde` · `?franja=noche` → fuerza la
   franja sin tocar el reloj del equipo
 - `…/preview.html?tema=septiembre` · `?tema=feria` → las otras temáticas
+- `…/preview.html?orden=arriba` · `?orden=abajo` → invierte escena y texto en
+  vertical, para comparar las dos composiciones sin tocar el CSS

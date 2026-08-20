@@ -419,14 +419,18 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: .6rem;
-  min-height: 50px;
-  padding: 0 1.3rem;
+  min-height: 48px;
+  padding: .82rem 1.25rem;
   border: 1.5px solid transparent;
   border-radius: var(--radius-small, 10px);
   font-family: inherit;
-  font-size: clamp(.95rem, 1vw, 1.04rem);
-  font-weight: 700;
+  /* Misma escala que `.button` del sitio (.9rem). El sitio escala la raíz al
+     90 %, así que una etiqueta más grande aquí desentonaría con el resto de las
+     páginas, y una caja más alta la dejaría flotando en el centro. */
+  font-size: clamp(.9rem, .92vw, .98rem);
+  font-weight: 800;
   line-height: 1.2;
   text-decoration: none;
   white-space: nowrap;
@@ -783,48 +787,123 @@
 }
 
 /*
- * Vertical: otra composición, no la misma encogida. El texto pasa a un bloque
- * macizo arriba y la escena baja a una banda propia, porque en esta proporción
- * el `slice` se comería justo el complejo, que es lo único que hay que ver.
+ * Vertical: otra composición, no la misma encogida. La escena sube a una banda
+ * propia arriba y el texto baja completo debajo, igual que la temática de
+ * feria. En esta proporción el `slice` se comería justo el complejo, que es lo
+ * único que hay que ver; con banda propia de 16:9 —la misma proporción que el
+ * viewBox— no se recorta nada.
  */
 @media (max-width: 900px) {
   .instHero {
     display: flex;
+    /* La escena va primera en el DOM, así que `column-reverse` la manda abajo y
+       deja el texto arriba. Cambiar a `column` invierte el orden. */
     flex-direction: column-reverse;
     aspect-ratio: auto;
     max-height: none;
     min-height: 0;
-    /* Fondo fijo, sin franja horaria: el bloque de texto tiene que dar el mismo
-       contraste a las tres horas y aquí ya no hay velo que lo garantice. */
-    background: linear-gradient(180deg, #03102f 0%, #071a4f 100%);
+    /* Color de la costura, por si el redondeo deja un pelo sin pintar. */
+    background: var(--inst-cielo-1);
   }
 
+  /*
+   * 4:3, no 16:9. El viewBox es 16:9, así que una banda de esa proporción
+   * muestra la escena entera... y a 390 px de ancho eso deja los buses y la
+   * marquesina del tamaño de una uña. Al estrechar la banda el `slice` escala
+   * para cubrir y recorta por los lados, que es el acercamiento que hace falta.
+   */
   .instHero__escena {
     position: relative;
     inset: auto;
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 4 / 3;
   }
 
   /* El texto ya va sobre fondo sólido: el velo sobra y además taparía la banda. */
   .instHero__velo { display: none; }
 
+  /*
+   * El degradado va en el bloque de texto, NO en la sección.
+   *
+   * En la sección se reparte por todo el alto —incluida la parte que tapa la
+   * escena—, así que en la costura sólo ha recorrido la mitad de su recorrido y
+   * el filo se sigue viendo. En el bloque de texto el 100 % cae exactamente
+   * donde empieza la ilustración, y ahí aterriza en el color con el que arranca
+   * el cielo, sea cual sea la franja horaria: en la costura no hay cambio de
+   * color y los dos bloques se leen como una sola superficie.
+   *
+   * Sólo la parada final es variable. Las dos primeras son azul marino fijo
+   * para que el texto blanco tenga el mismo contraste a las tres horas: aquí ya
+   * no hay velo que lo garantice. La más clara de las tres —el cielo de día,
+   * #12459b— da 7.7:1 en blanco, así que incluso el tramo final pasa.
+   */
   .instHero__marco {
     width: 100%;
     height: auto;
-    padding: clamp(2rem, 7vw, 3rem) clamp(1.25rem, 6vw, 2.5rem) clamp(1.5rem, 5vw, 2.25rem);
+    padding: clamp(1.9rem, 6.5vw, 3rem) clamp(1.25rem, 6vw, 2.5rem) clamp(1.6rem, 5vw, 2.25rem);
+    background: linear-gradient(180deg, #02081f 0%, #051530 40%, var(--inst-cielo-1) 100%);
   }
 
-  .instHero__contenido { width: 100%; max-width: 38rem; }
+  /* Centrado, como en la feria: sin la escena al lado, el texto alineado a la
+     izquierda deja la columna descolgada del bloque de imagen. */
+  .instHero__contenido {
+    width: 100%;
+    max-width: 38rem;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .instHero__etiqueta { justify-content: center; }
   .instHero__titulo { font-size: clamp(2rem, 7.4vw, 3.1rem); }
-  .instHero__descripcion { max-width: none; }
+  .instHero__descripcion { max-width: none; margin-inline: auto; }
+  .instHero__acciones { justify-content: center; }
+  .instHero__pilares { justify-content: center; }
 }
 
 @media (max-width: 560px) {
-  .instHero__acciones { flex-direction: column; align-items: stretch; }
-  .instHero__boton { justify-content: center; }
-  .instHero__boton--primario { justify-content: space-between; }
-  .instHero__pilares { flex-direction: column; gap: .55rem; }
+  /*
+   * Botones apilados a todo el ancho y con el contenido centrado, en la misma
+   * proporción que la temática de feria: caja baja y etiqueta grande.
+   *
+   * La proporción es lo que decide si se ven bien, no el ancho. A 48 px de alto
+   * con la etiqueta a 0.9rem —el sitio escala la raíz al 90 %, así que son
+   * 13 px— el texto flotaba dentro de la caja y el botón parecía enorme. Con
+   * 44 px y la etiqueta a 1rem la caja va llena y pesa lo que tiene que pesar.
+   *
+   * 44 px es además el objetivo táctil mínimo; por debajo no se baja.
+   */
+  .instHero__acciones { flex-direction: column; align-items: stretch; gap: .7rem; }
+
+  .instHero__boton {
+    justify-content: center;
+    min-height: 44px;
+    padding: .82rem 1.5rem;
+    font-size: 1rem;
+  }
+
+  /* El difuminado de 28 px se leía como un halo rojo alrededor del botón. */
+  .instHero__boton--primario { box-shadow: 0 6px 16px rgba(120, 18, 30, .34); }
+
+  /*
+   * En columna, centrar cada pilar por separado deja los iconos en zigzag
+   * porque las tres etiquetas miden distinto. Se centra el bloque entero
+   * (`fit-content` + `margin-inline: auto`) y dentro se alinean a la izquierda,
+   * así los tres iconos caen en la misma vertical.
+   *
+   * El filete superior se retira: a `fit-content` mediría lo que el pilar más
+   * largo y quedaría como una raya suelta a media anchura. La separación la da
+   * el margen.
+   */
+  .instHero__pilares {
+    flex-direction: column;
+    align-items: flex-start;
+    width: fit-content;
+    margin-inline: auto;
+    margin-top: 1.5rem;
+    padding-top: 0;
+    border-top: 0;
+    gap: .55rem;
+  }
 }
 
 /* ==========================================================================

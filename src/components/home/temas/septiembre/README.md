@@ -154,16 +154,39 @@ estado de React de por medio. Se desactiva en punteros gruesos y con
 - La tipografía escala por ancho **y por alto** (`svh`): en una ventana baja el
   titular cede tamaño en lugar de empujar los botones fuera de cuadro.
 - **Tablet (≤1180 px):** misma composición, columna de texto más estrecha.
-- **Vertical (≤900 px):** otra composición —el texto ocupa el bloque superior y
-  la escena baja a una banda inferior—, con `max-height: none` porque aquí sí
-  debe ser más alta que la ventana.
-- **Móvil (≤560 px):** botones apilados a ancho completo con la flecha alineada
-  al borde.
-`preserveAspectRatio="xMaxYMid slice"` sirve a las dos composiciones porque cada
-una recorta por un eje distinto: en escritorio el recorte sólo puede ser
-vertical y va centrado (anclarlo abajo se comería la copa en cuanto la ventana
-es más baja que un 16:9); en vertical el recorte es sólo horizontal y `xMax`
-mantiene a la vista el lado derecho, que es donde vive la ceiba.
+- **Vertical (≤900 px):** otra composición —el texto va completo y centrado
+  arriba y la escena baja a una banda propia—. Antes la ilustración quedaba
+  *detrás* del texto, recortada al 58 % de alto y con el velo blanco encima para
+  poder leer; en una pantalla estrecha eso dejaba media ceiba tapada. Separadas,
+  el texto va sobre papel limpio y sin velo que lo sostenga.
+- **El bloque de texto se funde con la escena.** Su degradado aterriza
+  exactamente en `#8fc3e8`, el azul con el que arranca el cielo en `Cielo.jsx`:
+  en la costura no hay cambio de color, así que el filo desaparece y los dos
+  bloques se leen como una sola superficie en vez de como dos cosas pegadas.
+  **Ese color vive ahora en dos sitios**; si se toca la parada 0 del degradado
+  del cielo, hay que tocar el `background` de `.sepHero__marco`.
+  Dos detalles que costaron un intento cada uno: el degradado va en el bloque de
+  texto y **no** en la sección —en la sección se reparte por todo el alto,
+  incluida la parte que tapa la escena, y en la costura sólo ha recorrido la
+  mitad—; y arriba se queda claro a propósito, porque continuar el cielo de
+  verdad (más azul cuanto más arriba) deja el párrafo en 3.6:1 y encima no
+  arregla el filo, ya que el halo del sol aclara el borde superior de la escena.
+- **La banda es 4:3, no 16:9.** El viewBox es 16:9, así que una banda de esa
+  misma proporción muestra la escena entera… y a 390 px de ancho eso deja la
+  ceiba del tamaño de una uña, con el cuadro lleno de cielo y de pradera vacía.
+  Al estrechar la banda el `slice` escala para cubrir y recorta por los lados,
+  que es exactamente el acercamiento que hace falta: el árbol y el quetzal pasan
+  a medir el doble y los volcanes siguen en cuadro. El orden de los dos bloques
+  es una sola propiedad (`flex-direction` en `.sepHero`), y se puede comparar en
+  vivo con `?orden=arriba|abajo` en la página de previsualización.
+- **Móvil (≤560 px):** botones apilados a ancho completo con el contenido
+  centrado, caja de 44 px y etiqueta a `1rem`. La proporción es lo que decide si
+  se ven bien: a 48 px con la etiqueta a `.9rem` —el sitio escala la raíz al
+  90 %, así que son 13 px— el texto flotaba dentro y el botón parecía enorme.
+`preserveAspectRatio="xMaxYMid slice"` sólo tiene trabajo en escritorio, donde el
+recorte puede ser vertical y va centrado: anclarlo abajo se comería la copa en
+cuanto la ventana es más baja que un 16:9. En vertical la banda es 16:9 exacto,
+así que no recorta por ningún eje.
 
 ## Accesibilidad
 
