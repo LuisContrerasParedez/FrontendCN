@@ -56,3 +56,24 @@ export function obtenerTalonFecha(value) {
   if (!date) return null;
   return { day: String(date.getUTCDate()), month: MESES[date.getUTCMonth()].slice(0, 3) };
 }
+
+/** Mes de calendario como número comparable: `2026-09` → `24321`. */
+function indiceMes(anio, mes) {
+  return anio * 12 + mes;
+}
+
+/**
+ * `true` cuando la fecha cae en un mes posterior al que corre. La referencia
+ * es el reloj del visitante y la fecha del evento se lee en UTC, igual que en
+ * el resto del módulo: comparar índices de mes evita que el día o la hora
+ * muevan un evento de sección.
+ *
+ * Un evento sin fecha —o con una fecha ilegible— no se considera posterior: se
+ * queda en la agenda del mes en curso en lugar de esconderse en la de después.
+ */
+export function esDeMesPosterior(value, referencia = new Date()) {
+  const date = parse(value);
+  if (!date) return false;
+  return indiceMes(date.getUTCFullYear(), date.getUTCMonth())
+    > indiceMes(referencia.getFullYear(), referencia.getMonth());
+}

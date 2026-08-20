@@ -1946,6 +1946,156 @@ p { margin-bottom: 1rem; }
   transform: translateY(-3px);
 }
 
+/* La agenda vigente se lee en dos tramos —"Eventos de este mes" y "Próximos
+   eventos"— y cada uno desaparece si se queda sin tarjetas. Por eso el
+   separador se dibuja por posición y no por nombre: solo cuando un tramo cae
+   debajo de otro. Si el mes en curso no tiene nada, "Próximos eventos" abre la
+   página sin una línea colgando bajo el encabezado.
+
+   Los dos comparten tarjeta y cuadrícula porque ambos son oferta activa: la
+   separación la hace el aire y la línea, y el cambio de tono queda reservado
+   para marcar el archivo. */
+.events-section + .events-section {
+  margin-top: clamp(1.5rem, 3vw, 2.75rem);
+  padding-top: 0;
+  border-top: 1px solid var(--fair-border);
+}
+
+.events-section + .events-section .section-heading { padding-top: clamp(1.75rem, 3.5vw, 3rem); }
+
+/* Agenda en blanco: sin eventos de este mes, sin próximos y sin archivo. Es lo
+   único que queda en la página, así que ocupa el alto de una sección entera y
+   se permite una escena en lugar de una caja de texto. */
+.agenda-empty {
+  display: grid;
+  justify-items: center;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  padding: clamp(2.25rem, 6vw, 4rem) clamp(1.25rem, 4vw, 3rem);
+  text-align: center;
+  background: var(--fair-paper);
+  border-radius: var(--radius-medium);
+  box-shadow: var(--shadow-soft-raised);
+}
+
+.agenda-empty__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(320px, 100%);
+}
+
+/* Resplandor detrás del boleto: da profundidad y es lo que respira cuando la
+   escena está en reposo. */
+.agenda-empty__halo {
+  position: absolute;
+  inset: 8% 2%;
+  background: radial-gradient(ellipse at center, rgba(244, 180, 0, .3), rgba(244, 180, 0, 0) 68%);
+  border-radius: 50%;
+}
+
+/* `aspect-ratio` en lugar de `height: auto`: dentro del grid el SVG resolvía su
+   alto contra un contenedor que aún no la tenía y la fila colapsaba a cero, con
+   el boleto encimado sobre el texto. */
+.agenda-empty__ticket {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 240 / 148;
+  filter: drop-shadow(0 14px 26px rgba(7, 26, 79, .22));
+}
+
+/* El barrido de luz vive quieto y transparente: solo el bloque de movimiento
+   lo enciende y lo cruza. */
+.agenda-empty__shine { opacity: 0; }
+
+/* Chispas sueltas alrededor del boleto. Son tres cuadros diminutos girados,
+   como confeti detenido en el aire. */
+.agenda-empty__spark {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  opacity: .85;
+  rotate: 18deg;
+}
+
+/* Las tres quedan fuera de la silueta del boleto —que ocupa del 20% al 82% del
+   alto— para que el balanceo no las pase por encima. */
+.agenda-empty__spark--1 { top: 3%; left: 14%; background: var(--fair-coral); }
+.agenda-empty__spark--2 { top: 6%; right: 12%; background: var(--fair-yellow); rotate: -22deg; }
+.agenda-empty__spark--3 { bottom: 4%; right: 26%; width: 8px; height: 8px; background: var(--fair-green); }
+
+/* `justify-items: center` en el contenedor haría que el bloque de texto se
+   midiera por su contenido sin envolver y se saliera de la tarjeta en el ancho
+   del teléfono; ocupando toda la línea, el centrado lo hacen los márgenes
+   automáticos de cada párrafo. */
+.agenda-empty__copy {
+  display: grid;
+  gap: .6rem;
+  justify-self: stretch;
+}
+
+.agenda-empty__eyebrow {
+  margin: 0;
+  color: var(--brand-accent-deep);
+  font-size: .72rem;
+  font-weight: 850;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.agenda-empty h2 {
+  max-width: 20ch;
+  margin: 0 auto;
+  color: var(--brand-primary);
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4.5vw, 2.35rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -.03em;
+}
+
+.agenda-empty__copy p:last-child {
+  max-width: 46ch;
+  margin: 0 auto;
+  color: var(--fair-muted);
+}
+
+/* Toda la animación es opcional: quien pide menos movimiento recibe la misma
+   escena, quieta y completa. */
+@media (prefers-reduced-motion: no-preference) {
+  .agenda-empty__ticket { animation: agenda-empty-float 7s var(--ease-out) infinite; }
+  .agenda-empty__halo { animation: agenda-empty-halo 7s var(--ease-out) infinite; }
+  .agenda-empty__shine { animation: agenda-empty-shine 7s var(--ease-out) 1.2s infinite; }
+  .agenda-empty__spark { animation: agenda-empty-spark 5.5s var(--ease-out) infinite; }
+  .agenda-empty__spark--2 { animation-delay: 1.1s; animation-duration: 6.5s; }
+  .agenda-empty__spark--3 { animation-delay: 2.3s; animation-duration: 6s; }
+}
+
+@keyframes agenda-empty-float {
+  0%, 100% { transform: translateY(0) rotate(-1.4deg); }
+  50% { transform: translateY(-12px) rotate(1.6deg); }
+}
+
+@keyframes agenda-empty-halo {
+  0%, 100% { opacity: .55; transform: scale(.92); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
+/* El destello recorre el boleto una vez por vuelta y desaparece: insinúa el
+   papel satinado sin convertirse en un parpadeo constante. */
+@keyframes agenda-empty-shine {
+  0%, 22% { opacity: 0; transform: translateX(-62%); }
+  30% { opacity: 1; }
+  46% { opacity: 0; transform: translateX(62%); }
+  100% { opacity: 0; transform: translateX(62%); }
+}
+
+@keyframes agenda-empty-spark {
+  0%, 100% { opacity: 0; transform: translateY(10px) scale(.6); }
+  35%, 65% { opacity: .9; transform: translateY(-8px) scale(1); }
+}
+
 /* Archivo de eventos: "Lo que te has perdido". Va debajo de la agenda vigente
    y se lee como material de consulta, no como oferta activa. La franja gris
    y la escala reducida establecen esa jerarquía antes de leer una palabra. */

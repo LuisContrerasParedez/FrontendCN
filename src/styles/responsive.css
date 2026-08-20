@@ -410,7 +410,6 @@
      franja conserva el título de la ruta, pero deja la introducción larga para
      pantallas donde no desplaza las tarjetas fuera de vista. */
   .locales-page .page-hero__copy > p,
-  .events-page .page-hero__copy > p,
   .promotions-page .page-hero__copy > p,
   .buses-page .page-hero__copy > p { display: none; }
 
